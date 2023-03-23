@@ -1,6 +1,9 @@
 package pl.com.labaj.autorecord.test;
 
-public class MemoizedHashCodeTest {
+import org.junit.jupiter.api.Disabled;
+
+@Disabled
+class MemoizedHashCodeTest {
     /*
     @AutoRecord(withBuilder = false)
     public interface HashCodeMemoized {
