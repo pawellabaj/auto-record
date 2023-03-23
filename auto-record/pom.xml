@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>auto-record</artifactId>git
+    <artifactId>auto-record</artifactId>
 
     <dependencies>
         <dependency>
