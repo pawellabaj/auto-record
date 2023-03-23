@@ -14,29 +14,29 @@ jobs:
       runSonar: ${{ !contains(github.href, 'dependabot') }}
     runs-on: ubuntu-latest
     steps:
-      - name: 'Cancel previous runs'
+      - name: Cancel previous runs
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
-      - name: 'Check out repository'
+      - name: Check out repository
         uses: actions/checkout@v3
-      - name: 'Cache local Maven repository'
+      - name: Cache local Maven repository
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      - name: 'Set up JDK ${{ matrix.java }}'
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: 17
-      - name: 'Compile the code'
+      - name: Compile the code
         shell: bash
         run: mvn clean compile test-compile
-      - name: 'Install'
+      - name: Install
         shell: bash
         run: mvn -B dependency:go-offline test clean -U --quiet --fail-never -DskipTests=true -f build-pom.xml
-      - name: 'Test'
+      - name: Test
         shell: bash
         run: mvn -B verify -U --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true -f build-pom.xml
       - name: Build a test report
@@ -45,16 +45,16 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fail_if_no_tests: false
           fail_on_test_failures: true
-      - name: 'Check if run Sonar Analysis'
+      - name: Check if run Sonar Analysis
         run: echo "$GITHUB_REF -> $runSonar"
-      - name: 'Cache SonarCloud packages'
+      - name: Cache SonarCloud packages
         if: ${{ env.runSonar }}
         uses: actions/cache@v1
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: 'Run Sonar analysis'
+      - name: Run Sonar analysis
         if: ${{ env.runSonar }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
