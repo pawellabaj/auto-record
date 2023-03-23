@@ -16,7 +16,8 @@ on:
       - submitted
 
 jobs:
-  build:
+  build_:
+    name: Build and test
     env:
       runSonar: ${{ !contains(github.href, 'dependabot') }}
     runs-on: ubuntu-latest
@@ -25,46 +26,61 @@ jobs:
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
+
       - name: Check out repository
         uses: actions/checkout@v3
+
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v3.3.1
         with:
           path: ~/.m2/repository
           key: maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: temurin
+
       - name: Compile the code
         shell: bash
         run: mvn clean compile test-compile
-      - name: Install
+
+      - name: Install locally with Sonar
+        if: ${{ env.runSonar }}
+        shell: bash
+        run: mvn -B -Psonar dependency:go-offline install -U --fail-never -DskipTests=true
+
+      - name: Install locally
+        if: ${{ !env.runSonar }}
         shell: bash
         run: mvn -B dependency:go-offline install -U --fail-never -DskipTests=true
-      - name: Test
+
+      - name: Cache SonarCloud packages
+        if: ${{ env.runSonar }}
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Verify code with Sonar
+        if: ${{ env.runSonar }}
         shell: bash
-        run: mvn -B dependency:go-offline verify -U --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B -offline -Psonar verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -U --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true
+
+      - name: Verify code
+        if: ${{ !env.runSonar }}
+        shell: bash
+        run: mvn -B -offline verify -U --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true
+
       - name: Build a test report
         uses: ScaCap/action-surefire-report@v1.7.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fail_if_no_tests: false
           fail_on_test_failures: true
-      - name: Check if run Sonar Analysis
-        run: echo "$GITHUB_REF -> $runSonar"
-      - name: Cache SonarCloud packages
-        if: ${{ env.runSonar }}
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Run Sonar analysis
-        if: ${{ env.runSonar }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B dependency:go-offline verify -Psonar -Dmaven.test.skip=true -Dsonar.projectKey=pawellabaj_auto-record -Dsonar.verbose=false

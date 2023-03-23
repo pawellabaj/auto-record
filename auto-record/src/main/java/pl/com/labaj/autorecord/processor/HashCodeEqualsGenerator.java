@@ -78,7 +78,7 @@ class HashCodeEqualsGenerator {
             return this;
         }
 
-        @SuppressWarnings("UnusedReturnValue")
+        @SuppressWarnings({"UnusedReturnValue", "java:S1192"})
         WithNotIgnoredNames createEqualsMethod() {
             if (!memoizedHashCode && allComponentsRequired) {
                 return this;

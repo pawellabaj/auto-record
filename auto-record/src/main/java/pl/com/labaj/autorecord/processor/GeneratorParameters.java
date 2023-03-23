@@ -10,6 +10,7 @@ import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("java:S6218")
 record GeneratorParameters(ProcessingEnvironment processingEnv,
                            TypeElement sourceInterface,
                            AutoRecord.Options recordOptions,
