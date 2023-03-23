@@ -64,14 +64,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>me.fabriciorby</groupId>
-                        <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
-                        <version>${maven-surefire-junit5-tree-reporter.version}</version>
-                    </dependency>
-                </dependencies>
                 <configuration>
+                    <!--suppress MavenModelInspection -->
+                    <argLine>${argLine}</argLine>
                     <reportFormat>plain</reportFormat>
                     <consoleOutputReporter>
                         <disable>true</disable>
@@ -94,6 +89,10 @@
     <profiles>
         <profile>
             <id>sonar</id>
+
+            <properties>
+                <sonar.coverage.exclusions>src/main/java/**/*</sonar.coverage.exclusions>
+            </properties>
 
             <build>
                 <plugins>

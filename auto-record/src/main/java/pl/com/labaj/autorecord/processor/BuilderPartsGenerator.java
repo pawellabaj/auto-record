@@ -19,6 +19,7 @@ import static pl.com.labaj.autorecord.processor.GenericHelper.getGenericVariable
 
 class BuilderPartsGenerator {
 
+    private static final String ADD_CLASS_RETAINED_GENERATED = "addClassRetainedGenerated";
     private final GeneratorParameters parameters;
     private final TypeSpec.Builder recordSpecBuilder;
 
@@ -38,11 +39,9 @@ class BuilderPartsGenerator {
         var methods = RecordBuilder.Options.class.getDeclaredMethods();
         var valuesList = Arrays.stream(methods)
                 .map(this::toValues)
-                .filter(this::differentValues)
+                .map(this::forceRetainedGenerated)
+                .filter(this::hasDifferentValues)
                 .toList();
-        if (valuesList.isEmpty()) {
-            return this;
-        }
 
         var optionsAnnotationBuilder = AnnotationSpec.builder(RecordBuilder.Options.class);
         valuesList.forEach(values -> addMember(optionsAnnotationBuilder, values));
@@ -50,6 +49,13 @@ class BuilderPartsGenerator {
         recordSpecBuilder.addAnnotation(optionsAnnotationBuilder.build());
 
         return this;
+    }
+
+    private Values forceRetainedGenerated(Values values) {
+        if (ADD_CLASS_RETAINED_GENERATED.equals(values.name)) {
+            return new Values(ADD_CLASS_RETAINED_GENERATED, Boolean.TYPE, false, true);
+        }
+        return values;
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -97,7 +103,7 @@ class BuilderPartsGenerator {
         return null;
     }
 
-    private boolean differentValues(Values values) {
+    private boolean hasDifferentValues(Values values) {
         if (values.returnType.isArray()) {
             return !Arrays.equals((Object[]) values.defaultValue, (Object[]) values.actualValue);
         }

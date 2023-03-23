@@ -7,13 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class NonnullFieldTest {
-    /*
-    @AutoRecord
-    public interface NonnullField {
-        String one();
-        @Nullable String two();
-    }
-     */
 
     @TestFor(NonnullField.class)
     void shouldThrowExcpetionWhenNonullComponentIsMissing() {

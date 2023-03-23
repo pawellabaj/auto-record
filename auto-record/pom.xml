@@ -54,6 +54,10 @@
         <profile>
             <id>sonar</id>
 
+            <properties>
+                <sonar.coverage.exclusions>src/main/java/**/*</sonar.coverage.exclusions>
+            </properties>
+
             <build>
                 <plugins>
                     <plugin>

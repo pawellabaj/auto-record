@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.function.Function;
 
 @AutoRecord
-public interface GenericInterface<A, B extends Function<Integer, B> & Comparable<B>, C extends HashSet<A>> {
+public interface ComplicatedGenerics<A, B extends Function<Integer, B> & Comparable<B>, C extends HashSet<A>> {
     A one();
 
     B two();

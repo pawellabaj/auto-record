@@ -6,6 +6,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -25,6 +26,7 @@ class RecordGenerator {
     private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
             .addMember("value", "$S", AutoRecord.class.getName())
             .build();
+    private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
     private final TypeElement sourceInterface;
     private final AutoRecord.Options recordOptions;
     private final RecordBuilder.Options builderOptions;
@@ -63,6 +65,7 @@ class RecordGenerator {
 
         var recordSpecBuilder = TypeSpec.recordBuilder(recordName)
                 .addAnnotation(GENERATED_ANNOTATION)
+                .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
                 .addModifiers(recordModifiers)
                 .addSuperinterface(sourceInterface.asType());
 
@@ -76,7 +79,7 @@ class RecordGenerator {
     }
 
     private Memoization generateMemoizationParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
-        return new MemoizedElementsGenerator(parameters, recordSpecBuilder)
+        return new MemoizedPartsGenerator(parameters, recordSpecBuilder)
                 .createMemoization()
                 .createMemoizedMethods()
                 .returnMemoization();

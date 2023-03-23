@@ -10,26 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class BasicFromTemplateTest {
-    /*
-    @WithTemplate
-    public interface BasicFromTemplate {
-        String text();
-
-        int number();
-
-        List<Optional<Integer>> genericCollection();
-    }
-     */
-
     @TestFor(BasicFromTemplate.class)
     @SuppressWarnings("rawtypes")
     void shouldGenerateRecord() {
         //given
         Class<?> recordClass = assertDoesNotThrow(() -> Class.forName("pl.com.labaj.autorecord.test.generation.BasicFromTemplateRecord"));
 
-        //then
+        //when
         var recordComponents = recordClass.getRecordComponents();
 
+        //then
         assertAll(
                 () -> assertThat(recordClass.isRecord()).isTrue(),
                 () -> assertThat(recordClass).isAssignableTo(BasicFromTemplate.class),

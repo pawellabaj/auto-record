@@ -2,8 +2,7 @@ package pl.com.labaj.autorecord.test.ignored;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Ignored;
-import pl.com.labaj.autorecord.test.ClassThrowingExceptionFromEquals;
-import pl.com.labaj.autorecord.test.ClassThrowingExceptionFromHashCode;
+import pl.com.labaj.autorecord.test.Counters;
 
 @AutoRecord
 public interface IgnoredFields {
@@ -15,8 +14,5 @@ public interface IgnoredFields {
     String three();
 
     @Ignored
-    ClassThrowingExceptionFromHashCode four();
-
-    @Ignored
-    ClassThrowingExceptionFromEquals five();
+    Counters four();
 }

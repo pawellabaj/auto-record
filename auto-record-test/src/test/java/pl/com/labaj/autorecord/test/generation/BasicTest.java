@@ -10,14 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class BasicTest {
-    /*
-    @AutoRecord
-    public interface Basic {
-        String text();
-        int number();
-        List<Optional<Integer>> genericCollection();
-    }
-     */
 
     @TestFor(Basic.class)
     @SuppressWarnings("rawtypes")
@@ -25,9 +17,10 @@ class BasicTest {
         //given
         Class<?> recordClass = assertDoesNotThrow(() -> Class.forName("pl.com.labaj.autorecord.test.generation.BasicRecord"));
 
-        //then
+        //when
         var recordComponents = recordClass.getRecordComponents();
 
+        //then
         assertAll(
                 () -> assertThat(recordClass.isRecord()).isTrue(),
                 () -> assertThat(recordClass).isAssignableTo(Basic.class),

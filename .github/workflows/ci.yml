@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: mvn clean compile test-compile
 
-      - name: Install locally with Sonar
+      - name: Install locally including Sonar dependencies
         if: ${{ env.runSonar }}
         shell: bash
         run: mvn -B -Psonar dependency:go-offline install -U --fail-never -DskipTests=true
@@ -65,7 +65,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Verify code with Sonar
+      - name: Verify code including Sonar analysis
         if: ${{ env.runSonar }}
         shell: bash
         env:

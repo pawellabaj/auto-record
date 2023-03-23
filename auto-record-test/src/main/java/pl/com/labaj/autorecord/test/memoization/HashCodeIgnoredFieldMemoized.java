@@ -2,7 +2,7 @@ package pl.com.labaj.autorecord.test.memoization;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Ignored;
-import pl.com.labaj.autorecord.test.ClassThrowingExceptionFromHashCode;
+import pl.com.labaj.autorecord.test.Counters;
 
 @AutoRecord.Options(memoizedHashCode = true)
 @AutoRecord()
@@ -15,5 +15,5 @@ public interface HashCodeIgnoredFieldMemoized {
     String ignored();
 
     @Ignored
-    ClassThrowingExceptionFromHashCode anotherIgnored();
+    Counters anotherIgnored();
 }

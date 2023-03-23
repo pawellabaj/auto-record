@@ -6,19 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class WithBuilderOptionsTest {
-    /*
-    @AutoRecord
-    @AutoRecord.Options(withBuilder = true)
-    @RecordBuilder.Options(suffix = "_Builder",
-            builderMethodName = "create",
-            buildMethodName = "buildRecord",
-            enableWither = false,
-            builderClassModifiers = {FINAL})
-    public interface WithBuilderOptions {
-        String one();
-        int two();
-    }
-     */
 
     @TestFor(WithBuilderOptions.class)
     void shouldGenerateBuilder() {

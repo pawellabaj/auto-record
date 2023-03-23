@@ -29,16 +29,16 @@ import static pl.com.labaj.autorecord.processor.SpecialMethod.HASH_CODE;
 import static pl.com.labaj.autorecord.processor.SpecialMethod.TO_STRING;
 import static pl.com.labaj.autorecord.processor.SpecialMethod.specialMethods;
 
-class MemoizedElementsGenerator {
+class MemoizedPartsGenerator {
     private final GeneratorParameters parameters;
     private final TypeSpec.Builder recordSpecBuilder;
 
-    public MemoizedElementsGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
+    public MemoizedPartsGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
         this.parameters = parameters;
         this.recordSpecBuilder = recordSpecBuilder;
     }
 
-    MemoizedElementsGenerator.WithMemoization createMemoization() {
+    MemoizedPartsGenerator.WithMemoization createMemoization() {
         var memoizedSpecialMethods = new EnumMap<SpecialMethod, Boolean>(SpecialMethod.class);
 
         var items = new ArrayList<Memoization.Item>();

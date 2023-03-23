@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Java record source generator</name>
     <groupId>pl.com.labaj</groupId>
     <artifactId>auto-record-parent-pom</artifactId>
     <version>0.1.0-SNAPSHOT</version>
@@ -27,6 +28,7 @@
         <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
+        <maven-surefire-junit5-tree-reporter.version>1.1.0</maven-surefire-junit5-tree-reporter.version>
 
         <fabric-javapoet.version>0.1.0</fabric-javapoet.version>
         <record-builder.version>35</record-builder.version>
@@ -34,7 +36,6 @@
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <assertj.version>3.24.2</assertj.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
-        <maven-surefire-junit5-tree-reporter.version>1.1.0</maven-surefire-junit5-tree-reporter.version>
     </properties>
 
     <dependencyManagement>
@@ -71,6 +72,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>me.fabriciorby</groupId>
+                <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                <version>${maven-surefire-junit5-tree-reporter.version}</version>
             </dependency>
 
             <dependency>
@@ -124,6 +131,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>me.fabriciorby</groupId>
+                            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
+                            <version>${maven-surefire-junit5-tree-reporter.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -152,9 +166,9 @@
                 <sonar.projectKey>pawellabaj_auto-record</sonar.projectKey>
                 <sonar.componentKey>pawellabaj_auto-record:${project.artifactId}</sonar.componentKey>
                 <sonar.moduleKey>auto-record:${project.artifactId}</sonar.moduleKey>
+                <!--suppress UnresolvedMavenProperty -->
                 <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/auto-record-test/target/site/jacoco-aggregate/jacoco.xml
                 </sonar.coverage.jacoco.xmlReportPaths>
-                <sonar.coverage.exclusions>**/pom.xml</sonar.coverage.exclusions>
             </properties>
 
             <build>
@@ -163,6 +177,7 @@
                         <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
                         <configuration>
+                            <!--suppress MavenModelInspection -->
                             <skip>${skipTests}</skip>
                         </configuration>
                         <executions>

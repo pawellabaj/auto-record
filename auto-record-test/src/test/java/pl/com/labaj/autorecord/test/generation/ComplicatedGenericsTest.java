@@ -10,28 +10,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-class GenericInterfaceTest {
-    /*
-    @AutoRecord
-    public interface GenericInterface<A, B extends Function<Integer, B> & Comparable<B>, C extends HashSet<A>> {
-        A one();
-        B two();
-        C three();
-    }
-     */
-
-    @TestFor(GenericInterface.class)
+class ComplicatedGenericsTest {
+    @TestFor(ComplicatedGenerics.class)
     @SuppressWarnings("rawtypes")
     void shouldGenerateRecord() {
         //given
-        Class<?> recordClass = assertDoesNotThrow(() -> Class.forName("pl.com.labaj.autorecord.test.generation.GenericInterfaceRecord"));
+        Class<?> recordClass = assertDoesNotThrow(() -> Class.forName("pl.com.labaj.autorecord.test.generation.ComplicatedGenericsRecord"));
 
-        //then
+        //when
         var recordComponents = recordClass.getRecordComponents();
 
+        //then
         assertAll(
                 () -> assertThat(recordClass.isRecord()).isTrue(),
-                () -> assertThat(recordClass).isAssignableTo(GenericInterface.class),
+                () -> assertThat(recordClass).isAssignableTo(ComplicatedGenerics.class),
                 () -> assertThat(recordComponents)
                         .extracting(RecordComponent::getName).containsExactly("one", "two", "three"),
                 () -> assertThat(recordComponents)
