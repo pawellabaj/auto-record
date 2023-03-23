@@ -1,0 +1,19 @@
+branchName: '${issue.number}-${issue.title[0,64],}'
+gitSafeReplacementChar: '-'
+autoCloseIssue: true
+
+branches:
+  - label: enhancement
+    prefix: feature/
+  - label: bug
+    prefix: fix/
+  - label: question
+    skip: true
+  - label: '*'
+    prefix: issue/
+
+copyIssueLabelsToPR: true
+copyIssueAssigneeToPR: true
+copyIssueProjectsToPR: true
+copyIssueMilestoneToPR: true
+conventionalPrTitles: true
