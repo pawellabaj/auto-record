@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-      - "*"
+    branches-ignore:
+      - main
   pull_request:
     branches:
       - main
@@ -30,6 +30,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
+          distribution: temurin
       - name: Compile the code
         shell: bash
         run: mvn clean compile test-compile
