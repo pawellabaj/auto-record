@@ -18,8 +18,6 @@ on:
 jobs:
   build_:
     name: Build and test
-    env:
-      runSonar: ${{ !contains(github.href, 'dependabot') }}
     runs-on: ubuntu-latest
     steps:
       - name: Cancel previous runs
@@ -47,31 +45,10 @@ jobs:
         shell: bash
         run: mvn clean compile test-compile
 
-      - name: Install locally including Sonar dependencies
-        if: ${{ env.runSonar }}
-        shell: bash
-        run: mvn -B -Psonar install -U --fail-never -DskipTests=true
-
       - name: Install locally
         if: ${{ !env.runSonar }}
         shell: bash
         run: mvn -B install -U --fail-never -DskipTests=true
-
-      - name: Cache SonarCloud packages
-        if: ${{ env.runSonar }}
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Verify code including Sonar analysis
-        if: ${{ env.runSonar }}
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -Psonar verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -U --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true
 
       - name: Verify code
         if: ${{ !env.runSonar }}

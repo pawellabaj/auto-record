@@ -30,6 +30,14 @@
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <maven-surefire-junit5-tree-reporter.version>1.1.0</maven-surefire-junit5-tree-reporter.version>
 
+<!--        <sonar.host.url>https://sonarcloud.io</sonar.host.url>-->
+<!--        <sonar.organization>pawellabaj</sonar.organization>-->
+        <sonar.projectKey>pawellabaj:auto-record</sonar.projectKey>
+<!--        <sonar.componentKey>pawellabaj_auto-record:${project.artifactId}</sonar.componentKey>-->
+<!--        <sonar.moduleKey>auto-record:${project.artifactId}</sonar.moduleKey>-->
+        <!--suppress UnresolvedMavenProperty -->
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/auto-record-test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
         <fabric-javapoet.version>0.1.0</fabric-javapoet.version>
         <record-builder.version>35</record-builder.version>
         <jsr305.version>3.0.0</jsr305.version>
@@ -152,47 +160,6 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <profiles>
-        <profile>
-            <id>sonar</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-                <sonar.organization>pawellabaj</sonar.organization>
-                <sonar.projectKey>pawellabaj_auto-record</sonar.projectKey>
-                <sonar.componentKey>pawellabaj_auto-record:${project.artifactId}</sonar.componentKey>
-                <sonar.moduleKey>auto-record:${project.artifactId}</sonar.moduleKey>
-                <!--suppress UnresolvedMavenProperty -->
-                <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/auto-record-test/target/site/jacoco-aggregate/jacoco.xml
-                </sonar.coverage.jacoco.xmlReportPaths>
-            </properties>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sonarsource.scanner.maven</groupId>
-                        <artifactId>sonar-maven-plugin</artifactId>
-                        <configuration>
-                            <!--suppress MavenModelInspection -->
-                            <skip>${skipTests}</skip>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sonar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <repositories>
         <repository>
