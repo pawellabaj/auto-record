@@ -14,8 +14,6 @@ branches:
     prefix: fix/
   - label: question
     skip: true
-  - label: '*'
-    prefix: issue/
 
 copyIssueLabelsToPR: true
 copyIssueAssigneeToPR: true
