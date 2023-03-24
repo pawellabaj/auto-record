@@ -2,19 +2,24 @@ changelog:
   exclude:
     labels:
       - ignore-for-release
+      - questiin
   categories:
-    - title: Breaking Changes 🛠
+    - title: Breaking Changes ':boom:'
       labels:
         - breaking-change
-    - title: New features 🎉
+    - title: New features ':sparkles:'
       labels:
         - enhancement
-    - title: Bug fixes 🛠
+    - title: Documentation update ':memo:'
+      labels:
+        - doc
+        - documentation
+    - title: Bug fixes ':bug:'
       labels:
         - bug
-    - title: Dependencies 👒
+    - title: Dependencies ':arrow_up:'
       labels:
         - dependencies
-    - title: Housekeeping 🧹
+    - title: Housekeeping ':wrench:'
       labels:
         - "*"

@@ -2,7 +2,7 @@ branchName: 'issue-${issue.number}-${issue.title[0,64],}'
 gitSafeReplacementChar: '-'
 autoCloseIssue: true
 
-openDraftPR: true
+openDraftPR: false
 prSkipCI: true
 
 conventionalPrTitles: true
@@ -14,6 +14,10 @@ branches:
     prefix: fix/
   - label: question
     skip: true
+
+conventionalLabels:
+  feature:
+    build: ':construction_worker:'
 
 copyIssueLabelsToPR: true
 copyIssueAssigneeToPR: true
