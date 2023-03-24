@@ -1,6 +1,11 @@
-branchName: '${issue.number}-${issue.title[0,64],}'
+branchName: 'issue-${issue.number}-${issue.title[0,64],}'
 gitSafeReplacementChar: '-'
 autoCloseIssue: true
+
+openDraftPR: true
+prSkipCI: true
+
+conventionalPrTitles: true
 
 branches:
   - label: enhancement
@@ -16,4 +21,3 @@ copyIssueLabelsToPR: true
 copyIssueAssigneeToPR: true
 copyIssueProjectsToPR: true
 copyIssueMilestoneToPR: true
-conventionalPrTitles: true
