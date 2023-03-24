@@ -11,9 +11,6 @@ on:
   push:
     branches:
       - '**'
-  pull_request_review:
-    types:
-      - submitted
 
 jobs:
   build-and-verify:
