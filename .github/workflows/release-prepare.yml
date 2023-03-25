@@ -16,6 +16,8 @@ concurrency:
 jobs:
   get-next-version:
     uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4 --branches master
+    with:
+      branches: master
 
   release-prepare:
     name: Prepare Release
