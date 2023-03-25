@@ -32,3 +32,24 @@ jobs:
         run: |
           echo "::notice Next version: $NEXT_VERSION"
 
+      - name: Cache local Maven repository
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Maven release:prepare
+        shell: bash
+        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests" release:prepare -Drelease.version=$NEXT_VERSION -DdryRun
+
+
+
+
+

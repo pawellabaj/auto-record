@@ -40,7 +40,7 @@ jobs:
 
       - name: Compile the code
         shell: bash
-        run: mvn clean compile test-compile
+        run: mvn -B clean compile test-compile
 
       - name: Install locally
         shell: bash
