@@ -4,22 +4,22 @@ changelog:
       - ignore-for-release
       - questiin
   categories:
-    - title: Breaking Changes ':boom:'
+    - title: "Breaking Changes :boom:"
       labels:
         - breaking-change
-    - title: New features ':sparkles:'
+    - title: "New features :sparkles:"
       labels:
         - enhancement
-    - title: Documentation update ':memo:'
+    - title: "Documentation update :memo:"
       labels:
         - doc
         - documentation
-    - title: Bug fixes ':bug:'
+    - title: "Bug fixes :bug:"
       labels:
         - bug
-    - title: Dependencies ':arrow_up:'
+    - title: "Dependencies :arrow_up:"
       labels:
         - dependencies
-    - title: Housekeeping ':wrench:'
+    - title: "Housekeeping :wrench:"
       labels:
         - "*"
