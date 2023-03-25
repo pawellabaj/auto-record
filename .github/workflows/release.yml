@@ -21,5 +21,5 @@ jobs:
     steps:
       - name: Next version
         shell: bash
-        echo: "Next version: ${{ needs.get-next-version.outputs.new-release-version }}"
+        run: echo "Next version: ${{ needs.get-next-version.outputs.new-release-version }}"
 
