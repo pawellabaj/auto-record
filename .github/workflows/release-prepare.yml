@@ -18,8 +18,11 @@ jobs:
     name: Prepare Release
     needs: next
     runs-on: ubuntu-latest
+    env:
+      NEXT_VERSION: ${{ needs.get-next-version.outputs.new-release-version }}
     steps:
       - name: Next version
         shell: bash
-        run: echo ::notice Next version: ${{ needs.get-next-version.outputs.new-release-version }}
+        run: |
+          echo "::notice Next version: $NEXT_VERSION"
 
