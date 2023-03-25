@@ -25,7 +25,6 @@ jobs:
 
   release-prepare:
     name: Prepare Release
-    needs: get-next-version
     runs-on: ubuntu-latest
     steps:
       - name: Get next version
