@@ -18,10 +18,12 @@ jobs:
     name: Prepare Release
     runs-on: ubuntu-latest
     steps:
+      - name: Set up configuration
+        shell: bash
+        run: |
+          echo '{"branches": ["main"]}' > .releaserc
       - name: Get next version
         uses: semantic-release-action/next-release-version/internal@v4
-        with: |
-            { "branches" : "main" }
       - name: Next version
         if: steps.get-next-version.outputs.new-release-published == 'true'
         env:
