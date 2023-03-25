@@ -30,7 +30,7 @@ jobs:
       - name: Next version
         shell: bash
         run: |
-          echo "::notice Next version: $NEXT_VERSION"
+          echo Next version is: $NEXT_VERSION
 
       - name: Check out repository
         uses: actions/checkout@v3
@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn -B -Darguments="-Dmaven.test.skip -DskipTests" release:prepare -DreleaseVersion=$NEXT_VERSION -DautoVersionSubmodules=true -DdryRun 
-          cat release.proprties
+          cat release.properties
 
 
 
