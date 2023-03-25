@@ -1,0 +1,24 @@
+name: prepare Release draft
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  get-next-version:
+    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+
+  release-prepare:
+    name: Prepare Release
+    needs: next
+    runs-on: ubuntu-latest
+    steps:
+      - name: Next version
+        shell: bash
+        echo: "Next version: ${{ needs.get-next-version.outputs.new-release-version }}"
+
