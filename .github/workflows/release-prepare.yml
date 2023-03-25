@@ -16,7 +16,7 @@ jobs:
 
   release-prepare:
     name: Prepare Release
-    needs: next
+    needs: get-next-version
     runs-on: ubuntu-latest
     env:
       NEXT_VERSION: ${{ needs.get-next-version.outputs.new-release-version }}
