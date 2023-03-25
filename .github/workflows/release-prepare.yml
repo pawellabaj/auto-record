@@ -31,8 +31,8 @@ jobs:
       - name: Get next version
         uses: semantic-release-action/next-release-version/internal@v4
         with:
-          branches:
-            - main
+          branches: |
+            [ main ]
       - name: Next version
         if: steps.get-next-version.outputs.new-release-published == 'true'
         env:
