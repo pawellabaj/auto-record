@@ -48,8 +48,19 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Install locally
+        shell: bash
+        run: mvn -B install -U --fail-never -DskipTests=true
+
+      - name: Configure Git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+
       - name: Maven release:prepare
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests" release:prepare -Drelease.version=$NEXT_VERSION
 
 
