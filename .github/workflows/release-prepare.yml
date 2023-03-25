@@ -61,9 +61,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mvn -B -Darguments="-Dmaven.test.skip -DskipTests" release:prepare -DreleaseVersion=$NEXT_VERSION -DautoVersionSubmodules=true -DdryRun 
-          cat release.properties
+        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dmaven.deploy.skip=true" release:prepare release:perform -DreleaseVersion=$NEXT_VERSION
 
 
 
