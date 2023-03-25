@@ -61,7 +61,14 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dmaven.deploy.skip=true" release:prepare release:perform -DreleaseVersion=$NEXT_VERSION
+        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dmaven.deploy.skip=true" release:prepare -DreleaseVersion=$NEXT_VERSION
+
+      - name: Create Github draft release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: ${{ env.NEXT_VERSION }}
 
 
 
