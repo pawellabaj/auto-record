@@ -32,6 +32,9 @@ jobs:
         run: |
           echo "::notice Next version: $NEXT_VERSION"
 
+      - name: Check out repository
+        uses: actions/checkout@v3
+
       - name: Cache local Maven repository
         uses: actions/cache@v3.3.1
         with:
@@ -47,7 +50,7 @@ jobs:
 
       - name: Maven release:prepare
         shell: bash
-        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests" release:prepare -Drelease.version=$NEXT_VERSION -DdryRun
+        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests" release:prepare -Drelease.version=$NEXT_VERSION
 
 
 
