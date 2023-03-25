@@ -14,20 +14,29 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-  get-next-version:
-    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
-    with:
-      branches: |
-        ['main']
+#  get-next-version:
+#    uses: semantic-release-action/next-release-version/internal@v4
+#    with:
+#      branches: |
+#        ['main']
+#    outputs:
+#      new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
+#      new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
 
   release-prepare:
     name: Prepare Release
     needs: get-next-version
     runs-on: ubuntu-latest
-    env:
-      NEXT_VERSION: ${{ needs.get-next-version.outputs.new-release-version }}
     steps:
+      - name: Get next version
+        uses: semantic-release-action/next-release-version/internal@v4
+        with:
+          branches:
+            - main
       - name: Next version
+        if: steps.get-next-version.outputs.new-release-published == 'true'
+        env:
+          NEXT_VERSION: ${{ steps.get-next-version.outputs.new-release-version }}
         shell: bash
         run: |
           echo "::notice Next version: $NEXT_VERSION"
