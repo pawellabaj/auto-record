@@ -14,15 +14,6 @@ concurrency:
   group: ${{ github.workflow }}
 
 jobs:
-#  get-next-version:
-#    uses: semantic-release-action/next-release-version/internal@v4
-#    with:
-#      branches: |
-#        ['main']
-#    outputs:
-#      new-release-published: ${{ steps.get-next-version.outputs.new-release-published }}
-#      new-release-version: ${{ steps.get-next-version.outputs.new-release-version }}
-
   release-prepare:
     name: Prepare Release
     runs-on: ubuntu-latest
@@ -31,7 +22,7 @@ jobs:
         uses: semantic-release-action/next-release-version/internal@v4
         with:
           branches: |
-            [ main ]
+            [ 'main' ]
       - name: Next version
         if: steps.get-next-version.outputs.new-release-published == 'true'
         env:
