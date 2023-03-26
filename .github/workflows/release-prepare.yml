@@ -5,15 +5,19 @@ permissions:
 
 on:
   workflow_dispatch:
-  push:
+  workflow_run:
+    workflows:
+      - Build and verify
+    types:
+      - completed
     branches:
       - main
-      - '*'
 
 concurrency:
   group: ${{ github.workflow }}
 
 jobs:
+  if: ${{ github.event.workflow_run.conclusion == 'success' }}
   get-next-version:
     name: Get Next version
     uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
