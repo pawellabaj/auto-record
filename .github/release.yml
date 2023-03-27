@@ -10,6 +10,7 @@ changelog:
     - title: "New features :sparkles:"
       labels:
         - enhancement
+        - feat
     - title: "Documentation update :memo:"
       labels:
         - doc
