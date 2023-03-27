@@ -24,5 +24,23 @@ _Details:_
 ## Record Builder
 ## Memoization
 ## Ignored Fields
+
 ## Usage
+
+### Maven
+
+Add a dependency that contains the discoverable annotation processor:
+
+```xml
+<dependency>
+    <groupId>pl.com.labaj</groupId>
+    <artifactId>auto-record</artifactId>
+    <version>${auto-record.version}</version>
+</dependency>
+```
+
+### IDE
+
+Depending on your IDE you are likely to need to enable Annotation Processing in your IDE settings.
+
 ## Customization
