@@ -53,7 +53,7 @@ jobs:
 
       - name: Install locally
         shell: bash
-        run: mvn -B install -U --fail-never -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+        run: mvn -B -U install -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
 
       - name: Configure Git user
         run: |

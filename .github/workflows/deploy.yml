@@ -41,17 +41,9 @@ jobs:
         shell: bash
         run: cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
 
-      - name: Build packages
-        shell: bash
-        run: mvn -B package javadoc:javadoc -U --fail-never -DskipTests=true
-
-      - name: Install locally
-        shell: bash
-        run: mvn -B install -U --fail-never -DskipTests=true
-
       - name: Publish package
         shell: bash
-        run: mvn -B deploy
+        run: mvn -B -U deploy org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged -DskipTests=true
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
