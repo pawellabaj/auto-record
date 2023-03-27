@@ -2,22 +2,29 @@ branchName: 'issue-${issue.number}-${issue.title[0,64],}'
 gitSafeReplacementChar: '-'
 autoCloseIssue: true
 
-openDraftPR: false
+branches:
+  - label: enhancement
+    prefix: feature/
+  - label:
+      - documentation
+      - doc
+    prefix: doc/
+  - label: bug
+    prefix: fix/
+  - label: build
+    prefix: build/
+  - label: question
+    skip: true
+
+openDraftPR: true
 prSkipCI: true
 
 conventionalPrTitles: true
 
-branches:
-  - label: enhancement
-    prefix: feature/
-  - label: bug
-    prefix: fix/
-  - label: question
-    skip: true
-
 conventionalLabels:
   feature:
     build: ':construction_worker:'
+    dependencies: ':arrow_up:'
 
 copyIssueLabelsToPR: true
 copyIssueAssigneeToPR: true

@@ -6,14 +6,14 @@ permissions:
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: [Build and verify]
+    workflows: [Verify]
     types:
       - completed
     branches:
       - main
 
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.workflow }}-release-prepare
 
 jobs:
   get-next-version:
@@ -53,7 +53,7 @@ jobs:
 
       - name: Install locally
         shell: bash
-        run: mvn -B install -U --fail-never -DskipTests=true
+        run: mvn -B -U install -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
 
       - name: Configure Git user
         run: |
@@ -64,7 +64,7 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dmaven.deploy.skip=true" release:prepare -DreleaseVersion=$NEXT_VERSION
+        run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dsource.skip=true -Dmaven.javadoc.skip=true -Dmaven.deploy.skip=true -Dgpg.skip=true" release:prepare -DreleaseVersion=$NEXT_VERSION
 
       - name: Create Github draft release
         uses: release-drafter/release-drafter@v5
