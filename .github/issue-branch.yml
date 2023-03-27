@@ -2,7 +2,7 @@ branchName: 'issue-${issue.number}-${issue.title[0,64],}'
 gitSafeReplacementChar: '-'
 autoCloseIssue: true
 
-openDraftPR: false
+openDraftPR: true
 prSkipCI: true
 
 conventionalPrTitles: true
