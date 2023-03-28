@@ -16,7 +16,7 @@ branches:
     skip: true
 
 conventionalLabels:
-  feature:
+  chore:
     build: ':construction_worker:'
 
 copyIssueLabelsToPR: true

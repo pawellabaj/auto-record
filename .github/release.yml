@@ -11,6 +11,7 @@ changelog:
       labels:
         - enhancement
         - feat
+        - feature
     - title: "Documentation update :memo:"
       labels:
         - doc
@@ -18,6 +19,7 @@ changelog:
     - title: "Bug fixes :bug:"
       labels:
         - bug
+        - fix
     - title: "Dependencies :arrow_up:"
       labels:
         - dependencies

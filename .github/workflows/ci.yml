@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - '*'
+
 concurrency:
   group: ${{ github.workflow }}
 
@@ -46,7 +47,7 @@ jobs:
 
       - name: Install locally
         shell: bash
-        run: mvn -B install -U --fail-never -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+        run: mvn -B -U install -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v3.3.1
@@ -60,7 +61,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -U --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+        run: mvn -B -U verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar --fail-at-end -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
 
       - name: Sonar Quality Gate check
         uses: sonarsource/sonarqube-quality-gate-action@master

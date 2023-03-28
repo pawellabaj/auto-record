@@ -33,7 +33,7 @@
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <maven-surefire-junit5-tree-reporter.version>1.1.0</maven-surefire-junit5-tree-reporter.version>
         <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
-        <nexus-staging-maven-plugin.version>1.6.7</nexus-staging-maven-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
 
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -233,8 +233,11 @@
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <stagingDescription>Staging for pl.com.labaj:auto:record:${project.version}</stagingDescription>
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <skipRemoteStaging>true</skipRemoteStaging>
+                    <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
             </plugin>
@@ -262,6 +265,11 @@
         </license>
     </licenses>
 
+    <organization>
+        <name>Auto Record</name>
+        <url>https://github.com/pawellabaj/auto-record</url>
+    </organization>
+
     <developers>
         <developer>
             <id>pawellabaj</id>
@@ -269,6 +277,9 @@
             <email>pawel@labaj.com.pl</email>
             <url>https://github.com/pawellabaj</url>
             <timezone>Europe/Warsaw</timezone>
+            <roles>
+                <role>Author</role>
+            </roles>
         </developer>
     </developers>
 
