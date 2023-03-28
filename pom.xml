@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>Auto Record</name>
@@ -265,6 +266,11 @@
         </license>
     </licenses>
 
+    <organization>
+        <name>Auto Record</name>
+        <url>https://github.com/pawellabaj/auto-record</url>
+    </organization>
+
     <developers>
         <developer>
             <id>pawellabaj</id>
@@ -272,6 +278,9 @@
             <email>pawel@labaj.com.pl</email>
             <url>https://github.com/pawellabaj</url>
             <timezone>Europe/Warsaw</timezone>
+            <roles>
+                <role>Author</role>
+            </roles>
         </developer>
     </developers>
 
