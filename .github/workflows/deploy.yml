@@ -15,14 +15,19 @@ jobs:
   deploy:
     name: Prepare Release
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.ref }}
     steps:
+      - name: Release version
+        shell: bash
+        run: |
+          echo Release version is: $RELEASE_VERSION
+
       - name: Check out repository
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
 
       - name: Cache local Maven repository
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: maven-${{ hashFiles('**/pom.xml') }}
@@ -42,28 +47,30 @@ jobs:
         shell: bash
         run: cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
 
+      - name: Create release branch
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git checkout -b release-${{ env.RELEASE_VERSION }} origin/main
+          git push --set-upstream origin release-${{ genv.RELEASE_VERSION }}
 
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          mvn release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -B -P release
+          mvn release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -B -P release
 
-#      - name: Install locally
-#          shell: bash
-#          run: mvn -B -U install -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
-#
-#            - name: Configure Git user
-#              run: |
-#                git config user.email "actions@github.com"
-#                git config user.name "GitHub Actions"
-#
-#            - name: Maven release:prepare
-#              shell: bash
-#              env:
-#                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#              run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dsource.skip=true -Dmaven.javadoc.skip=true -Dmaven.deploy.skip=true -Dgpg.skip=true" release:prepare -DreleaseVersion=$NEXT_VERSION
-#
-#
-#
-#      - name: Publish package
-#        shell: bash
-#        run: mvn -B -U deploy org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged -DskipTests=true
-#        env:
-#          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-#          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: release-${{ env.RELEASE_VERSION }}
+          title: "Release version ${{ env.RELEASE_VERSION }}"
+          body: "This pull request contains the changes required for the ${{ env.RELEASE_VERSION }} release."
+          assignees: pawellabaj
+          reviewers: pawellabaj
+          delete-branch: true
