@@ -1,0 +1,5 @@
+branches: [main]
+
+tagFormat: v${version}
+
+debug: true

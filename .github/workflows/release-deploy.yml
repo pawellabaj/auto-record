@@ -1,0 +1,101 @@
+name: Release and deploy
+
+permissions:
+  contents: write
+
+on: workflow_dispatch
+
+concurrency:
+  group: release-deploy-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  next-version:
+    name: Get Next version
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+
+  call-release-internal:
+    name: Release
+    if: needs.next-version.outputs.new-release-published == 'true'
+    needs:
+      - next-version
+    uses: ./.github/workflows/release-internal.yml
+    with:
+      release-version: ${{ needs.next-version.outputs.new-release-version }}
+
+#    steps:
+#
+#      - name: Prompt for Release Version
+#        id: prompt
+#        run: |
+#          echo "::set-output name=version::$(echo ${{ needs.next-version.outputs.new-release-version }} | awk '{print $1}')"
+#
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Create Release Branch
+#        if: ${{ steps.prompt.outputs.version }}
+#        env:
+#          RELEASE_VERSION: ${{ steps.prompt.outputs.version }}
+#        run: |
+#          |
+#          git config user.name "${GITHUB_ACTOR}"
+#          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+#          git checkout -b release/v${{ env.RELEASE_VERSION }} origin/main
+#          git push --set-upstream origin release/v${{ env.RELEASE_VERSION }}
+
+#      - name: Cache Maven Repository
+#        uses: actions/cache@v2
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: ${{ runner.os }}-maven-
+#
+#      - name: Setup JDK
+#        uses: actions/setup-java@v2
+#        with:
+#          java-version: 17
+#          distribution: temurin
+#
+#      - name: Check Workflow Status
+#        uses: gha-checks-utils/check-workflow-status@v2
+#        with:
+#          workflow-filepath: .github/workflows/verify.yml
+#
+#
+#
+#
+#      - name: Install GPG Secret Key
+#        if: ${{ steps.prompt.outputs.version }}
+#        run: |
+#          mkdir -p ~/.gnupg
+#          echo "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --import
+#          echo "${{ secrets.GPG_OWNERTRUST }}" | base64 --decode | gpg --import-ownertrust
+#
+#      - name: Prepare and Perform Maven Release
+#        if: ${{ steps.prompt.outputs.version }}
+#        run: |
+#          mvn clean release:prepare release:perform \
+#            -Darguments="-DskipTests -Dmaven.javadoc.skip=true" \
+#            -Dgpg.passphrase="${{ secrets.GPG_PASSPHRASE }}" \
+#            -Dgpg.keyname="${{ secrets.GPG_KEYNAME }}" \
+#            -Dgpg.executable=gpg \
+#            -Dgpg.useagent=false \
+#            -Dmaven.deploy.skip=true \
+#            -Dmaven.site.skip=true
+#
+#      - name: Merge Release Branch to Main
+#        if: ${{ steps.prompt.outputs.version }}
+#        run: |
+#          git checkout main
+#          git merge --no-ff release/v${{ steps.prompt.outputs.version }} -m "Merge release branch v${{ steps.prompt.outputs.version }} into main"
+#          echo "Release branch v${{ steps.prompt.outputs.version }} merged to main"
+#
+#      - name: Delete Release Branch
+#        if: ${{ steps.prompt.outputs.version }}
+#        run: |
+#          git branch -D release/v${{ steps.prompt.outputs.version }}
+#          echo "Release branch v${{ steps.prompt.outputs.version }} deleted"
+#
+#      - name
