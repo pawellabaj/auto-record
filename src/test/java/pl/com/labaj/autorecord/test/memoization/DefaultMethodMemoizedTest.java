@@ -1,12 +1,12 @@
 package pl.com.labaj.autorecord.test.memoization;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import pl.com.labaj.autorecord.test.Counters;
 import pl.com.labaj.autorecord.test.TestFor;
 
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class DefaultMethodMemoizedTest {
@@ -22,7 +22,7 @@ class DefaultMethodMemoizedTest {
         var assertions = IntStream.range(0, 5)
                 .peek(i -> record.aMethod())
                 .map(i -> one.toStringCount())
-                .mapToObj(count -> (Executable) () -> assertThat(count).isEqualTo(1));
+                .mapToObj(count -> (Executable) () -> Assertions.assertThat(count).isEqualTo(1));
 
         //then
         assertAll(assertions);

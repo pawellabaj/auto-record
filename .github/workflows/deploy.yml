@@ -8,7 +8,8 @@ on:
     types: [published]
 
 concurrency:
-  group: ${{ github.workflow }}-deploy
+  group: deploy-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -41,9 +42,28 @@ jobs:
         shell: bash
         run: cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
 
-      - name: Publish package
-        shell: bash
-        run: mvn -B -U deploy org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged -DskipTests=true
-        env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+
+#      - name: Install locally
+#          shell: bash
+#          run: mvn -B -U install -DskipTests=true -Dsource.skip=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+#
+#            - name: Configure Git user
+#              run: |
+#                git config user.email "actions@github.com"
+#                git config user.name "GitHub Actions"
+#
+#            - name: Maven release:prepare
+#              shell: bash
+#              env:
+#                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#              run: mvn -B -Darguments="-Dmaven.test.skip -DskipTests -Dsource.skip=true -Dmaven.javadoc.skip=true -Dmaven.deploy.skip=true -Dgpg.skip=true" release:prepare -DreleaseVersion=$NEXT_VERSION
+#
+#
+#
+#      - name: Publish package
+#        shell: bash
+#        run: mvn -B -U deploy org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged -DskipTests=true
+#        env:
+#          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+#          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
