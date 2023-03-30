@@ -24,13 +24,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Cache Maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
@@ -43,13 +36,14 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
+          cache: maven
 
       - name: Verify
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -U verify -P verify
+        run: mvn -B -U -ntp verify -P verify
 
       - name: Build Surefire report
         uses: ScaCap/action-surefire-report@v1

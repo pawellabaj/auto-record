@@ -15,7 +15,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
 
-  call-release-internal:
+  release:
     name: Release
     runs-on: ubuntu-latest
     if: needs.next-version.outputs.new-release-published == 'true'
@@ -27,47 +27,44 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Cache Maven Repository
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-          distribution: temurin
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-
-      - name: Install GPG Secret Key
-        id: install-secret-key
-        shell: bash
-        run: cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
+        uses: actions/checkout@v3
 
       - name: Create release branch
         shell: bash
         run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git checkout -b release-${{ env.RELEASE_VERSION }} origin/main
-          git push --set-upstream origin release-${{ genv.RELEASE_VERSION }}
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git checkout -b release/v${{ env.RELEASE_VERSION }} origin/main
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Install GPG Secret Key
+        id: install-secret-key
+        run: |
+          cat /home/runner/.m2/settings.xml
+          cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
 
       - name: Release prepare and perform
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -B -P release
-          mvn release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -B -P release
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
+          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
 
       - name: Merge release branch
         run: |
