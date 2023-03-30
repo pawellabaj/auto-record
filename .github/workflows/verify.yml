@@ -28,8 +28,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
-          key: maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: maven-
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
