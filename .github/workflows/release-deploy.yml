@@ -32,8 +32,8 @@ jobs:
       - name: Create release branch
         shell: bash
         run: |
-          git config user.name pawellabaj
-          git config user.email pawel@labaj.com.pl
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
           git checkout -b release/v${{ env.RELEASE_VERSION }} origin/main
 
       - name: Setup JDK
@@ -62,8 +62,8 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
-          mvn -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -X
+          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -X
 
       - name: Merge release branch
         run: |
