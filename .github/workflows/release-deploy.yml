@@ -32,8 +32,8 @@ jobs:
       - name: Create release branch
         shell: bash
         run: |
-          git config user.name ${{ github.actor }}
-          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git config user.name pawellabaj
+          git config user.email pawel@labaj.com.pl
           git checkout -b release/v${{ env.RELEASE_VERSION }} origin/main
 
       - name: Setup JDK
