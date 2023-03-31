@@ -63,8 +63,8 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
-          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
+          mvn -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
+          mvn -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -X
 
       - name: Merge release branch
         run: |
