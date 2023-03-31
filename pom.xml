@@ -348,6 +348,8 @@
                             <gpgArguments>
                                 <arg>--pinentry-mode</arg>
                                 <arg>loopback</arg>
+                                <arg>--verbose</arg>
+                                <arg>--verbose</arg>
                             </gpgArguments>
                         </configuration>
                         <executions>

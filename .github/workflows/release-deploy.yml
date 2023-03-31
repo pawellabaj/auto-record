@@ -52,7 +52,8 @@ jobs:
         id: install-secret-key
         run: |
           cat /home/runner/.m2/settings.xml
-          gpg --import-ownertrust ${{ secrets.GPG_OWNERTRUST }}
+          echo ${{ secrets.GPG_OWNERTRUST }} > ownertrust.txt
+          gpg --import-ownertrust ownertrust.txt
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Release prepare and perform
@@ -63,8 +64,8 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -X
-          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -X
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release
+          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release
 
       - name: Merge release branch
         run: |
