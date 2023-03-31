@@ -348,7 +348,6 @@
                             <gpgArguments>
                                 <arg>--pinentry-mode</arg>
                                 <arg>loopback</arg>
-<!--                                <arg>&#45;&#45;no-tty</arg>-->
                             </gpgArguments>
                         </configuration>
                         <executions>
