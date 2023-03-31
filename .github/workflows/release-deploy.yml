@@ -52,7 +52,6 @@ jobs:
         id: install-secret-key
         run: |
           cat /home/runner/.m2/settings.xml
-#          cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Release prepare and perform
