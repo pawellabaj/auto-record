@@ -65,7 +65,7 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release
-          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release
+          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
 
       - name: Merge release branch
         run: |
