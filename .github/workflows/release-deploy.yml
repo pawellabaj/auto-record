@@ -52,8 +52,6 @@ jobs:
         id: install-secret-key
         run: |
           cat /home/runner/.m2/settings.xml
-          echo ${{ secrets.GPG_OWNERTRUST }} > ownertrust.txt
-          gpg --import-ownertrust ownertrust.txt
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Release prepare and perform
