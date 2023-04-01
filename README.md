@@ -1,6 +1,6 @@
 # AutoRecord
 
-[![CI](https://github.com/pawellabaj/auto-record/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/ci.yml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record)
+[![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record)
 
 Java record source generator
 
@@ -24,5 +24,23 @@ _Details:_
 ## Record Builder
 ## Memoization
 ## Ignored Fields
+
 ## Usage
+
+### Maven
+
+Add a dependency that contains the discoverable annotation processor:
+
+```xml
+<dependency>
+    <groupId>pl.com.labaj</groupId>
+    <artifactId>auto-record</artifactId>
+    <version>${auto-record.version}</version>
+</dependency>
+```
+
+### IDE
+
+Depending on your IDE you are likely to need to enable Annotation Processing in your IDE settings.
+
 ## Customization

@@ -1,5 +1,6 @@
 package pl.com.labaj.autorecord.test.generation;
 
+import org.junit.jupiter.api.Assertions;
 import pl.com.labaj.autorecord.test.TestFor;
 
 import java.lang.reflect.RecordComponent;
@@ -7,7 +8,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class BasicTest {
 
@@ -15,7 +15,7 @@ class BasicTest {
     @SuppressWarnings("rawtypes")
     void shouldGenerateRecord() {
         //given
-        Class<?> recordClass = assertDoesNotThrow(() -> Class.forName("pl.com.labaj.autorecord.test.generation.BasicRecord"));
+        Class<?> recordClass = Assertions.assertDoesNotThrow(() -> Class.forName("pl.com.labaj.autorecord.test.generation.BasicRecord"));
 
         //when
         var recordComponents = recordClass.getRecordComponents();

@@ -1,5 +1,7 @@
 package pl.com.labaj.autorecord;
 
+import pl.com.labaj.autorecord.AutoRecord;
+
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
