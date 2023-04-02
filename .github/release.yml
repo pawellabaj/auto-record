@@ -25,4 +25,5 @@ changelog:
         - dependencies
     - title: "Housekeeping :wrench:"
       labels:
+        - build
         - "*"

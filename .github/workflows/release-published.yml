@@ -1,0 +1,80 @@
+name: "[Release] Published"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  release:
+    types: published
+
+concurrency:
+  group: release-published-{{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  release-perform:
+    name: Deploy release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get version
+        shell: bash
+        run: |
+          version=$(echo ${{ github.event.release.tag_name }} | cut -c 2-)
+          echo "Version taken from tag: $version"
+          echo "RELEASE_VERSION=$version" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: release/v${{ env.RELEASE_VERSION }}
+
+      - name: Create git user and branch
+        shell: bash
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Install GPG ownertrust
+        id: install-secret-key
+        run: |
+          echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
+          gpg --import-ownertrust trustvalues.txt
+
+      - name: Perform Maven release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -DdryRun
+          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
+
+      - name: Create Pull request
+        id: pr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          base: main
+          branch: release/v${{ env.RELEASE_VERSION }}
+          commit-message: "build: [ci skip] automated PR"
+
+      - name: Merge Pull request
+        shell: bash
+        run: |
+          gh pr merge ${{ steps.pr.outputs.pull-request-number }} --admin --delete-branch --rebase
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

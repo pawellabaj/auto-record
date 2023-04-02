@@ -1,0 +1,41 @@
+name: "[Release] Manually delete"
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release-manually-delete-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  release-manually-delete:
+    name: Delete release
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create git user
+        shell: bash
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+
+      - name: Find draft release and assign tag to environment variable
+        run: |
+          tag=$(gh release list --exclude-pre-releases | grep Draft | awk '{print $1}')
+          echo "Draft release found with tag: $tag"
+          echo "RELEASE_TAG=$tag" >> $GITHUB_ENV
+
+      - name : Delete Release and branch
+        if: ${{ env.RELEASE_TAG != '' }}
+        shell: bash
+        run: |
+          gh release delete ${{ env.RELEASE_TAG }} --yes --cleanup-tag
+          git push origin --delete release/${{ env.RELEASE_TAG }}
