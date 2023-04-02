@@ -26,6 +26,7 @@ conventionalLabels:
     build: ':construction_worker:'
     dependencies: ':arrow_up:'
 
+copyIssueDescriptionToPR: true
 copyIssueLabelsToPR: true
 copyIssueAssigneeToPR: true
 copyIssueProjectsToPR: true
