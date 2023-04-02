@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - '*'
+      - '**'
 
 concurrency:
   group: verify-${{ github.head_ref || github.run_id }}

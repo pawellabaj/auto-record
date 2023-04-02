@@ -2,7 +2,6 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
@@ -70,10 +69,10 @@ class RecordGenerator {
                 .addSuperinterface(sourceInterface.asType());
 
         var memoization = generateMemoizationParts(parameters, recordSpecBuilder);
-        var recordComponents = generateConstructionParts(parameters, recordSpecBuilder, memoization);
+        generateConstructionParts(parameters, recordSpecBuilder, memoization);
         generateBuilderParts(parameters, recordSpecBuilder);
         generateHashCodeAndEqualsParts(parameters, recordSpecBuilder, memoization);
-        generateToStringParts(parameters, recordSpecBuilder, memoization, recordComponents);
+        generateToStringParts(parameters, recordSpecBuilder, memoization);
 
         return buildJavaFile(packageName, recordSpecBuilder.build(), staticImports);
     }
@@ -85,14 +84,12 @@ class RecordGenerator {
                 .returnMemoization();
     }
 
-    private List<ParameterSpec> generateConstructionParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
-        return new ConstructionPartsGenerator(parameters, recordSpecBuilder, memoization)
+    private void generateConstructionParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
+        new ConstructionPartsGenerator(parameters, recordSpecBuilder, memoization)
                 .createTypeVariables()
-                .createRecordComponents()
                 .createAdditionalRecordComponents()
                 .createAdditionalConstructor()
-                .createCompactConstructor()
-                .returnRecordComponents();
+                .createCompactConstructor();
     }
 
     private void generateBuilderParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
@@ -108,20 +105,15 @@ class RecordGenerator {
 
     private void generateHashCodeAndEqualsParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
         new HashCodeEqualsGenerator(parameters, recordSpecBuilder, memoization)
-                .findNotIgnoredNames()
+                .findNotIgnoredProperties()
                 .createHashCodeMethod()
                 .createEqualsMethod();
     }
 
     private void generateToStringParts(GeneratorParameters parameters,
                                        TypeSpec.Builder recordSpecBuilder,
-                                       Memoization memoization,
-                                       List<ParameterSpec> recordComponents) {
-        if (!memoization.memoizedToString()) {
-            return;
-        }
-
-        new ToStringGenerator(parameters, recordSpecBuilder, recordComponents)
+                                       Memoization memoization) {
+        new ToStringGenerator(parameters, recordSpecBuilder, memoization)
                 .createToStringMethod();
     }
 

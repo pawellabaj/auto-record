@@ -1,41 +1,59 @@
 package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 
-import java.util.List;
-import java.util.stream.IntStream;
+import javax.lang.model.element.ExecutableElement;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.MethodHelper.returnsArray;
 
 class ToStringGenerator {
     private final GeneratorParameters parameters;
     private final TypeSpec.Builder recordSpecBuilder;
-    private final List<ParameterSpec> recordComponents;
+    private final Memoization memoization;
 
-    ToStringGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, List<ParameterSpec> recordComponents) {
+    ToStringGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
         this.parameters = parameters;
         this.recordSpecBuilder = recordSpecBuilder;
-        this.recordComponents = recordComponents;
+        this.memoization = memoization;
     }
 
     @SuppressWarnings("UnusedReturnValue")
     ToStringGenerator createToStringMethod() {
-        var toStringFormat = IntStream.rangeClosed(1, recordComponents.size())
-                .mapToObj("$%dN"::formatted)
-                .map("\"%1$s = \" + %1$s"::formatted)
-                .collect(joining(" + \", \" +\n", "return \"" + parameters.recordName() + "[\" +\n", " +\n\"]\""));
+        var memoizedToString = memoization.memoizedToString();
+        var propertyMethods = parameters.propertyMethods();
+        var hasArrayComponents = propertyMethods.stream().anyMatch(MethodHelper::returnsArray);
 
-        var toStringMethod = MethodSpec.methodBuilder("_toString")
-                .addModifiers(PRIVATE)
+        if (!memoizedToString && !hasArrayComponents) {
+            return this;
+        }
+
+        var methodName = (memoizedToString ? "_" : "") + "toString";
+        var toStringFormat = propertyMethods.stream()
+                .map(method -> returnsArray(method) ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N")
+                .collect(joining(" + \", \" +\n", "return \"" + parameters.recordName() + "[\" +\n", " +\n\"]\""));
+        var arguments = propertyMethods.stream()
+                .flatMap(this::getArguments)
+                .toArray();
+        var toStringMethod = MethodSpec.methodBuilder(methodName)
+                .addModifiers(memoizedToString ? PRIVATE : PUBLIC)
                 .returns(String.class)
-                .addStatement(toStringFormat, recordComponents.toArray())
+                .addStatement(toStringFormat, arguments)
                 .build();
 
         recordSpecBuilder.addMethod(toStringMethod);
 
         return this;
+    }
+
+    private Stream<?> getArguments(ExecutableElement method) {
+        var methodName = method.getSimpleName();
+
+        return returnsArray(method) ? Stream.of(methodName, Arrays.class, methodName) : Stream.of(methodName, methodName);
     }
 }

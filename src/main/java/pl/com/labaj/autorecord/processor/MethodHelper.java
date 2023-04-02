@@ -5,6 +5,7 @@ import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
 
 import static javax.lang.model.element.Modifier.ABSTRACT;
+import static javax.lang.model.type.TypeKind.ARRAY;
 import static javax.lang.model.type.TypeKind.VOID;
 import static pl.com.labaj.autorecord.processor.AnnotationsHelper.getAnnotation;
 
@@ -29,8 +30,12 @@ final class MethodHelper {
         return method.getModifiers().contains(ABSTRACT);
     }
 
-    static boolean isNotPrimitive(ExecutableElement method) {
+    static boolean doesNotReturnPrimitive(ExecutableElement method) {
         return !method.getReturnType().getKind().isPrimitive();
+    }
+
+    static boolean returnsArray(ExecutableElement method) {
+        return method.getReturnType().getKind() == ARRAY;
     }
 
     static boolean isSpecial(ExecutableElement method) {

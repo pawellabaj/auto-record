@@ -32,7 +32,7 @@
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
 
         <fabric-javapoet.version>0.1.0</fabric-javapoet.version>
-        <record-builder.version>35</record-builder.version>
+        <record-builder.version>36</record-builder.version>
         <jsr305.version>3.0.0</jsr305.version>
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <assertj.version>3.24.2</assertj.version>
