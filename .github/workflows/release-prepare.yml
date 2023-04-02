@@ -1,12 +1,15 @@
-name: Release and deploy
+name: "[Release] Prepare"
 
 permissions:
   contents: write
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    branches: main
 
 concurrency:
-  group: release-deploy-${{ github.head_ref || github.run_id }}
+  group: release-prepare-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -15,23 +18,45 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
 
-  release:
-    name: Release
+  branch-exists:
+    name: Check if release branch exists already
     runs-on: ubuntu-latest
-    if: needs.next-version.outputs.new-release-published == 'true'
+    if: ${{ needs.next-version.outputs.new-release-published == 'true' && needs.next-version.outputs.new-release-version != '' }}
     needs:
       - next-version
+    outputs:
+      exists: ${{ steps.check-branch-exists.outputs.exists }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check if branch exists
+        id: check-branch-exists
+        run: |
+          if [[ -n $(git ls-remote --heads origin release/v${{ env.RELEASE_VERSION }}) ]]; then
+              echo "exists=true" >> $GITHUB_OUTPUT
+              echo branch release/v${{ env.RELEASE_VERSION }} exists
+          fi
+
+  release-prepare:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    if: ${{ needs.branch-exists.outputs.exists != 'true' }}
+    needs:
+      - next-version
+      - branch-exists
     env:
       RELEASE_VERSION: ${{ needs.next-version.outputs.new-release-version }}
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Create release branch
+      - name: Create git user and branch
         shell: bash
         run: |
+          echo ${{ needs.branch-exists.outputs.exists }}
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
           git checkout -b release/v${{ env.RELEASE_VERSION }} origin/main
@@ -54,7 +79,7 @@ jobs:
           echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
           gpg --import-ownertrust trustvalues.txt
 
-      - name: Release prepare and perform
+      - name: Prepare Maven release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
@@ -63,16 +88,6 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
-          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
-
-      - name: Merge release branch
-        run: |
-          git push --follow-tags
-          git checkout main
-          git merge release/v${{ env.RELEASE_VERSION }} -m "Merge release branch v${{ env.RELEASE_VERSION }} into main"
-          git push
-          git branch -D release/v${{ env.RELEASE_VERSION }}
-          git push origin :release/v${{ env.RELEASE_VERSION }}
 
       - name: Create GitHub release
         uses: ncipollo/release-action@v1
@@ -81,3 +96,4 @@ jobs:
           removeArtifacts: true
           artifacts: target/auto-record-${{ env.RELEASE_VERSION }}.jar
           generateReleaseNotes: true
+          draft: true
