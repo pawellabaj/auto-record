@@ -41,20 +41,20 @@ class ConstructionPartsGenerator {
         recordModifiers = parameters.recordModifiers();
     }
 
-    ConstructionPartsGenerator createTypeVariables() {
+    WithRecordComponents createTypeVariables() {
         var typeParameters = parameters.sourceInterface().getTypeParameters();
 
         if (typeParameters.isEmpty()) {
-            return this;
+            return createRecordComponents();
         }
 
         var genericVariables = GenericHelper.getGenericVariables(typeParameters);
         recordSpecBuilder.addTypeVariables(genericVariables);
 
-        return this;
+        return createRecordComponents();
     }
 
-    ConstructionPartsGenerator.WithRecordComponents createRecordComponents() {
+    private ConstructionPartsGenerator.WithRecordComponents createRecordComponents() {
         var recordComponents = propertyMethods.stream()
                 .map(this::toParameterSpec)
                 .toList();
@@ -111,7 +111,7 @@ class ConstructionPartsGenerator {
 
         WithRecordComponents createCompactConstructor() {
             var nonNullNames = propertyMethods.stream()
-                    .filter(MethodHelper::isNotPrimitive)
+                    .filter(MethodHelper::doesNotReturnPrimitive)
                     .filter(method -> isNotAnnotatedWith(method, Nullable.class))
                     .map(ExecutableElement::getSimpleName)
                     .toList();

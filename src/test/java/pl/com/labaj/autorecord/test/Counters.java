@@ -18,7 +18,7 @@ public final class Counters {
     @Override
     public boolean equals(Object o) {
         equalsCounter.addAndGet(1);
-        return this == o;
+        return true;
     }
 
     @Override
