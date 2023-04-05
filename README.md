@@ -43,7 +43,7 @@ Add the following dependency to your `pom.xml` file:
 
 Add the following to your `build.gradle` file:
 
-```json
+```groovy
 dependencies {
     implementation 'pl.com.labaj:auto-record:$auto-record-version'
 }

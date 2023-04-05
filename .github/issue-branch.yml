@@ -5,9 +5,7 @@ autoCloseIssue: true
 branches:
   - label: enhancement
     prefix: feature/
-  - label:
-      - documentation
-      - doc
+  - label: documentation
     prefix: doc/
   - label: bug
     prefix: fix/
@@ -22,9 +20,19 @@ prSkipCI: true
 conventionalPrTitles: true
 
 conventionalLabels:
-  feature:
+  docs:
+    documentation: ':memo:'
+  fix:
+    bug: ':ambulance:'
+    performance: ':zap:'
+    security: ':lock:'
     build: ':construction_worker:'
+  feature:
+    enhancement: ':sparkles:'
     dependencies: ':arrow_up:'
+  breaking:
+    breaking-change: ':boom:'
+    breaking change: ':boom:'
 
 copyIssueDescriptionToPR: true
 copyIssueLabelsToPR: true
