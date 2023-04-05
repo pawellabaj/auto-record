@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.MethodHelper.returnsArray;
 
 class ToStringGenerator {
     private final GeneratorParameters parameters;
@@ -43,7 +42,9 @@ class ToStringGenerator {
     ToStringGenerator createToStringMethod() {
         var memoizedToString = memoization.memoizedToString();
         var propertyMethods = parameters.propertyMethods();
-        var hasArrayComponents = propertyMethods.stream().anyMatch(MethodHelper::returnsArray);
+        var hasArrayComponents = propertyMethods.stream()
+                .map(MethodHelper::new)
+                .anyMatch(MethodHelper::returnsArray);
 
         if (!memoizedToString && !hasArrayComponents) {
             return this;
@@ -51,7 +52,7 @@ class ToStringGenerator {
 
         var methodName = (memoizedToString ? "_" : "") + "toString";
         var toStringFormat = propertyMethods.stream()
-                .map(method -> returnsArray(method) ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N")
+                .map(method -> new MethodHelper(method).returnsArray() ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N")
                 .collect(joining(" + \", \" +\n", "return \"" + parameters.recordName() + "[\" +\n", " +\n\"]\""));
         var arguments = propertyMethods.stream()
                 .flatMap(this::getArguments)
@@ -70,6 +71,7 @@ class ToStringGenerator {
     private Stream<?> getArguments(ExecutableElement method) {
         var methodName = method.getSimpleName();
 
-        return returnsArray(method) ? Stream.of(methodName, Arrays.class, methodName) : Stream.of(methodName, methodName);
+        var returnsArray = new MethodHelper(method).returnsArray();
+        return returnsArray ? Stream.of(methodName, Arrays.class, methodName) : Stream.of(methodName, methodName);
     }
 }

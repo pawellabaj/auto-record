@@ -25,22 +25,17 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.ElementType;
-import java.util.ArrayList;
-import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static java.util.function.Predicate.not;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.DEFAULT;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.AnnotationsHelper.createAnnotationSpecs;
 import static pl.com.labaj.autorecord.processor.MemoizerHelper.memoizerComputeMethodName;
-import static pl.com.labaj.autorecord.processor.MethodHelper.doesNotReturnVoid;
-import static pl.com.labaj.autorecord.processor.MethodHelper.hasNoParameters;
-import static pl.com.labaj.autorecord.processor.MethodHelper.isAnnotatedWith;
 import static pl.com.labaj.autorecord.processor.SpecialMethod.HASH_CODE;
 import static pl.com.labaj.autorecord.processor.SpecialMethod.TO_STRING;
 import static pl.com.labaj.autorecord.processor.SpecialMethod.specialMethods;
@@ -55,43 +50,33 @@ class MemoizedPartsGenerator {
     }
 
     MemoizedPartsGenerator.WithMemoization createMemoization() {
-        var memoizedSpecialMethods = new EnumMap<SpecialMethod, Boolean>(SpecialMethod.class);
-
-        var items = new ArrayList<Memoization.Item>();
 
         var elementUtils = parameters.processingEnv().getElementUtils();
-        var logger = parameters.logger();
         var sourceInterface = parameters.sourceInterface();
 
-        var methods = elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(this::isMethod)
-                .map(ExecutableElement.class::cast)
-                .filter(method -> isAnnotatedWith(method, Memoized.class))
-                .filter(method -> hasNoParameters(method, logger))
-                .filter(method -> doesNotReturnVoid(method, logger))
-                .toList();
-
-        methods.stream()
-                .filter(MethodHelper::isAbstract)
-                .filter(MethodHelper::isSpecial)
-                .peek(method -> memoizedSpecialMethods.put(SpecialMethod.from(method), true))
-                .map(method -> toMemoizedItem(method, true))
-                .forEach(items::add);
-
-        methods.stream()
-                .filter(not(MethodHelper::isAbstract))
-                .filter(not(MethodHelper::isSpecial))
-                .map(method -> toMemoizedItem(method, false))
-                .forEach(items::add);
+        var items = new LinkedHashSet<Memoization.Item>();
 
         specialMethods().stream()
-                .filter(not(specialMethod -> memoizedSpecialMethods.computeIfAbsent(specialMethod, sm -> false)))
                 .filter(specialMethod -> specialMethod.isMemoizedInOptions(parameters.recordOptions()))
-                .peek(specialMethod -> memoizedSpecialMethods.put(specialMethod, true))
                 .map(this::toMemoizedItem)
                 .forEach(items::add);
 
-        var memoization = new Memoization(items, memoizedSpecialMethods.get(HASH_CODE), memoizedSpecialMethods.get(TO_STRING));
+        elementUtils.getAllMembers(sourceInterface).stream()
+                .filter(this::isMethod)
+                .map(ExecutableElement.class::cast)
+                .map(MethodHelper::new)
+                .filter(helper -> helper.isAnnotatedWith(Memoized.class))
+                .filter(MethodHelper::hasNoParameters)
+                .filter(MethodHelper::doesNotReturnVoid)
+                .map(helper -> toMemoizedItem(helper.method(), helper.isSpecial()))
+                .forEach(items::add);
+
+        var memoizedHashCode = items.stream()
+                .anyMatch(item -> item.name().equals(HASH_CODE.methodName()));
+        var memoizedToString = items.stream()
+                .anyMatch(item -> item.name().equals(TO_STRING.methodName()));
+
+        var memoization = new Memoization(items, memoizedHashCode, memoizedToString);
         return new WithMemoization(memoization);
     }
 

@@ -17,7 +17,6 @@ package pl.com.labaj.autorecord.processor;
  */
 
 import javax.lang.model.element.ExecutableElement;
-
 import java.lang.annotation.Annotation;
 
 import static javax.lang.model.element.Modifier.ABSTRACT;
@@ -25,44 +24,57 @@ import static javax.lang.model.type.TypeKind.ARRAY;
 import static javax.lang.model.type.TypeKind.VOID;
 import static pl.com.labaj.autorecord.processor.AnnotationsHelper.getAnnotation;
 
-final class MethodHelper {
-    private MethodHelper() {}
+record MethodHelper(ExecutableElement method) {
 
-    static boolean hasNoParameters(ExecutableElement method, MessagerLogger logger) {
-        if (!method.getParameters().isEmpty()) {
-            logger.error("The interface has abstract method with parameters: %s".formatted(method.getSimpleName()));
-        }
-        return true;
+    String methodeName() {
+        return method.getSimpleName().toString();
     }
 
-    static boolean doesNotReturnVoid(ExecutableElement method, MessagerLogger logger) {
-        if (method.getReturnType().getKind() == VOID) {
-            logger.error("The interface has abstract method returning void: %s".formatted(method.getSimpleName()));
-        }
-        return true;
+    boolean hasParameters() {
+        return !hasNoParameters();
     }
 
-    static boolean isAbstract(ExecutableElement method) {
+    public boolean hasNoParameters() {
+        return method.getParameters().isEmpty();
+    }
+
+    boolean doesNotReturnVoid() {
+        return !returnsVoid();
+    }
+
+    boolean returnsVoid() {
+        return method.getReturnType().getKind() == VOID;
+    }
+
+    boolean isAbstract() {
         return method.getModifiers().contains(ABSTRACT);
     }
 
-    static boolean doesNotReturnPrimitive(ExecutableElement method) {
-        return !method.getReturnType().getKind().isPrimitive();
+    boolean doesNotReturnPrimitive() {
+        return !returnsPrimitive();
     }
 
-    static boolean returnsArray(ExecutableElement method) {
+    boolean returnsPrimitive() {
+        return method.getReturnType().getKind().isPrimitive();
+    }
+
+    boolean returnsArray() {
         return method.getReturnType().getKind() == ARRAY;
     }
 
-    static boolean isSpecial(ExecutableElement method) {
+    boolean isSpecial() {
         return SpecialMethod.isSpecial(method);
     }
 
-    static boolean isAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {
+    public boolean isNotSpecial() {
+        return !isSpecial();
+    }
+
+    boolean isAnnotatedWith(Class<? extends Annotation> annotationClass) {
         return getAnnotation(method, annotationClass).isPresent();
     }
 
-    static boolean isNotAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {
-        return getAnnotation(method, annotationClass).isEmpty();
+    boolean isNotAnnotatedWith(Class<? extends Annotation> annotationClass) {
+        return !isAnnotatedWith(annotationClass);
     }
 }
