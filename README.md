@@ -29,7 +29,7 @@ _Details:_
 
 ### Maven
 
-Add a dependency that contains the discoverable annotation processor:
+Add the following dependency to your `pom.xml` file:
 
 ```xml
 <dependency>
@@ -37,6 +37,16 @@ Add a dependency that contains the discoverable annotation processor:
     <artifactId>auto-record</artifactId>
     <version>${auto-record.version}</version>
 </dependency>
+```
+
+### Gradle
+
+Add the following to your `build.gradle` file:
+
+```json
+dependencies {
+    implementation 'pl.com.labaj:auto-record:$auto-record-version'
+}
 ```
 
 ### IDE
