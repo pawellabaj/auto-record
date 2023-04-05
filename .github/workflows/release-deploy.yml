@@ -70,25 +70,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pr_url=$(gh pr create --title "build: PR from release/v${{ env.RELEASE_VERSION }} to main" --body "PR from release/v${{ env.RELEASE_VERSION }} to main" --base main --head release/v${{ env.RELEASE_VERSION }})
+          pr_url=$(gh pr create --title "PR from release/v${{ env.RELEASE_VERSION }} to main" --body "chore: [ci skip] PR from release/v${{ env.RELEASE_VERSION }} to main" --base main --head release/v${{ env.RELEASE_VERSION }})
           number=${pr_url##*/}
-          gh pr merge $number --admin --delete-branch --rebase
+          gh pr merge $number --admin --delete-branch --merge
 
-      - name: Find draft release ID
+      - name: Create GH release
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          id=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/pawellabaj/auto-record/releases | jq '.[] | select(.draft == true)' | jq '.id')
-          echo "Draft release found with id $id"
-          echo "RELEASE_ID=$id" >> $GITHUB_ENV
-
-      - name: Upload Release Asset and publish
-        if: ${{ env.RELEASE_ID != '' }}
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" --hostname https://uploads.github.com /repos/pawellabaj/auto-record/releases/${{ env.RELEASE_ID }}/assets?name=auto-record-${{ env.RELEASE_VERSION }}.jar -f '@target/auto-record-${{ env.RELEASE_VERSION }}.jar'
-          gh api --method PATCH -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/pawellabaj/auto-record/releases/${{ env.RELEASE_ID }} -f draft=false
-
+          gh release create v${{ env.RELEASE_VERSION }} target/auto-record-${{ env.RELEASE_VERSION }}.jar --generate-notes --verify-tag
