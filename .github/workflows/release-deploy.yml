@@ -63,20 +63,14 @@ jobs:
           mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
           mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
 
-      - name: Create Pull request
-        uses: peter-evans/create-pull-request@v4
-        with:
-          base: main
-          branch: release/v${{ env.RELEASE_VERSION }}
-          commit-message: "build: [ci skip] automated release PR"
-          delete-branch: true
-
-      - name: Merge Pull request
+      - name: Create and merge pull request
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr merge ${{ steps.pr.outputs.pull-request-number }} --admin --delete-branch --rebase
+          pr_url=$(gh pr create --title "PR from release/v${{ env.RELEASE_VERSION }} to main" --body "PR from release/v${{ env.RELEASE_VERSION }} to main" --base main --head release/v${{ env.RELEASE_VERSION }})
+          number=${pr_url##*/}
+          gh pr merge $number --admin --delete-branch --rebase
 
       - name: Find draft release ID
         shell: bash
