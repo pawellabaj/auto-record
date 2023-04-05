@@ -70,7 +70,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pr_url=$(gh pr create --title "PR from release/v${{ env.RELEASE_VERSION }} to main" --body "PR from release/v${{ env.RELEASE_VERSION }} to main" --base main --head release/v${{ env.RELEASE_VERSION }})
+          pr_url=$(gh pr create --title "build: PR from release/v${{ env.RELEASE_VERSION }} to main" --body "PR from release/v${{ env.RELEASE_VERSION }} to main" --base main --head release/v${{ env.RELEASE_VERSION }})
           number=${pr_url##*/}
           gh pr merge $number --admin --delete-branch --rebase
 
