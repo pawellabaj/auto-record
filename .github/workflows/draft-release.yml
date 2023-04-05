@@ -1,0 +1,41 @@
+name: "Draft release"
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches: main
+
+concurrency:
+  group: draft-release-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  next-version:
+    name: Get Next version
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+
+  draft-release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    if: ${{ needs.branch-exists.outputs.exists != 'true' && needs.next-version.outputs.new-release-version != '' }}
+    needs:
+      - next-version
+    env:
+      RELEASE_VERSION: ${{ needs.next-version.outputs.new-release-version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ env.RELEASE_VERSION }}
+          allowUpdates: true
+          removeArtifacts: true
+          generateReleaseNotes: true
+          draft: true

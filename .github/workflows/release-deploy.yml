@@ -1,4 +1,4 @@
-name: "[Release] Published"
+name: "Deploy release"
 
 permissions:
   contents: write
@@ -9,7 +9,7 @@ on:
     types: published
 
 concurrency:
-  group: release-published-{{ github.head_ref || github.run_id }}
+  group: release-deploy-{{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -27,14 +27,13 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: release/v${{ env.RELEASE_VERSION }}
 
-      - name: Create git user and branch
+      - name: Create git user and release branch
         shell: bash
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
+          git branch release/v${{ env.RELEASE_VERSION }}
 
       - name: Setup JDK
         uses: actions/setup-java@v3
@@ -49,7 +48,6 @@ jobs:
           gpg-passphrase: GPG_PASSPHRASE
 
       - name: Install GPG ownertrust
-        id: install-secret-key
         run: |
           echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
           gpg --import-ownertrust trustvalues.txt
@@ -61,16 +59,22 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
-          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} -DdryRun
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
           mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
 
+      - name: Upload Release Asset
+        shell: bash
+        run: |
+          gh release upload ${{ env.RELEASE_VERSION }} target/auto-record-${{ env.RELEASE_VERSION }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Pull request
-        id: pr
         uses: peter-evans/create-pull-request@v4
         with:
-          base: main
           branch: release/v${{ env.RELEASE_VERSION }}
-          commit-message: "build: [ci skip] automated PR"
+          commit-message: "build: [ci skip] automated release PR"
+          delete-branch: true
 
       - name: Merge Pull request
         shell: bash

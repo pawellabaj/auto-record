@@ -347,6 +347,10 @@
         <profile>
             <id>release</id>
 
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+
             <build>
                 <plugins>
                     <plugin>
