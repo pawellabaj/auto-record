@@ -72,7 +72,7 @@ jobs:
         run: |
           pr_url=$(gh pr create --title "PR from release/v${{ env.RELEASE_VERSION }} to main" --body "chore: [ci skip] PR from release/v${{ env.RELEASE_VERSION }} to main" --base main --head release/v${{ env.RELEASE_VERSION }})
           number=${pr_url##*/}
-          gh pr merge $number --admin --delete-branch --merge
+          gh pr merge $number --admin --delete-branch --rebase
 
       - name: Create GH release
         shell: bash
