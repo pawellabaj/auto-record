@@ -35,6 +35,8 @@ jobs:
         run: |
           git config user.name ${{ github.actor }}
           git config user.email ${{ github.actor }}@users.noreply.github.com
+          git branch release/v${{ env.RELEASE_VERSION }}
+          git checkout release/v${{ env.RELEASE_VERSION }}
 
       - name: Setup JDK
         uses: actions/setup-java@v3
