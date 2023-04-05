@@ -68,6 +68,7 @@ jobs:
       - name: Create Pull request
         uses: peter-evans/create-pull-request@v4
         with:
+          base: main
           branch: release/v${{ env.RELEASE_VERSION }}
           commit-message: "build: [ci skip] automated release PR"
           delete-branch: true
