@@ -36,6 +36,9 @@ jobs:
         with:
           tag: v${{ env.RELEASE_VERSION }}
           allowUpdates: true
+          updateOnlyUnreleased: true
+          omitBodyDuringUpdate: true
           removeArtifacts: true
           generateReleaseNotes: true
           draft: true
+          skipIfReleaseExists: true
