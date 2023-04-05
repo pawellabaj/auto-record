@@ -1,0 +1,99 @@
+name: "Deploy release"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release-deploy-{{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  next-version:
+    name: Get Release version
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+
+  release-perform:
+    name: Deploy release
+    runs-on: ubuntu-latest
+    if: ${{ needs.branch-exists.outputs.exists != 'true' && needs.next-version.outputs.new-release-version != '' }}
+    needs:
+      - next-version
+    env:
+      RELEASE_VERSION: ${{ needs.next-version.outputs.new-release-version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create git user and release branch
+        shell: bash
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email ${{ github.actor }}@users.noreply.github.com
+          git branch release/v${{ env.RELEASE_VERSION }}
+          git checkout release/v${{ env.RELEASE_VERSION }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Install GPG ownertrust
+        run: |
+          echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
+          gpg --import-ownertrust trustvalues.txt
+
+      - name: Perform Maven release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
+
+      - name: Create Pull request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: release/v${{ env.RELEASE_VERSION }}
+          commit-message: "build: [ci skip] automated release PR"
+          delete-branch: true
+
+      - name: Merge Pull request
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ steps.pr.outputs.pull-request-number }} --admin --delete-branch --rebase
+
+      - name: Find draft release ID
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          id=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/pawellabaj/auto-record/releases | jq '.[] | select(.draft == true)' | jq '.id')
+          echo "Draft release found with id $id"
+          echo "RELEASE_ID=$id" >> $GITHUB_ENV
+
+      - name: Upload Release Asset and publish
+        if: ${{ env.RELEASE_ID != '' }}
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" --hostname https://uploads.github.com /repos/pawellabaj/auto-record/releases/${{ env.RELEASE_ID }}/assets?name=auto-record-${{ env.RELEASE_VERSION }}.jar -f '@target/auto-record-${{ env.RELEASE_VERSION }}.jar'
+          gh api --method PATCH -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/pawellabaj/auto-record/releases/${{ env.RELEASE_ID }} -f draft=false
+
