@@ -139,7 +139,7 @@
                 <configuration>
                     <licenseSets>
                         <licenseSet>
-                            <header>.build/licenseHeader.txt</header>
+                            <header>.build/lic-header.txt</header>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
