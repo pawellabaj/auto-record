@@ -32,8 +32,6 @@ import static com.squareup.javapoet.TypeName.OBJECT;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.MethodHelper.isNotAnnotatedWith;
-import static pl.com.labaj.autorecord.processor.MethodHelper.returnsArray;
 
 class HashCodeEqualsGenerator {
 
@@ -52,7 +50,9 @@ class HashCodeEqualsGenerator {
 
     WithNotIgnoredProperties findNotIgnoredProperties() {
         var notIgnoredProperties = parameters.propertyMethods().stream()
-                .filter(method -> isNotAnnotatedWith(method, Ignored.class))
+                .map(MethodHelper::new)
+                .filter(helper -> helper.isNotAnnotatedWith(Ignored.class))
+                .map(MethodHelper::method)
                 .toList();
         return new WithNotIgnoredProperties(notIgnoredProperties);
     }
@@ -68,7 +68,9 @@ class HashCodeEqualsGenerator {
 
             memoizedHashCode = memoization.memoizedHashCode();
             hasIgnoredComponents = notIgnoredProperties.size() < parameters.propertyMethods().size();
-            hasArrayComponents = notIgnoredProperties.stream().anyMatch(MethodHelper::returnsArray);
+            hasArrayComponents = notIgnoredProperties.stream()
+                    .map(MethodHelper::new)
+                    .anyMatch(MethodHelper::returnsArray);
         }
 
         WithNotIgnoredProperties createHashCodeMethod() {
@@ -78,7 +80,8 @@ class HashCodeEqualsGenerator {
 
             var methodName = (memoizedHashCode ? "_" : "") + "hashCode";
             var hashCodeFormat = notIgnoredProperties.stream()
-                    .map(method -> returnsArray(method) ? "$T.hashCode($N)" : "$N")
+                    .map(MethodHelper::new)
+                    .map(helper -> helper.returnsArray() ? "$T.hashCode($N)" : "$N")
                     .collect(joining(", ", "return " + OBJECTS_HASH + "(", ")"));
             var arguments = notIgnoredProperties.stream()
                     .flatMap(this::getHashCodeArguments)
@@ -100,7 +103,8 @@ class HashCodeEqualsGenerator {
         }
 
         private Stream<?> getHashCodeArguments(ExecutableElement method) {
-            return returnsArray(method) ? Stream.of(Arrays.class, method.getSimpleName()) : Stream.of(method.getSimpleName());
+            var returnsArray = new MethodHelper(method).returnsArray();
+            return returnsArray ? Stream.of(Arrays.class, method.getSimpleName()) : Stream.of(method.getSimpleName());
         }
 
         @SuppressWarnings({"UnusedReturnValue", "java:S1192"})
@@ -150,10 +154,9 @@ class HashCodeEqualsGenerator {
 
         private Stream<?> getToStringArguments(ExecutableElement method) {
             var methodName = method.getSimpleName();
+            var returnsArray = new MethodHelper(method).returnsArray();
 
-            return returnsArray(method) ?
-                    Stream.of(Arrays.class, methodName, methodName) :
-                    Stream.of(Objects.class, methodName, methodName);
+            return returnsArray ? Stream.of(Arrays.class, methodName, methodName) : Stream.of(Objects.class, methodName, methodName);
         }
     }
 }

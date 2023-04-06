@@ -38,7 +38,6 @@ import static org.apache.commons.lang3.ClassUtils.primitiveToWrapper;
 import static pl.com.labaj.autorecord.processor.AnnotationsHelper.createAnnotationSpecs;
 import static pl.com.labaj.autorecord.processor.MemoizerHelper.memoizerComponentName;
 import static pl.com.labaj.autorecord.processor.MemoizerHelper.memoizerConstructorStatement;
-import static pl.com.labaj.autorecord.processor.MethodHelper.isNotAnnotatedWith;
 
 class ConstructionPartsGenerator {
 
@@ -128,8 +127,10 @@ class ConstructionPartsGenerator {
         @SuppressWarnings("UnusedReturnValue")
         WithRecordComponents createCompactConstructor() {
             var nonNullNames = propertyMethods.stream()
+                    .map(MethodHelper::new)
                     .filter(MethodHelper::doesNotReturnPrimitive)
-                    .filter(method -> isNotAnnotatedWith(method, Nullable.class))
+                    .filter(helper -> helper.isNotAnnotatedWith(Nullable.class))
+                    .map(MethodHelper::method)
                     .map(ExecutableElement::getSimpleName)
                     .toList();
 

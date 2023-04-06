@@ -31,11 +31,8 @@ import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.function.Predicate.not;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
-import static pl.com.labaj.autorecord.processor.MethodHelper.doesNotReturnVoid;
-import static pl.com.labaj.autorecord.processor.MethodHelper.hasNoParameters;
 
 class RecordGenerator {
     private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
@@ -151,11 +148,31 @@ class RecordGenerator {
         return processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)
+                .map(MethodHelper::new)
                 .filter(MethodHelper::isAbstract)
-                .filter(method -> hasNoParameters(method, logger))
-                .filter(method -> doesNotReturnVoid(method, logger))
-                .filter(not(MethodHelper::isSpecial))
+                .filter(this::hasNoParameters)
+                .filter(this::doesNotReturnVoid)
+                .filter(MethodHelper::isNotSpecial)
+                .map(MethodHelper::method)
                 .toList();
+    }
+
+    private boolean hasNoParameters(MethodHelper helper) {
+        if (helper.hasParameters()) {
+            logger.error("The interface has abstract method with parameters: %s".formatted(helper.methodeName()));
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean doesNotReturnVoid(MethodHelper helper) {
+        if (helper.returnsVoid()) {
+            logger.error("The interface has abstract method returning void: %s".formatted(helper.methodeName()));
+            return false;
+        }
+
+        return true;
     }
 
     private JavaFile buildJavaFile(String packageName, TypeSpec recordSpec, ArrayList<StaticImport> staticImports) {

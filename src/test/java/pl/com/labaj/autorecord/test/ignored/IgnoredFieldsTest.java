@@ -53,8 +53,8 @@ class IgnoredFieldsTest {
         assertAll(
                 () -> assertDoesNotThrow(firstRecord::hashCode),
                 () -> assertThat(result).isEqualTo(expectedResult),
-                () -> assertThat(firstRecord.four().hashCodeCount()).isEqualTo(0),
-                () -> assertThat(firstRecord.four().equalsCount()).isEqualTo(0)
+                () -> assertThat(firstRecord.four().hashCodeCount()).isZero(),
+                () -> assertThat(firstRecord.four().equalsCount()).isZero()
         );
     }
 }

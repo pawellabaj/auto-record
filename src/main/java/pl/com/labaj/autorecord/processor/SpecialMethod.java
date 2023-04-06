@@ -20,21 +20,28 @@ import pl.com.labaj.autorecord.AutoRecord;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.List;
-import java.util.function.Predicate;
 
 enum SpecialMethod {
-    HASH_CODE("hashCode", Integer.TYPE, AutoRecord.Options::memoizedHashCode),
-    TO_STRING("toString", String.class, AutoRecord.Options::memoizedToString);
+    HASH_CODE("hashCode", Integer.TYPE) {
+        @Override
+        boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
+            return recordOptions.memoizedHashCode();
+        }
+    },
+    TO_STRING("toString", String.class) {
+        @Override
+        boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
+            return recordOptions.memoizedToString();
+        }
+    };
 
     private static final List<SpecialMethod> ALL_METHODS = List.of(HASH_CODE, TO_STRING);
     private final String methodName;
     private final Class<?> type;
-    private final Predicate<AutoRecord.Options> optionsPredicate;
 
-    SpecialMethod(String methodName, Class<?> type, Predicate<AutoRecord.Options> optionsPredicate) {
+    SpecialMethod(String methodName, Class<?> type) {
         this.methodName = methodName;
         this.type = type;
-        this.optionsPredicate = optionsPredicate;
     }
 
     static List<SpecialMethod> specialMethods() {
@@ -46,10 +53,7 @@ enum SpecialMethod {
         return methodName.contentEquals(HASH_CODE.methodName) || methodName.contentEquals(TO_STRING.methodName);
     }
 
-    static SpecialMethod from(ExecutableElement method) {
-        var methodName = method.getSimpleName();
-        return methodName.contentEquals(HASH_CODE.methodName) ? HASH_CODE : TO_STRING;
-    }
+    abstract boolean isMemoizedInOptions(AutoRecord.Options recordOptions);
 
     String methodName() {
         return methodName;
@@ -57,9 +61,5 @@ enum SpecialMethod {
 
     Class<?> type() {
         return type;
-    }
-
-    boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
-        return optionsPredicate.test(recordOptions);
     }
 }

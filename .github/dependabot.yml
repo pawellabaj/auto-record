@@ -6,12 +6,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
-    reviewers:
-      - pawellabaj
     labels:
       - dependencies
     commit-message:
-      prefix: "maven: "
+      prefix: "build: maven: "
       include: "scope"
       
   - package-ecosystem: github-actions
@@ -19,10 +17,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
-    reviewers:
-      - pawellabaj
     labels:
       - build
     commit-message:
-      prefix: "action: "
+      prefix: "build: action: "
       include: "scope"

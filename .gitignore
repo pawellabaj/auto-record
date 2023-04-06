@@ -8,7 +8,8 @@
 *.tar.gz
 *.rar
 *.iml
-*.txt
+
+./*.txt
 
 /.idea/
 /target/
