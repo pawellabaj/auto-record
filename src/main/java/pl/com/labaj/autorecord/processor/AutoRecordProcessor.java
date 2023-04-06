@@ -50,7 +50,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         annotations.forEach(annotation -> processAnnotation(roundEnv, annotation));
 
-        return true;
+        return false;
     }
 
     private void processAnnotation(RoundEnvironment roundEnv, TypeElement annotation) {

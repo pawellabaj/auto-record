@@ -68,7 +68,7 @@ class BuilderPartsGenerator {
     }
 
     private Values forceRetainedGenerated(Values values) {
-        if (ADD_CLASS_RETAINED_GENERATED.equals(values.name)) {
+        if (values.name.equals(ADD_CLASS_RETAINED_GENERATED)) {
             return new Values(ADD_CLASS_RETAINED_GENERATED, Boolean.TYPE, false, true);
         }
         return values;
