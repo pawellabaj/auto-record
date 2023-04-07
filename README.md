@@ -52,7 +52,9 @@ record PersonRecord(String name, int age) implements Person {
 }
 ```
 
-Here you can see example of generated record with all features provided by the library: [WithAllFeaturesRecord.java](https://gist.github.com/pawellabaj/c773e35a17e3f7f4d75d2829d75680df#file-withallfeaturesrecord-java)
+| :memo: Note |
+|:---|
+| Here you can see example of generated record with all features provided by the library: [WithAllFeaturesRecord.java](https://gist.github.com/pawellabaj/c773e35a17e3f7f4d75d2829d75680df#file-withallfeaturesrecord-java) |
 
 ## Documentation
 
