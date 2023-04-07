@@ -20,6 +20,7 @@ import pl.com.labaj.autorecord.test.TestFor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 class WithBuilderTest {
 
@@ -34,12 +35,18 @@ class WithBuilderTest {
                 .one("one")
                 .two(2)
                 .build();
+        var recordFromBuilder3 = recordFromBuilder1.toBuilder()
+                .build();
         var recordFromConstructor = new WithBuilderRecord("one", 2);
 
         //then
         assertAll(
+                () -> assertNotSame(recordFromBuilder1, recordFromConstructor),
                 () -> assertThat(recordFromBuilder1).isEqualTo(recordFromConstructor),
-                () -> assertThat(recordFromBuilder2).isEqualTo(recordFromConstructor)
+                () -> assertNotSame(recordFromBuilder2, recordFromConstructor),
+                () -> assertThat(recordFromBuilder2).isEqualTo(recordFromConstructor),
+                () -> assertNotSame(recordFromBuilder3, recordFromConstructor),
+                () -> assertThat(recordFromBuilder3).isEqualTo(recordFromConstructor)
         );
     }
 }

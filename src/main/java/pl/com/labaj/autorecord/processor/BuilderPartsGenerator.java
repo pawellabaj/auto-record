@@ -23,12 +23,13 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
+import javax.lang.model.element.ExecutableElement;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
-import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 import static pl.com.labaj.autorecord.processor.GenericHelper.getGenericNames;
 import static pl.com.labaj.autorecord.processor.GenericHelper.getGenericVariables;
@@ -38,10 +39,14 @@ class BuilderPartsGenerator {
     private static final String ADD_CLASS_RETAINED_GENERATED = "addClassRetainedGenerated";
     private final GeneratorParameters parameters;
     private final TypeSpec.Builder recordSpecBuilder;
+    private final RecordBuilder.Options builderOptions;
+    private final String recordBuilderName;
 
     BuilderPartsGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
         this.parameters = parameters;
         this.recordSpecBuilder = recordSpecBuilder;
+        builderOptions = this.parameters.builderOptions();
+        recordBuilderName = this.parameters.recordName() + builderOptions.suffix();
     }
 
     BuilderPartsGenerator createRecordBuilderAnnotation() {
@@ -74,13 +79,10 @@ class BuilderPartsGenerator {
         return values;
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     BuilderPartsGenerator createBuilderMethod() {
-        var builderOptions = parameters.builderOptions();
-        var recordBuilderName = parameters.recordName() + builderOptions.suffix();
-
         var builderMethodBuilder = MethodSpec.methodBuilder("builder")
-                .addModifiers(PUBLIC, STATIC)
+                .addModifiers(parameters.recordModifiers())
+                .addModifiers(STATIC)
                 .addStatement("return $L.$L()", recordBuilderName, builderOptions.builderMethodName());
         var returnedClassName = ClassName.get(parameters.packageName(), recordBuilderName);
 
@@ -98,6 +100,47 @@ class BuilderPartsGenerator {
         var builderMethod = builderMethodBuilder
                 .build();
         recordSpecBuilder.addMethod(builderMethod);
+
+        return this;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    BuilderPartsGenerator createToBuilderMethod() {
+        var propertyMethods = parameters.propertyMethods();
+
+        var format = propertyMethods.stream()
+                .map(method -> ".$N($N)")
+                .collect(joining("", "return $L.$L()", ""));
+
+        var arguments = new ArrayList<>();
+        arguments.add(recordBuilderName);
+        arguments.add(builderOptions.builderMethodName());
+        propertyMethods.stream()
+                .map(ExecutableElement::getSimpleName)
+                .forEach(name -> {
+                    arguments.add(name);
+                    arguments.add(name);
+                });
+
+        var toBuilderMethodBuilder = MethodSpec.methodBuilder("toBuilder")
+                .addModifiers(parameters.recordModifiers())
+                .addStatement(format, arguments.toArray());
+        var returnedClassName = ClassName.get(parameters.packageName(), recordBuilderName);
+
+        var typeParameters = parameters.sourceInterface().getTypeParameters();
+        if (typeParameters.isEmpty()) {
+            toBuilderMethodBuilder.returns(returnedClassName);
+        } else {
+            var genericVariables = getGenericVariables(typeParameters);
+            var genericNames = getGenericNames(typeParameters);
+
+            toBuilderMethodBuilder.addTypeVariables(genericVariables)
+                    .returns(ParameterizedTypeName.get(returnedClassName, genericNames));
+        }
+
+        var toBuilderMethod = toBuilderMethodBuilder
+                .build();
+        recordSpecBuilder.addMethod(toBuilderMethod);
 
         return this;
     }

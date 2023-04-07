@@ -113,7 +113,8 @@ class RecordGenerator {
         new BuilderPartsGenerator(parameters, recordSpecBuilder)
                 .createRecordBuilderAnnotation()
                 .createRecordBuilderOptionsAnnotation()
-                .createBuilderMethod();
+                .createBuilderMethod()
+                .createToBuilderMethod();
     }
 
     private void generateHashCodeAndEqualsParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
