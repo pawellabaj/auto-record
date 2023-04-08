@@ -16,14 +16,15 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.memoization.Memoization;
+import pl.com.labaj.autorecord.processor.memoization.MemoizationFinder;
+import pl.com.labaj.autorecord.processor.memoization.MemoizationGenerator;
 
-import javax.annotation.processing.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -35,25 +36,25 @@ import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 
 class RecordGenerator {
-    private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
-            .addMember("value", "$S", AutoRecord.class.getName())
-            .build();
-    private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
+
     private final TypeElement sourceInterface;
     private final AutoRecord.Options recordOptions;
     private final RecordBuilder.Options builderOptions;
     private final ProcessingEnvironment processingEnv;
-    private final MessagerLogger logger;
+    private final MemoizationFinder memoizationFinder;
+    private final Logger logger;
 
     RecordGenerator(TypeElement sourceInterface,
                     AutoRecord.Options recordOptions,
                     RecordBuilder.Options builderOptions,
                     ProcessingEnvironment processingEnv,
-                    MessagerLogger logger) {
+                    Logger logger) {
         this.sourceInterface = sourceInterface;
         this.recordOptions = recordOptions;
         this.builderOptions = builderOptions;
         this.processingEnv = processingEnv;
+
+        memoizationFinder = new MemoizationFinder(processingEnv.getElementUtils());
         this.logger = logger;
     }
 
@@ -63,8 +64,9 @@ class RecordGenerator {
         var recordModifiers = getRecordModifiers(sourceInterface);
         var recordName = createRecordName(sourceInterface);
         var propertyMethods = getPropertyMethods(sourceInterface);
+        var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
 
-        var parameters = new GeneratorParameters(processingEnv,
+        var metaData = new GeneratorMetaData(processingEnv,
                 sourceInterface,
                 recordOptions,
                 builderOptions,
@@ -73,39 +75,29 @@ class RecordGenerator {
                 recordModifiers,
                 recordName,
                 propertyMethods,
+                memoization,
                 logger);
 
-        var recordSpecBuilder = TypeSpec.recordBuilder(recordName)
-                .addAnnotation(GENERATED_ANNOTATION)
-                .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
-                .addModifiers(recordModifiers)
-                .addSuperinterface(sourceInterface.asType());
+        var subGenerators = createSubGenerators(metaData);
 
-        var memoization = generateMemoizationParts(parameters, recordSpecBuilder);
-        generateConstructionParts(parameters, recordSpecBuilder, memoization);
-        generateBuilderParts(parameters, recordSpecBuilder);
-        generateHashCodeAndEqualsParts(parameters, recordSpecBuilder, memoization);
-        generateToStringParts(parameters, recordSpecBuilder, memoization);
+        var recordSpecBuilder = TypeSpec.recordBuilder(recordName);
+        subGenerators.forEach(subGenerator -> subGenerator.generate(recordSpecBuilder, staticImports, logger));
+
+        generateBuilderParts(metaData, recordSpecBuilder);
+        generateHashCodeAndEqualsParts(metaData, recordSpecBuilder, memoization);
+        generateToStringParts(metaData, recordSpecBuilder, memoization);
 
         return buildJavaFile(packageName, recordSpecBuilder.build(), staticImports);
     }
 
-    private Memoization generateMemoizationParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
-        return new MemoizedPartsGenerator(parameters, recordSpecBuilder)
-                .createMemoization()
-                .createMemoizedMethods()
-                .returnMemoization();
+    private static List<SubGenerator> createSubGenerators(GeneratorMetaData metaData) {
+        return List.of(
+                new BasicGenerator(metaData),
+                new MemoizationGenerator(metaData)
+        );
     }
 
-    private void generateConstructionParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
-        new ConstructionPartsGenerator(parameters, recordSpecBuilder, memoization)
-                .createTypeVariables()
-                .createAdditionalRecordComponents()
-                .createAdditionalConstructor()
-                .createCompactConstructor();
-    }
-
-    private void generateBuilderParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
+    private void generateBuilderParts(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder) {
         if (!parameters.recordOptions().withBuilder()) {
             return;
         }
@@ -117,14 +109,14 @@ class RecordGenerator {
                 .createToBuilderMethod();
     }
 
-    private void generateHashCodeAndEqualsParts(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
+    private void generateHashCodeAndEqualsParts(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
         new HashCodeEqualsGenerator(parameters, recordSpecBuilder, memoization)
                 .findNotIgnoredProperties()
                 .createHashCodeMethod()
                 .createEqualsMethod();
     }
 
-    private void generateToStringParts(GeneratorParameters parameters,
+    private void generateToStringParts(GeneratorMetaData parameters,
                                        TypeSpec.Builder recordSpecBuilder,
                                        Memoization memoization) {
         new ToStringGenerator(parameters, recordSpecBuilder, memoization)
@@ -149,27 +141,27 @@ class RecordGenerator {
         return processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)
-                .map(MethodHelper::new)
-                .filter(MethodHelper::isAbstract)
+                .map(Method::new)
+                .filter(Method::isAbstract)
                 .filter(this::hasNoParameters)
                 .filter(this::doesNotReturnVoid)
-                .filter(MethodHelper::isNotSpecial)
-                .map(MethodHelper::method)
+                .filter(Method::isNotSpecial)
+                .map(Method::method)
                 .toList();
     }
 
-    private boolean hasNoParameters(MethodHelper helper) {
-        if (helper.hasParameters()) {
-            logger.error("The interface has abstract method with parameters: %s".formatted(helper.methodeName()));
+    private boolean hasNoParameters(Method method) {
+        if (method.hasParameters()) {
+            logger.error("The interface has abstract method with parameters: %s".formatted(method.methodeName()));
             return false;
         }
 
         return true;
     }
 
-    private boolean doesNotReturnVoid(MethodHelper helper) {
-        if (helper.returnsVoid()) {
-            logger.error("The interface has abstract method returning void: %s".formatted(helper.methodeName()));
+    private boolean doesNotReturnVoid(Method method) {
+        if (method.returnsVoid()) {
+            logger.error("The interface has abstract method returning void: %s".formatted(method.methodeName()));
             return false;
         }
 

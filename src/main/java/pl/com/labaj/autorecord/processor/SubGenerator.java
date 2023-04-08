@@ -16,22 +16,16 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.Memoizer;
+import com.squareup.javapoet.TypeSpec;
 
-final class MemoizerHelper {
-    private static final String MEMOIZER = Memoizer.class.getSimpleName();
+import java.util.List;
 
-    private MemoizerHelper() {}
+public abstract class SubGenerator {
+    protected final GeneratorMetaData metaData;
 
-    static String memoizerComponentName(String name) {
-        return name + MEMOIZER;
+    protected SubGenerator(GeneratorMetaData metaData) {
+        this.metaData = metaData;
     }
 
-    static String memoizerComputeMethodName(String name) {
-        return memoizerComponentName(name) + ".computeIfAbsent";
-    }
-
-    static String memoizerConstructorStatement() {
-        return "new " + MEMOIZER + "<>()";
-    }
+    public abstract void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger);
 }

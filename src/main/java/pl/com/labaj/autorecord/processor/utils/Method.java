@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.utils;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,21 +16,24 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
+import pl.com.labaj.autorecord.processor.memoization.Memoization;
+
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
 
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.type.TypeKind.ARRAY;
 import static javax.lang.model.type.TypeKind.VOID;
-import static pl.com.labaj.autorecord.processor.AnnotationsHelper.getAnnotation;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 
-record MethodHelper(ExecutableElement method) {
+public record Method(ExecutableElement method) {
 
-    String methodeName() {
+    public String methodeName() {
         return method.getSimpleName().toString();
     }
 
-    boolean hasParameters() {
+    public boolean hasParameters() {
         return !hasNoParameters();
     }
 
@@ -38,31 +41,31 @@ record MethodHelper(ExecutableElement method) {
         return method.getParameters().isEmpty();
     }
 
-    boolean doesNotReturnVoid() {
+    public boolean doesNotReturnVoid() {
         return !returnsVoid();
     }
 
-    boolean returnsVoid() {
+    public boolean returnsVoid() {
         return method.getReturnType().getKind() == VOID;
     }
 
-    boolean isAbstract() {
+    public boolean isAbstract() {
         return method.getModifiers().contains(ABSTRACT);
     }
 
-    boolean doesNotReturnPrimitive() {
+    public boolean doesNotReturnPrimitive() {
         return !returnsPrimitive();
     }
 
-    boolean returnsPrimitive() {
+    public boolean returnsPrimitive() {
         return method.getReturnType().getKind().isPrimitive();
     }
 
-    boolean returnsArray() {
+    public boolean returnsArray() {
         return method.getReturnType().getKind() == ARRAY;
     }
 
-    boolean isSpecial() {
+    public boolean isSpecial() {
         return SpecialMethod.isSpecial(method);
     }
 
@@ -70,11 +73,23 @@ record MethodHelper(ExecutableElement method) {
         return !isSpecial();
     }
 
-    boolean isAnnotatedWith(Class<? extends Annotation> annotationClass) {
+    public boolean isAnnotatedWith(Class<? extends Annotation> annotationClass) {
         return getAnnotation(method, annotationClass).isPresent();
     }
 
-    boolean isNotAnnotatedWith(Class<? extends Annotation> annotationClass) {
+    public boolean isNotAnnotatedWith(Class<? extends Annotation> annotationClass) {
         return !isAnnotatedWith(annotationClass);
+    }
+
+    public Memoization.Item getToMemoizedItem() {
+        var annotations = method.getAnnotationMirrors().stream()
+                .map(AnnotationMirror.class::cast)
+                .toList();
+
+        return new Memoization.Item(method.getReturnType(),
+                methodeName(),
+                annotations,
+                method.getModifiers(),
+                isSpecial());
     }
 }

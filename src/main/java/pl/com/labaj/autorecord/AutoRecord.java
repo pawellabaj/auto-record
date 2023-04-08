@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 @Retention(SOURCE)
@@ -36,15 +37,18 @@ public @interface AutoRecord {
     @Inherited
     @interface Options {
         boolean withBuilder() default false;
+
         boolean memoizedHashCode() default false;
+
         boolean memoizedToString() default false;
     }
 
-    @Retention(SOURCE)
+    @Retention(CLASS)
     @Target(ANNOTATION_TYPE)
     @Inherited
     @interface Template {
         AutoRecord.Options recordOptions() default @AutoRecord.Options();
+
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
     }
 }

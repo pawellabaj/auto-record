@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.processor;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.processor.memoization.Memoization;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -27,13 +28,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("java:S6218")
-record GeneratorParameters(ProcessingEnvironment processingEnv,
-                           TypeElement sourceInterface,
-                           AutoRecord.Options recordOptions,
-                           RecordBuilder.Options builderOptions,
-                           ArrayList<StaticImport> staticImports,
-                           String packageName,
-                           Modifier[] recordModifiers,
-                           String recordName,
-                           List<ExecutableElement> propertyMethods,
-                           MessagerLogger logger) {}
+public
+record GeneratorMetaData(ProcessingEnvironment processingEnv,
+                         TypeElement sourceInterface,
+                         AutoRecord.Options recordOptions,
+                         RecordBuilder.Options builderOptions,
+                         ArrayList<StaticImport> staticImports,
+                         String packageName,
+                         Modifier[] recordModifiers,
+                         String recordName,
+                         List<ExecutableElement> propertyMethods,
+                         Memoization memoization,
+                         Logger logger) {}

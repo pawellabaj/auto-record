@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.utils;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -36,14 +36,14 @@ import static java.util.Collections.emptyList;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
-final class AnnotationsHelper {
-    private AnnotationsHelper() {}
+public final class Annotations {
+    private Annotations() {}
 
-    static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors, ElementType target) {
+    public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors, ElementType target) {
         return createAnnotationSpecs(annotationMirrors, target, emptyList(), emptyList());
     }
 
-    static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors,
+    public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors,
                                                       ElementType target,
                                                       List<Class<? extends Annotation>> annotationsToAdd,
                                                       List<Class<? extends Annotation>> annotationsToExclude) {
@@ -67,11 +67,11 @@ final class AnnotationsHelper {
                 .toList();
     }
 
-    static <A extends Annotation> Optional<A> getAnnotation(Element element, Class<A> annotationClass) {
+    public static <A extends Annotation> Optional<A> getAnnotation(Element element, Class<A> annotationClass) {
         return Optional.ofNullable(element.getAnnotation(annotationClass));
     }
 
-    static <A extends Annotation> A getDefaultAnnotationIfNotPresent(Element element, Class<A> annotationClass) {
+    public static <A extends Annotation> A getDefaultAnnotationIfNotPresent(Element element, Class<A> annotationClass) {
         return getAnnotation(element, annotationClass)
                 .orElseGet(() -> getAnnotationWithDefaults(annotationClass));
     }

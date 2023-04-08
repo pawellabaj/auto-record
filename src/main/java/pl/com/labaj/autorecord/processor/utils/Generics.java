@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.utils;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -22,28 +22,29 @@ import com.squareup.javapoet.TypeVariableName;
 import javax.lang.model.element.TypeParameterElement;
 import java.util.List;
 
-final class GenericHelper {
-    private GenericHelper() {}
+public final class Generics {
+    private Generics() {}
 
-    static TypeName[] getGenericNames(List<? extends TypeParameterElement> typeParameters) {
-        return typeParameters.stream()
-                .map(Object::toString)
-                .map(TypeVariableName::get)
-                .toArray(TypeName[]::new);
-    }
 
-    static List<TypeVariableName> getGenericVariables(List<? extends TypeParameterElement> typeParameters) {
+    public static List<TypeVariableName> getGenericVariableNames(List<? extends TypeParameterElement> typeParameters) {
         return typeParameters.stream()
-                .map(GenericHelper::toTypeVariableName)
+                .map(Generics::toVariableName)
                 .toList();
     }
 
-    private static TypeVariableName toTypeVariableName(TypeParameterElement typeParameterElement) {
+    private static TypeVariableName toVariableName(TypeParameterElement typeParameterElement) {
         var name = typeParameterElement.asType().toString();
         var bounds = typeParameterElement.getBounds().stream()
                 .map(TypeName::get)
                 .toArray(TypeName[]::new);
 
         return TypeVariableName.get(name, bounds);
+    }
+
+    public static TypeName[] getGenericTypeNames(List<? extends TypeParameterElement> typeParameters) {
+        return typeParameters.stream()
+                .map(Object::toString)
+                .map(TypeVariableName::get)
+                .toArray(TypeName[]::new);
     }
 }

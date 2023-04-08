@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.memoizer;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,11 +16,22 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Modifier;
-import java.util.List;
-import java.util.Set;
+import java.util.function.BooleanSupplier;
 
-record Memoization(Set<Item> items, boolean memoizedHashCode, boolean memoizedToString) {
-    record Item(Class<?> type, String name, List<AnnotationMirror> annotations, Set<Modifier> modifiers, boolean special) {}
+public class BooleanMemoizer {
+
+    private volatile boolean valueMemoized;
+    private volatile boolean value;
+
+    public boolean computeAsBooleanIfAbsent(BooleanSupplier valueSupplier) {
+        if (!valueMemoized) {
+            synchronized (this) {
+                if (!valueMemoized) {
+                    value = valueSupplier.getAsBoolean();
+                    valueMemoized = true;
+                }
+            }
+        }
+        return value;
+    }
 }
