@@ -28,8 +28,8 @@ import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
 import static javax.lang.model.element.ElementKind.INTERFACE;
-import static pl.com.labaj.autorecord.processor.AnnotationsHelper.getAnnotation;
-import static pl.com.labaj.autorecord.processor.AnnotationsHelper.getDefaultAnnotationIfNotPresent;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.getDefaultAnnotationIfNotPresent;
 
 @SupportedAnnotationTypes("pl.com.labaj.autorecord.*")
 public class AutoRecordProcessor extends AbstractProcessor {
@@ -81,7 +81,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
     }
 
     private void processElement(TypeElement sourceInterface, AutoRecord.Options recordOptions, RecordBuilder.Options builderOptions) {
-        var logger = new MessagerLogger(processingEnv.getMessager(), sourceInterface);
+        var logger = new Logger(processingEnv.getMessager(), sourceInterface);
         logger.debug("Generate record for %s".formatted(sourceInterface));
 
         try {

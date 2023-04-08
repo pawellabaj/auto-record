@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.memoizer;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,4 +16,19 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-public record StaticImport(Class<?> aClass, String methodName) {}
+public class ByteMemoizer {
+    private volatile boolean valueMemoized;
+    private volatile byte value;
+
+    public byte computeAsByteIfAbsent(ByteSupplier valueSupplier) {
+        if (!valueMemoized) {
+            synchronized (this) {
+                if (!valueMemoized) {
+                    value = valueSupplier.getAsByte();
+                    valueMemoized = true;
+                }
+            }
+        }
+        return value;
+    }
+}

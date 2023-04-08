@@ -23,25 +23,25 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
-class MessagerLogger {
+public class Logger {
 
     private final Messager messager;
     private final Element elementContext;
 
-    MessagerLogger(Messager messager, Element elementContext) {
+    Logger(Messager messager, Element elementContext) {
         this.messager = messager;
         this.elementContext = elementContext;
     }
 
-    void debug(String message) {
+    public void debug(String message) {
         messager.printMessage(NOTE, message);
     }
 
-    void error(String message) {
+    public void error(String message) {
         messager.printMessage(ERROR, errorMessage(message), elementContext);
     }
 
-    void error(String message, Throwable throwable) {
+    public void error(String message, Throwable throwable) {
         messager.printMessage(ERROR, errorMessage(message) + ": " + getStackTrace(throwable), elementContext);
     }
 

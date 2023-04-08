@@ -19,6 +19,8 @@ package pl.com.labaj.autorecord.processor;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Ignored;
+import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.memoization.Memoization;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -32,17 +34,18 @@ import static com.squareup.javapoet.TypeName.OBJECT;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.utils.SpecialMethod.HASH_CODE;
 
 class HashCodeEqualsGenerator {
 
     private static final String OBJECTS_HASH = "hash";
     private static final String OTHER = "other";
     private static final String OTHER_RECORD = "otherRecord";
-    private final GeneratorParameters parameters;
+    private final GeneratorMetaData parameters;
     private final TypeSpec.Builder recordSpecBuilder;
     private final Memoization memoization;
 
-    HashCodeEqualsGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
+    HashCodeEqualsGenerator(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
         this.parameters = parameters;
         this.recordSpecBuilder = recordSpecBuilder;
         this.memoization = memoization;
@@ -50,9 +53,9 @@ class HashCodeEqualsGenerator {
 
     WithNotIgnoredProperties findNotIgnoredProperties() {
         var notIgnoredProperties = parameters.propertyMethods().stream()
-                .map(MethodHelper::new)
-                .filter(helper -> helper.isNotAnnotatedWith(Ignored.class))
-                .map(MethodHelper::method)
+                .map(Method::new)
+                .filter(method -> method.isNotAnnotatedWith(Ignored.class))
+                .map(Method::method)
                 .toList();
         return new WithNotIgnoredProperties(notIgnoredProperties);
     }
@@ -66,11 +69,11 @@ class HashCodeEqualsGenerator {
         private WithNotIgnoredProperties(List<ExecutableElement> notIgnoredProperties) {
             this.notIgnoredProperties = notIgnoredProperties;
 
-            memoizedHashCode = memoization.memoizedHashCode();
+            memoizedHashCode = memoization.specialMemoized().get(HASH_CODE);
             hasIgnoredComponents = notIgnoredProperties.size() < parameters.propertyMethods().size();
             hasArrayComponents = notIgnoredProperties.stream()
-                    .map(MethodHelper::new)
-                    .anyMatch(MethodHelper::returnsArray);
+                    .map(Method::new)
+                    .anyMatch(Method::returnsArray);
         }
 
         WithNotIgnoredProperties createHashCodeMethod() {
@@ -80,8 +83,8 @@ class HashCodeEqualsGenerator {
 
             var methodName = (memoizedHashCode ? "_" : "") + "hashCode";
             var hashCodeFormat = notIgnoredProperties.stream()
-                    .map(MethodHelper::new)
-                    .map(helper -> helper.returnsArray() ? "$T.hashCode($N)" : "$N")
+                    .map(Method::new)
+                    .map(method -> method.returnsArray() ? "$T.hashCode($N)" : "$N")
                     .collect(joining(", ", "return " + OBJECTS_HASH + "(", ")"));
             var arguments = notIgnoredProperties.stream()
                     .flatMap(this::getHashCodeArguments)
@@ -103,7 +106,7 @@ class HashCodeEqualsGenerator {
         }
 
         private Stream<?> getHashCodeArguments(ExecutableElement method) {
-            var returnsArray = new MethodHelper(method).returnsArray();
+            var returnsArray = new Method(method).returnsArray();
             return returnsArray ? Stream.of(Arrays.class, method.getSimpleName()) : Stream.of(method.getSimpleName());
         }
 
@@ -154,7 +157,7 @@ class HashCodeEqualsGenerator {
 
         private Stream<?> getToStringArguments(ExecutableElement method) {
             var methodName = method.getSimpleName();
-            var returnsArray = new MethodHelper(method).returnsArray();
+            var returnsArray = new Method(method).returnsArray();
 
             return returnsArray ? Stream.of(Arrays.class, methodName, methodName) : Stream.of(Objects.class, methodName, methodName);
         }

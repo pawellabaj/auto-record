@@ -18,6 +18,8 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.memoization.Memoization;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -26,13 +28,14 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.utils.SpecialMethod.TO_STRING;
 
 class ToStringGenerator {
-    private final GeneratorParameters parameters;
+    private final GeneratorMetaData parameters;
     private final TypeSpec.Builder recordSpecBuilder;
     private final Memoization memoization;
 
-    ToStringGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
+    ToStringGenerator(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
         this.parameters = parameters;
         this.recordSpecBuilder = recordSpecBuilder;
         this.memoization = memoization;
@@ -40,11 +43,11 @@ class ToStringGenerator {
 
     @SuppressWarnings("UnusedReturnValue")
     ToStringGenerator createToStringMethod() {
-        var memoizedToString = memoization.memoizedToString();
+        var memoizedToString = memoization.specialMemoized().get(TO_STRING);
         var propertyMethods = parameters.propertyMethods();
         var hasArrayComponents = propertyMethods.stream()
-                .map(MethodHelper::new)
-                .anyMatch(MethodHelper::returnsArray);
+                .map(Method::new)
+                .anyMatch(Method::returnsArray);
 
         if (!memoizedToString && !hasArrayComponents) {
             return this;
@@ -52,7 +55,7 @@ class ToStringGenerator {
 
         var methodName = (memoizedToString ? "_" : "") + "toString";
         var toStringFormat = propertyMethods.stream()
-                .map(method -> new MethodHelper(method).returnsArray() ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N")
+                .map(method -> new Method(method).returnsArray() ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N")
                 .collect(joining(" + \", \" +\n", "return \"" + parameters.recordName() + "[\" +\n", " +\n\"]\""));
         var arguments = propertyMethods.stream()
                 .flatMap(this::getArguments)
@@ -71,7 +74,7 @@ class ToStringGenerator {
     private Stream<?> getArguments(ExecutableElement method) {
         var methodName = method.getSimpleName();
 
-        var returnsArray = new MethodHelper(method).returnsArray();
+        var returnsArray = new Method(method).returnsArray();
         return returnsArray ? Stream.of(methodName, Arrays.class, methodName) : Stream.of(methodName, methodName);
     }
 }

@@ -367,6 +367,12 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>src/main/java/pl/com/labaj/autorecord/*.java</include>
+                                <include>src/main/java/pl/com/labaj/autorecord/memoization/*.java</include>
+                            </includes>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>

@@ -31,18 +31,18 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.STATIC;
-import static pl.com.labaj.autorecord.processor.GenericHelper.getGenericNames;
-import static pl.com.labaj.autorecord.processor.GenericHelper.getGenericVariables;
+import static pl.com.labaj.autorecord.processor.utils.Generics.getGenericTypeNames;
+import static pl.com.labaj.autorecord.processor.utils.Generics.getGenericVariableNames;
 
 class BuilderPartsGenerator {
 
     private static final String ADD_CLASS_RETAINED_GENERATED = "addClassRetainedGenerated";
-    private final GeneratorParameters parameters;
+    private final GeneratorMetaData parameters;
     private final TypeSpec.Builder recordSpecBuilder;
     private final RecordBuilder.Options builderOptions;
     private final String recordBuilderName;
 
-    BuilderPartsGenerator(GeneratorParameters parameters, TypeSpec.Builder recordSpecBuilder) {
+    BuilderPartsGenerator(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder) {
         this.parameters = parameters;
         this.recordSpecBuilder = recordSpecBuilder;
         builderOptions = this.parameters.builderOptions();
@@ -90,8 +90,8 @@ class BuilderPartsGenerator {
         if (typeParameters.isEmpty()) {
             builderMethodBuilder.returns(returnedClassName);
         } else {
-            var genericVariables = getGenericVariables(typeParameters);
-            var genericNames = getGenericNames(typeParameters);
+            var genericVariables = getGenericVariableNames(typeParameters);
+            var genericNames = getGenericTypeNames(typeParameters);
 
             builderMethodBuilder.addTypeVariables(genericVariables)
                     .returns(ParameterizedTypeName.get(returnedClassName, genericNames));
@@ -131,8 +131,8 @@ class BuilderPartsGenerator {
         if (typeParameters.isEmpty()) {
             toBuilderMethodBuilder.returns(returnedClassName);
         } else {
-            var genericVariables = getGenericVariables(typeParameters);
-            var genericNames = getGenericNames(typeParameters);
+            var genericVariables = getGenericVariableNames(typeParameters);
+            var genericNames = getGenericTypeNames(typeParameters);
 
             toBuilderMethodBuilder.addTypeVariables(genericVariables)
                     .returns(ParameterizedTypeName.get(returnedClassName, genericNames));

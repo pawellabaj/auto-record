@@ -34,17 +34,15 @@ interface Person {
 }
 ```
 
-AutoRecord will then generate a Java record class that implements your interface. The constructor parameters correspond, in order, to the abstract accessor methods:
+AutoRecord will then generate a Java record class that implements your interface. The constructor parameters correspond, in order, to the interface methods:
 
 ```java
 import static java.util.Objects.requireNonNull;
 
 import java.lang.String;
 import javax.annotation.processing.Generated;
-import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
-@GeneratedWithAutoRecord
 record PersonRecord(String name, int age) implements Person {
   PersonRecord {
     requireNonNull(name, () -> "name must not be null");

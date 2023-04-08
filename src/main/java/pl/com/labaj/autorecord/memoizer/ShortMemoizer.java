@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord;
+package pl.com.labaj.autorecord.memoizer;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,18 +16,15 @@ package pl.com.labaj.autorecord;
  * limitations under the License.
  */
 
-import java.util.function.Supplier;
-
-public final class Memoizer<T> {
+public class ShortMemoizer {
     private volatile boolean valueMemoized;
-    @SuppressWarnings("java:S3077")
-    private volatile T value;
+    private volatile short value;
 
-    public T computeIfAbsent(Supplier<T> valueSupplier) {
+    public short computeAsShortIfAbsent(ShortSupplier valueSupplier) {
         if (!valueMemoized) {
             synchronized (this) {
                 if (!valueMemoized) {
-                    value = valueSupplier.get();
+                    value = valueSupplier.getAsShort();
                     valueMemoized = true;
                 }
             }
