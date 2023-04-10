@@ -20,11 +20,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class FloatMemoizerTest {
     @Test
-    public void testMemoizer() {
+    void testMemoizer() {
         // given
         var memoizer = new FloatMemoizer();
         var counter = new AtomicInteger(0);
@@ -40,11 +41,10 @@ class FloatMemoizerTest {
 
         // then
         assertAll(
-                () -> assertEquals(3.5f, memoizedValue1),
-                () -> assertEquals(memoizedValue1, memoizedValue2),
-                () -> assertEquals(memoizedValue1, memoizedValue3),
-                () -> assertEquals(1, counter.get())
+                () -> assertThat(memoizedValue1).isEqualTo(3.5f),
+                () -> assertThat(memoizedValue2).isEqualTo(memoizedValue1),
+                () -> assertThat(memoizedValue3).isEqualTo(memoizedValue1),
+                () -> assertThat(counter.get()).isEqualTo(1)
         );
     }
-
 }

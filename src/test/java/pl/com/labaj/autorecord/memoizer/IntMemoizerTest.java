@@ -21,18 +21,18 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IntMemoizerTest {
     @Test
-    public void testMemoizer() {
+    void testMemoizer() {
         // given
         var memoizer = new IntMemoizer();
         var counter = new AtomicInteger(0);
         IntSupplier valueSupplier = () -> {
             counter.incrementAndGet();
-            return 1;
+            return 5;
         };
 
         // when
@@ -42,11 +42,10 @@ class IntMemoizerTest {
 
         // then
         assertAll(
-                () -> assertEquals(1, memoizedValue1),
-                () -> assertEquals(memoizedValue1, memoizedValue2),
-                () -> assertEquals(memoizedValue1, memoizedValue3),
-                () -> assertEquals(1, counter.get())
+                () -> assertThat(memoizedValue1).isEqualTo(5),
+                () -> assertThat(memoizedValue2).isSameAs(memoizedValue1),
+                () -> assertThat(memoizedValue3).isSameAs(memoizedValue1),
+                () -> assertThat(counter.get()).isEqualTo(1)
         );
     }
-
 }

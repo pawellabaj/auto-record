@@ -21,12 +21,12 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleSupplier;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DoubleMemoizerTest {
     @Test
-    public void testMemoizer() {
+    void testMemoizer() {
         // given
         var memoizer = new DoubleMemoizer();
         var counter = new AtomicInteger(0);
@@ -42,11 +42,10 @@ class DoubleMemoizerTest {
 
         // then
         assertAll(
-                () -> assertEquals(2.5d, memoizedValue1),
-                () -> assertEquals(memoizedValue1, memoizedValue2),
-                () -> assertEquals(memoizedValue1, memoizedValue3),
-                () -> assertEquals(1, counter.get())
+                () -> assertThat(memoizedValue1).isEqualTo(2.5d),
+                () -> assertThat(memoizedValue2).isEqualTo(memoizedValue1),
+                () -> assertThat(memoizedValue3).isEqualTo(memoizedValue1),
+                () -> assertThat(counter.get()).isEqualTo(1)
         );
     }
-
 }
