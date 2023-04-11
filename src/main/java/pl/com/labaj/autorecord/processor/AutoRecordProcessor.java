@@ -25,10 +25,12 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import java.util.Map;
 import java.util.Set;
 
 import static javax.lang.model.element.ElementKind.INTERFACE;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotationWithEnforcedValues;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getDefaultAnnotationIfNotPresent;
 
 @SupportedAnnotationTypes("pl.com.labaj.autorecord.*")
@@ -66,7 +68,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
 
         if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
             var recordOptions = getDefaultAnnotationIfNotPresent(sourceInterface, AutoRecord.Options.class);
-            var builderOptions = getDefaultAnnotationIfNotPresent(sourceInterface, RecordBuilder.Options.class);
+            var builderOptions = getAnnotationWithEnforcedValues(sourceInterface, RecordBuilder.Options.class, Map.of("addClassRetainedGenerated", true));
 
             processElement(sourceInterface, recordOptions, builderOptions);
         } else {

@@ -85,30 +85,18 @@ class RecordGenerator {
         var recordSpecBuilder = TypeSpec.recordBuilder(recordName);
         subGenerators.forEach(subGenerator -> subGenerator.generate(recordSpecBuilder, staticImports, logger));
 
-        generateBuilderParts(metaData, recordSpecBuilder);
         generateHashCodeAndEqualsParts(metaData, recordSpecBuilder, memoization);
         generateToStringParts(metaData, recordSpecBuilder, memoization);
 
         return buildJavaFile(packageName, recordSpecBuilder.build(), staticImports);
     }
 
-    private static List<SubGenerator> createSubGenerators(GeneratorMetaData metaData) {
+    private List<SubGenerator> createSubGenerators(GeneratorMetaData metaData) {
         return List.of(
                 new BasicGenerator(metaData),
-                new MemoizationGenerator(metaData)
+                new MemoizationGenerator(metaData),
+                new BuilderGenerator(metaData)
         );
-    }
-
-    private void generateBuilderParts(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder) {
-        if (!parameters.recordOptions().withBuilder()) {
-            return;
-        }
-
-        new BuilderPartsGenerator(parameters, recordSpecBuilder)
-                .createRecordBuilderAnnotation()
-                .createRecordBuilderOptionsAnnotation()
-                .createBuilderMethod()
-                .createToBuilderMethod();
     }
 
     private void generateHashCodeAndEqualsParts(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {

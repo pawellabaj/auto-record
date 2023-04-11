@@ -29,10 +29,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
@@ -44,9 +46,9 @@ public final class Annotations {
     }
 
     public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors,
-                                                      ElementType target,
-                                                      List<Class<? extends Annotation>> annotationsToAdd,
-                                                      List<Class<? extends Annotation>> annotationsToExclude) {
+                                                             ElementType target,
+                                                             List<Class<? extends Annotation>> annotationsToAdd,
+                                                             List<Class<? extends Annotation>> annotationsToExclude) {
         var classNamesStream = annotationMirrors.stream()
                 .map(AnnotationMirror::getAnnotationType)
                 .map(DeclaredType::asElement)
@@ -76,6 +78,22 @@ public final class Annotations {
                 .orElseGet(() -> getAnnotationWithDefaults(annotationClass));
     }
 
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> A getAnnotationWithEnforcedValues(Element element, Class<A> annotationClass, Map<String, Object> enforcedValues) {
+        var annotation = getAnnotation(element, annotationClass).orElse(null);
+
+        return (A) Proxy.newProxyInstance(
+                annotationClass.getClassLoader(),
+                new Class[] {annotationClass},
+                (proxy, method, args) -> {
+                    var methodName = method.getName();
+                    if (enforcedValues.containsKey(methodName)) {
+                        return enforcedValues.get(methodName);
+                    }
+                    return isNull(annotation) ? method.getDefaultValue() : method.invoke(annotation);
+                });
+    }
+
     private static boolean canAnnotateElementType(TypeElement annotation, ElementType targetType) {
         return getAnnotation(annotation, Target.class)
                 .map(Target::value)
@@ -85,7 +103,7 @@ public final class Annotations {
     }
 
     @SuppressWarnings("unchecked")
-    private static <A extends Annotation> A getAnnotationWithDefaults(Class<A> annotationClass) {
+    static <A extends Annotation> A getAnnotationWithDefaults(Class<A> annotationClass) {
         return (A) Proxy.newProxyInstance(
                 annotationClass.getClassLoader(),
                 new Class[] {annotationClass},

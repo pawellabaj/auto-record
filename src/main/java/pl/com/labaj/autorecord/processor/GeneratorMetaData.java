@@ -34,10 +34,10 @@ record GeneratorMetaData(ProcessingEnvironment processingEnv,
                          String interfaceName,
                          AutoRecord.Options recordOptions,
                          RecordBuilder.Options builderOptions,
-                         ArrayList<StaticImport> staticImports,
+                         @Deprecated ArrayList<StaticImport> staticImports,
                          String packageName,
                          Modifier[] recordModifiers,
                          String recordName,
                          List<ExecutableElement> propertyMethods,
                          Memoization memoization,
-                         Logger logger) {}
+                         @Deprecated Logger logger) {}

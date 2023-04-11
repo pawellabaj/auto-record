@@ -57,7 +57,7 @@ record PersonRecord(String name, int age) implements Person {
 
 ## Documentation
 
-For more information on how to use AutoRecord in your Java project, please refer to the project's [wiki](https://github.com/pawellabaj/auto-record/wiki).
+For more information on how to use AutoRecord and all its features, please visit the project's [Wiki](https://github.com/pawellabaj/auto-record/wiki).
 
 ## Getting started
 
