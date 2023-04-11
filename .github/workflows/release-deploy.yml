@@ -52,6 +52,7 @@ jobs:
               </server>
               <server>
                 <id>gpg.passphrase</id>
+                <passphrase>GPG_PASSPHRASE</passphrase>
                 <password>${{ secrets.GPG_PASSPHRASE }}</password>
               </server>
             </servers>
@@ -66,7 +67,6 @@ jobs:
           cat ~/.m2/settings.xml
           echo ---
           cat ~/.m2/settings-security.xml
-      
 
       - name: Perform Maven release
         env:
