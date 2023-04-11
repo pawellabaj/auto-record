@@ -12,18 +12,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  next-version:
-    name: Get Release version
-    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
-
   release-perform:
     name: Deploy release
     runs-on: ubuntu-latest
-    if: ${{ needs.branch-exists.outputs.exists != 'true' && needs.next-version.outputs.new-release-version != '' }}
     needs:
       - next-version
     env:
-      RELEASE_VERSION: ${{ needs.next-version.outputs.new-release-version }}
+      RELEASE_VERSION: 0.4.0
 
     steps:
       - name: Checkout
