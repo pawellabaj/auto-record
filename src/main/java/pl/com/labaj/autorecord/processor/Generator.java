@@ -17,6 +17,7 @@ package pl.com.labaj.autorecord.processor;
  */
 
 import com.squareup.javapoet.TypeSpec;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 
 import java.util.List;
 

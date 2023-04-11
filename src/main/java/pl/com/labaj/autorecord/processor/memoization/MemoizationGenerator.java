@@ -21,10 +21,10 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.Logger;
 import pl.com.labaj.autorecord.processor.StaticImport;
 import pl.com.labaj.autorecord.processor.SubGenerator;
 import pl.com.labaj.autorecord.processor.utils.Annotations;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 
 import java.lang.annotation.ElementType;
 import java.util.List;

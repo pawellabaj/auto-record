@@ -26,6 +26,7 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.processor.memoization.Memoization;
 import pl.com.labaj.autorecord.processor.memoization.TypeMemoizer;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
 
 import javax.annotation.Nullable;

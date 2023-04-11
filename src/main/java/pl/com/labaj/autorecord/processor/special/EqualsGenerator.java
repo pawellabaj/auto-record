@@ -19,8 +19,8 @@ package pl.com.labaj.autorecord.processor.special;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.Logger;
 import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
 
 import javax.lang.model.element.ExecutableElement;

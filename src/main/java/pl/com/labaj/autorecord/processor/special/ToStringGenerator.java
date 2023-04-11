@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.special;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,11 +18,15 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.memoization.Memoization;
+import pl.com.labaj.autorecord.processor.GeneratorMetaData;
+import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.SubGenerator;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
@@ -30,34 +34,27 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_STRING;
 
-class ToStringGenerator {
-    private final GeneratorMetaData parameters;
-    private final TypeSpec.Builder recordSpecBuilder;
-    private final Memoization memoization;
-
-    ToStringGenerator(GeneratorMetaData parameters, TypeSpec.Builder recordSpecBuilder, Memoization memoization) {
-        this.parameters = parameters;
-        this.recordSpecBuilder = recordSpecBuilder;
-        this.memoization = memoization;
+public class ToStringGenerator extends SubGenerator {
+    public ToStringGenerator(GeneratorMetaData metaData) {
+        super(metaData);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    ToStringGenerator createToStringMethod() {
-        var memoizedToString = memoization.specialMemoized().get(TO_STRING);
-        var propertyMethods = parameters.propertyMethods();
-        var hasArrayComponents = propertyMethods.stream()
-                .map(Method::new)
-                .anyMatch(Method::returnsArray);
+    @Override
+    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+        var memoizedToString = metaData.memoization().specialMemoized().get(TO_STRING);
+        var propertyMethods = metaData.propertyMethods();
 
-        if (!memoizedToString && !hasArrayComponents) {
-            return this;
+        if (shouldNotGenerateToString(memoizedToString, propertyMethods)) {
+            return;
         }
 
         var methodName = (memoizedToString ? "_" : "") + "toString";
         var toStringFormat = propertyMethods.stream()
-                .map(method -> new Method(method).returnsArray() ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N")
-                .collect(joining(" + \", \" +\n", "return \"" + parameters.recordName() + "[\" +\n", " +\n\"]\""));
+                .map(Method::new)
+                .map(this::getFormat)
+                .collect(joining(" + \", \" +\n", "return \"" + metaData.recordName() + "[\" +\n", " +\n\"]\""));
         var arguments = propertyMethods.stream()
+                .map(Method::new)
                 .flatMap(this::getArguments)
                 .toArray();
         var toStringMethod = MethodSpec.methodBuilder(methodName)
@@ -67,14 +64,28 @@ class ToStringGenerator {
                 .build();
 
         recordSpecBuilder.addMethod(toStringMethod);
-
-        return this;
     }
 
-    private Stream<?> getArguments(ExecutableElement method) {
-        var methodName = method.getSimpleName();
+    private boolean shouldNotGenerateToString(boolean memoizedToString, List<ExecutableElement> propertyMethods) {
+        if (memoizedToString) {
+            return false;
+        }
 
-        var returnsArray = new Method(method).returnsArray();
+        var hasArrayComponents = propertyMethods.stream()
+                .map(Method::new)
+                .anyMatch(Method::returnsArray);
+
+        return !hasArrayComponents;
+    }
+
+    private String getFormat(Method method) {
+        return method.returnsArray() ? "\"$N = \" + $T.toString($N)" : "\"$N = \" + $N";
+    }
+
+    private Stream<?> getArguments(Method method) {
+
+        var methodName = method.methodeName();
+        var returnsArray = method.returnsArray();
         return returnsArray ? Stream.of(methodName, Arrays.class, methodName) : Stream.of(methodName, methodName);
     }
 }

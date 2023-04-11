@@ -20,10 +20,11 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.memoization.Memoization;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationFinder;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationGenerator;
 import pl.com.labaj.autorecord.processor.special.HashCodeEqualsGenerator;
+import pl.com.labaj.autorecord.processor.special.ToStringGenerator;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -81,12 +82,9 @@ class RecordGenerator {
                 memoization,
                 logger);
 
-
         var recordSpecBuilder = TypeSpec.recordBuilder(recordName);
         createSubGenerators(metaData)
                 .forEach(subGenerator -> subGenerator.generate(recordSpecBuilder, staticImports, logger));
-
-        generateToStringParts(metaData, recordSpecBuilder, memoization);
 
         return buildJavaFile(packageName, recordSpecBuilder.build(), staticImports);
     }
@@ -96,15 +94,9 @@ class RecordGenerator {
                 new BasicGenerator(metaData),
                 new MemoizationGenerator(metaData),
                 new BuilderGenerator(metaData),
-                new HashCodeEqualsGenerator(metaData)
+                new HashCodeEqualsGenerator(metaData),
+                new ToStringGenerator(metaData)
         );
-    }
-
-    private void generateToStringParts(GeneratorMetaData parameters,
-                                       TypeSpec.Builder recordSpecBuilder,
-                                       Memoization memoization) {
-        new ToStringGenerator(parameters, recordSpecBuilder, memoization)
-                .createToStringMethod();
     }
 
     private String getPackageName() {

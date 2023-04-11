@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.utils;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -28,7 +28,7 @@ public class Logger {
     private final Messager messager;
     private final Element elementContext;
 
-    Logger(Messager messager, Element elementContext) {
+    public Logger(Messager messager, Element elementContext) {
         this.messager = messager;
         this.elementContext = elementContext;
     }

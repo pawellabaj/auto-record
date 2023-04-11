@@ -22,6 +22,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 
 import javax.lang.model.element.ExecutableElement;
 import java.lang.reflect.Method;
