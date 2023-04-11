@@ -60,7 +60,7 @@ jobs:
           EOF
           cat > ~/.m2/settings-security.xml << EOF
           <settingsSecurity>
-            <master>${{ secrets.GPG_PASSPHRASE }}</master>
+            <master>${{ secrets.MASTER_MAVEN_PASSWORD }}</master>
           </settingsSecurity>
           EOF
           echo ---
