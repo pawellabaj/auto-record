@@ -40,7 +40,7 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          gpg-passphrase: GPG_PASSPHRASE
 
       - name: Prepare Maven and GPG
         run: |
@@ -49,7 +49,7 @@ jobs:
           echo ---
           cat ~/.m2/settings.xml
            echo ---
-          cat > ~/.m2/settings.xml << EOF
+          cat > ~/.m2/settings2.xml << EOF
           <settings>
             <servers>
               <server>
@@ -70,7 +70,7 @@ jobs:
           </settingsSecurity>
           EOF
           echo ---
-          cat ~/.m2/settings.xml
+          cat ~/.m2/settings2.xml
           echo ---
           cat ~/.m2/settings-security.xml
 
