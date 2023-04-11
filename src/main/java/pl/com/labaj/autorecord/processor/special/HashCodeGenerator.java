@@ -18,10 +18,10 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -37,12 +37,12 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 class HashCodeGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator {
     private static final String OBJECTS_HASH = "hash";
 
-    HashCodeGenerator(GeneratorMetaData metaData, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-        super(metaData, memoizedHashCode, notIgnoredProperties);
+    HashCodeGenerator(MetaData metaData, StaticImports staticImports, Logger logger, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
+        super(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties);
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         var methodName = (memoizedHashCode ? "_" : "") + "hashCode";
         var format = notIgnoredProperties.stream()
                 .map(Method::new)
@@ -60,7 +60,7 @@ class HashCodeGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerat
             hashCodeMethodBuilder.addAnnotation(Override.class);
         }
 
-        staticImports.add(new StaticImport(Objects.class, OBJECTS_HASH));
+        staticImports.add(Objects.class, OBJECTS_HASH);
 
         recordSpecBuilder.addMethod(hashCodeMethodBuilder.build());
     }

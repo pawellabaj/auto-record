@@ -20,11 +20,11 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.SubGenerator;
 import pl.com.labaj.autorecord.processor.utils.Annotations;
 import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import java.lang.annotation.ElementType;
 import java.util.List;
@@ -36,12 +36,12 @@ import static pl.com.labaj.autorecord.processor.memoization.TypeMemoizer.typeMem
 
 public class MemoizationGenerator extends SubGenerator {
 
-    public MemoizationGenerator(GeneratorMetaData metaData) {
-        super(metaData);
+    public MemoizationGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
+        super(metaData, staticImports, logger);
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         metaData.memoization().items().stream()
                 .map(this::toMethodSpec)
                 .forEach(recordSpecBuilder::addMethod);

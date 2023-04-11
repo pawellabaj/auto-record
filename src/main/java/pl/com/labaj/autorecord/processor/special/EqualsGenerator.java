@@ -18,10 +18,10 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -38,12 +38,12 @@ class EqualsGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator
     private static final String OTHER = "other";
     private static final String OTHER_RECORD = "otherRecord";
 
-    EqualsGenerator(GeneratorMetaData metaData, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-        super(metaData, memoizedHashCode, notIgnoredProperties);
+    EqualsGenerator(MetaData metaData, StaticImports staticImports, Logger logger, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
+        super(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties);
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         var recordName = metaData.recordName();
         var equalsMethodBuilder = MethodSpec.methodBuilder("equals")
                 .addAnnotation(Override.class)

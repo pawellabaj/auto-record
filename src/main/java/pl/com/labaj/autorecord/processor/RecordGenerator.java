@@ -26,12 +26,12 @@ import pl.com.labaj.autorecord.processor.special.HashCodeEqualsGenerator;
 import pl.com.labaj.autorecord.processor.special.ToStringGenerator;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
 import java.util.List;
 
 import static javax.lang.model.element.ElementKind.METHOD;
@@ -62,40 +62,35 @@ class RecordGenerator {
     }
 
     JavaFile buildJavaFile() {
-        var staticImports = new ArrayList<StaticImport>();
         var packageName = getPackageName();
-        var recordModifiers = getRecordModifiers();
         var recordName = createRecordName();
-        var propertyMethods = getPropertyMethods();
         var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
 
-        var metaData = new GeneratorMetaData(processingEnv,
-                sourceInterface,
+        var metaData = new MetaData(packageName,
                 getInterfaceName(),
-                recordOptions,
+                recordName, recordOptions,
                 builderOptions,
-                staticImports,
-                packageName,
-                recordModifiers,
-                recordName,
-                propertyMethods,
-                memoization,
-                logger);
+                getRecordModifiers(),
+                sourceInterface.getTypeParameters(),
+                getPropertyMethods(),
+                memoization);
 
-        var recordSpecBuilder = TypeSpec.recordBuilder(recordName);
-        createSubGenerators(metaData)
-                .forEach(subGenerator -> subGenerator.generate(recordSpecBuilder, staticImports, logger));
+        var recordSpecBuilder = TypeSpec.recordBuilder(recordName)
+                .addSuperinterface(sourceInterface.asType());
+        var staticImports = new StaticImports();
+        createSubGenerators(metaData, staticImports)
+                .forEach(subGenerator -> subGenerator.accept(recordSpecBuilder));
 
         return buildJavaFile(packageName, recordSpecBuilder.build(), staticImports);
     }
 
-    private List<SubGenerator> createSubGenerators(GeneratorMetaData metaData) {
+    private List<SubGenerator> createSubGenerators(MetaData metaData, StaticImports staticImports) {
         return List.of(
-                new BasicGenerator(metaData),
-                new MemoizationGenerator(metaData),
-                new BuilderGenerator(metaData),
-                new HashCodeEqualsGenerator(metaData),
-                new ToStringGenerator(metaData)
+                new BasicGenerator(metaData, staticImports, logger),
+                new MemoizationGenerator(metaData, staticImports, logger),
+                new BuilderGenerator(metaData, staticImports, logger),
+                new HashCodeEqualsGenerator(metaData, staticImports, logger),
+                new ToStringGenerator(metaData, staticImports, logger)
         );
     }
 
@@ -157,10 +152,9 @@ class RecordGenerator {
         return true;
     }
 
-    private JavaFile buildJavaFile(String packageName, TypeSpec recordSpec, ArrayList<StaticImport> staticImports) {
+    private JavaFile buildJavaFile(String packageName, TypeSpec recordSpec, StaticImports staticImports) {
         var javaFileBuilder = JavaFile.builder(packageName, recordSpec);
-
-        staticImports.forEach(staticImport -> javaFileBuilder.addStaticImport(staticImport.aClass(), staticImport.methodName()));
+        staticImports.addTo(javaFileBuilder);
 
         return javaFileBuilder.build();
     }

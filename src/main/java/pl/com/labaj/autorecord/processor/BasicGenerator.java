@@ -28,6 +28,7 @@ import pl.com.labaj.autorecord.processor.memoization.Memoization;
 import pl.com.labaj.autorecord.processor.memoization.TypeMemoizer;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
@@ -49,12 +50,12 @@ public class BasicGenerator extends SubGenerator {
     private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
     private static final String OBJECTS_REQUIRE_NON_NULL = "requireNonNull";
 
-    public BasicGenerator(GeneratorMetaData metaData) {
-        super(metaData);
+    public BasicGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
+        super(metaData, staticImports, logger);
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         createBasicElements(recordSpecBuilder);
         createTypeVariables(recordSpecBuilder);
 
@@ -62,18 +63,17 @@ public class BasicGenerator extends SubGenerator {
 
         createAdditionalRecordComponents(recordSpecBuilder);
         createAdditionalConstructor(recordSpecBuilder, recordComponents);
-        createCompactConstructor(recordSpecBuilder, staticImports);
+        createCompactConstructor(recordSpecBuilder);
     }
 
     private void createBasicElements(TypeSpec.Builder recordSpecBuilder) {
         recordSpecBuilder.addAnnotation(GENERATED_ANNOTATION)
                 .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
-                .addModifiers(metaData.recordModifiers())
-                .addSuperinterface(metaData.sourceInterface().asType());
+                .addModifiers(metaData.modifiers());
     }
 
     private void createTypeVariables(TypeSpec.Builder recordSpecBuilder) {
-        var typeParameters = metaData.sourceInterface().getTypeParameters();
+        var typeParameters = metaData.typeParameters();
 
         if (typeParameters.isEmpty()) {
             return;
@@ -113,7 +113,7 @@ public class BasicGenerator extends SubGenerator {
                 .collect(joining(", ", "this(", ")"));
 
         var constructor = MethodSpec.constructorBuilder()
-                .addModifiers(metaData.recordModifiers())
+                .addModifiers(metaData.modifiers())
                 .addParameters(recordComponents)
                 .addStatement(constructorCallFormat, recordComponents.toArray())
                 .build();
@@ -121,7 +121,7 @@ public class BasicGenerator extends SubGenerator {
         recordSpecBuilder.addMethod(constructor);
     }
 
-    private void createCompactConstructor(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports) {
+    private void createCompactConstructor(TypeSpec.Builder recordSpecBuilder) {
         var nonNullNames = metaData.propertyMethods().stream()
                 .map(Method::new)
                 .filter(Method::doesNotReturnPrimitive)
@@ -135,10 +135,10 @@ public class BasicGenerator extends SubGenerator {
         }
 
         var compactConstructorBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(metaData.recordModifiers());
+                .addModifiers(metaData.modifiers());
 
         nonNullNames.forEach(name -> compactConstructorBuilder.addStatement("$1N($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
-        staticImports.add(new StaticImport(Objects.class, OBJECTS_REQUIRE_NON_NULL));
+        staticImports.add(Objects.class, OBJECTS_REQUIRE_NON_NULL);
 
         recordSpecBuilder.compactConstructor(compactConstructorBuilder.build());
     }

@@ -18,12 +18,11 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Ignored;
-import pl.com.labaj.autorecord.processor.Generator;
-import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.SubGenerator;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.List;
@@ -32,12 +31,12 @@ import static pl.com.labaj.autorecord.processor.special.SpecialMethod.HASH_CODE;
 
 public class HashCodeEqualsGenerator extends SubGenerator {
 
-    public HashCodeEqualsGenerator(GeneratorMetaData metaData) {
-        super(metaData);
+    public HashCodeEqualsGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
+        super(metaData, staticImports, logger);
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         var memoizedHashCode = metaData.memoization().specialMemoized().get(HASH_CODE);
         var notIgnoredProperties = findNotIgnoredProperties();
 
@@ -46,9 +45,9 @@ public class HashCodeEqualsGenerator extends SubGenerator {
         }
 
         List.of(
-                new HashCodeGenerator(metaData, memoizedHashCode, notIgnoredProperties),
-                new EqualsGenerator(metaData, memoizedHashCode, notIgnoredProperties)
-        ).forEach(generator -> generator.generate(recordSpecBuilder, staticImports, logger));
+                new HashCodeGenerator(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties),
+                new EqualsGenerator(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties)
+        ).forEach(generator -> generator.accept(recordSpecBuilder));
     }
 
     private List<ExecutableElement> findNotIgnoredProperties() {
@@ -76,13 +75,17 @@ public class HashCodeEqualsGenerator extends SubGenerator {
         return !hasArrayComponents;
     }
 
-    protected static abstract class HashCodeEqualsSubGenerator implements Generator {
-        protected final GeneratorMetaData metaData;
+    protected static abstract class HashCodeEqualsSubGenerator extends SubGenerator {
         protected final boolean memoizedHashCode;
         protected final List<ExecutableElement> notIgnoredProperties;
 
-        protected HashCodeEqualsSubGenerator(GeneratorMetaData metaData, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-            this.metaData = metaData;
+        protected HashCodeEqualsSubGenerator(MetaData metaData,
+                                             StaticImports staticImports,
+                                             Logger logger,
+                                             boolean memoizedHashCode,
+                                             List<ExecutableElement> notIgnoredProperties) {
+            super(metaData, staticImports, logger);
+
             this.memoizedHashCode = memoizedHashCode;
             this.notIgnoredProperties = notIgnoredProperties;
         }

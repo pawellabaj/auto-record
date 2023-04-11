@@ -19,26 +19,20 @@ package pl.com.labaj.autorecord.processor;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.processor.memoization.Memoization;
-import pl.com.labaj.autorecord.processor.utils.Logger;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
+import javax.lang.model.element.TypeParameterElement;
 import java.util.List;
 
 @SuppressWarnings("java:S6218")
 public
-record GeneratorMetaData(ProcessingEnvironment processingEnv,
-                         TypeElement sourceInterface,
-                         String interfaceName,
-                         AutoRecord.Options recordOptions,
-                         RecordBuilder.Options builderOptions,
-                         @Deprecated ArrayList<StaticImport> staticImports,
-                         String packageName,
-                         Modifier[] recordModifiers,
-                         String recordName,
-                         List<ExecutableElement> propertyMethods,
-                         Memoization memoization,
-                         @Deprecated Logger logger) {}
+record MetaData(String packageName,
+                String interfaceName,
+                String recordName,
+                AutoRecord.Options recordOptions,
+                RecordBuilder.Options builderOptions,
+                Modifier[] modifiers,
+                List<? extends TypeParameterElement> typeParameters,
+                List<ExecutableElement> propertyMethods,
+                Memoization memoization) {}

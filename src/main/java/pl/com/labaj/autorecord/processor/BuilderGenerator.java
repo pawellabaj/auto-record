@@ -23,12 +23,12 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
@@ -42,20 +42,20 @@ class BuilderGenerator extends SubGenerator {
     private final RecordBuilder.Options builderOptions;
     private final String recordBuilderName;
 
-    BuilderGenerator(GeneratorMetaData metaData) {
-        super(metaData);
+    BuilderGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
+        super(metaData, staticImports, logger);
         builderOptions = metaData.builderOptions();
         recordBuilderName = metaData.recordName() + builderOptions.suffix();
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         if (!metaData.recordOptions().withBuilder()) {
             return;
         }
 
         createRecordBuilderAnnotation(recordSpecBuilder);
-        createRecordBuilderOptionsAnnotation(recordSpecBuilder, staticImports, logger);
+        createRecordBuilderOptionsAnnotation(recordSpecBuilder);
         createBuilderMethod(recordSpecBuilder);
         createToBuilderMethod(recordSpecBuilder);
     }
@@ -64,10 +64,10 @@ class BuilderGenerator extends SubGenerator {
         recordSpecBuilder.addAnnotation(BUILDER_ANNOTATION);
     }
 
-    private void createRecordBuilderOptionsAnnotation(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    private void createRecordBuilderOptionsAnnotation(TypeSpec.Builder recordSpecBuilder) {
         var methods = RecordBuilder.Options.class.getDeclaredMethods();
         var options = Arrays.stream(methods)
-                .map(method -> toOption(method, logger))
+                .map(this::toOption)
                 .filter(BuilderOption::actualDifferentThanDefault)
                 .toList();
 
@@ -76,14 +76,14 @@ class BuilderGenerator extends SubGenerator {
         }
 
         var optionsAnnotationBuilder = AnnotationSpec.builder(RecordBuilder.Options.class);
-        options.forEach(builderOption -> addMember(optionsAnnotationBuilder, staticImports, builderOption));
+        options.forEach(builderOption -> addMember(optionsAnnotationBuilder, builderOption));
 
         recordSpecBuilder.addAnnotation(optionsAnnotationBuilder.build());
     }
 
     private void createBuilderMethod(TypeSpec.Builder recordSpecBuilder) {
         var builderMethodBuilder = MethodSpec.methodBuilder("builder")
-                .addModifiers(metaData.recordModifiers())
+                .addModifiers(metaData.modifiers())
                 .addModifiers(STATIC)
                 .addStatement("return $L.$L()", recordBuilderName, builderOptions.builderMethodName());
         var methodSpec = builderMethodSpec(builderMethodBuilder);
@@ -109,7 +109,7 @@ class BuilderGenerator extends SubGenerator {
                 });
 
         var toBuilderMethodBuilder = MethodSpec.methodBuilder("toBuilder")
-                .addModifiers(metaData.recordModifiers())
+                .addModifiers(metaData.modifiers())
                 .addStatement(format, arguments.toArray());
         var methodSpec = builderMethodSpec(toBuilderMethodBuilder);
 
@@ -119,7 +119,7 @@ class BuilderGenerator extends SubGenerator {
     private MethodSpec builderMethodSpec(MethodSpec.Builder methodBuilder) {
         var returClassName = ClassName.get(metaData.packageName(), recordBuilderName);
 
-        var typeParameters = metaData.sourceInterface().getTypeParameters();
+        var typeParameters = metaData.typeParameters();
         if (typeParameters.isEmpty()) {
             methodBuilder.returns(returClassName);
         } else {
@@ -133,15 +133,15 @@ class BuilderGenerator extends SubGenerator {
         return methodBuilder.build();
     }
 
-    private BuilderOption toOption(Method method, Logger logger) {
+    private BuilderOption toOption(Method method) {
         var defaultValue = method.getDefaultValue();
-        var actualValue = getActualValue(method, logger);
+        var actualValue = getActualValue(method);
         var returnType = method.getReturnType();
 
         return new BuilderOption(method.getName(), returnType, defaultValue, actualValue);
     }
 
-    private Object getActualValue(Method method, Logger logger) {
+    private Object getActualValue(Method method) {
         try {
             return method.invoke(builderOptions);
         } catch (Exception e) {
@@ -150,7 +150,7 @@ class BuilderGenerator extends SubGenerator {
         return null;
     }
 
-    private void addMember(AnnotationSpec.Builder optionsAnnotationBuilder, List<StaticImport> staticImports, BuilderOption builderOption) {
+    private void addMember(AnnotationSpec.Builder optionsAnnotationBuilder, BuilderOption builderOption) {
         var name = builderOption.name;
         var actualValue = builderOption.actualValue;
         var returnType = builderOption.returnType;
@@ -159,7 +159,7 @@ class BuilderGenerator extends SubGenerator {
             optionsAnnotationBuilder.addMember(name, "$L", actualValue);
         } else if (builderOption.returnType().isEnum()) {
             var enumName = ((Enum<?>) actualValue).name();
-            metaData.staticImports().add(new StaticImport(returnType, enumName));
+            staticImports.add(returnType, enumName);
             optionsAnnotationBuilder.addMember(name, "$L", enumName);
         } else if (returnType.isArray()) {
             var format = getArrayFormat((Object[]) actualValue, staticImports);
@@ -169,20 +169,20 @@ class BuilderGenerator extends SubGenerator {
         }
     }
 
-    private String getArrayFormat(Object[] actualValue, List<StaticImport> staticImports) {
+    private String getArrayFormat(Object[] actualValue, StaticImports staticImports) {
         return Arrays.stream(actualValue)
                 .map(value -> getItemFormat(value, staticImports))
                 .collect(joining(", ", "{", "}"));
     }
 
-    private String getItemFormat(Object value, List<StaticImport> staticImports) {
+    private String getItemFormat(Object value, StaticImports staticImports) {
         var valueClass = value.getClass();
         if (valueClass.isPrimitive()) {
             return String.valueOf(value);
         }
         if (valueClass.isEnum()) {
             var enumName = ((Enum<?>) value).name();
-            staticImports.add(new StaticImport(valueClass, enumName));
+            staticImports.add(valueClass, enumName);
             return enumName;
         }
         return "\"" + value + "\"";

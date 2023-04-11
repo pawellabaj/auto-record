@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.utils;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,4 +16,22 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-public record StaticImport(Class<?> aClass, String methodName) {}
+import com.squareup.javapoet.JavaFile;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class StaticImports {
+
+    private final List<Item> items = new ArrayList<>();
+
+    public void addTo(JavaFile.Builder javaFileBuilder) {
+        items.forEach(staticImport -> javaFileBuilder.addStaticImport(staticImport.aClass(), staticImport.name()));
+    }
+
+    public void add(Class<?> aClass, String name) {
+        items.add(new Item(aClass, name));
+    }
+
+    private record Item(Class<?> aClass, String name) {}
+}

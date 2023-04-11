@@ -18,11 +18,11 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.GeneratorMetaData;
-import pl.com.labaj.autorecord.processor.StaticImport;
+import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.SubGenerator;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -35,12 +35,12 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_STRING;
 
 public class ToStringGenerator extends SubGenerator {
-    public ToStringGenerator(GeneratorMetaData metaData) {
-        super(metaData);
+    public ToStringGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
+        super(metaData, staticImports, logger);
     }
 
     @Override
-    public void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
+    public void accept(TypeSpec.Builder recordSpecBuilder) {
         var memoizedToString = metaData.memoization().specialMemoized().get(TO_STRING);
         var propertyMethods = metaData.propertyMethods();
 
