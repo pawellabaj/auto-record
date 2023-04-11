@@ -50,6 +50,12 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
 
+      - name: Store password
+        shell: bash
+        run: |
+          pwd=$(mvn --encrypt-master-password ${{ secrets.GPG_PASSPHRASE }})
+          echo <settingsSecurity><master>$pwd</master></settingsSecurity> > ~/.m2/settings-security.xml
+
       - name: Install GPG ownertrust
         run: |
           echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
