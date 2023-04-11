@@ -50,16 +50,22 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
 
-      - name: Install GPG ownertrust
+      - name: Prepare Maven and GPG
         run: |
-          echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
-          gpg --import-ownertrust trustvalues.txt
+          cat > ~/.m2/settings-security.xml << EOF
+          <settingsSecurity>
+            <master>${{ secrets.MASTER_MAVEN_PASSWORD }}</master>
+          </settingsSecurity>
+          EOF
+          echo ${{ secrets.GPG_TRUSTVALUES }} > ~/.gnupg/trust-values.txt
+          gpg --import-ownertrust ~/.gnupg/trust-values.txt
 
       - name: Perform Maven release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
           mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
