@@ -41,7 +41,7 @@ jobs:
         run: |
           echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
           gpg --import-ownertrust trustvalues.txt
-          echo "<setting><servers><server><id>ossrh</id><username>${env.MAVEN_USERNAME}</username><password>${env.MAVEN_PASSWORD}</password></server><server><id>gpg.passphrase</id><password>${{ secrets.GPG_PASSPHRASE }}</password></server></servers></settings>" > ~/.m2/settings.xml
+          echo "<setting><servers><server><id>ossrh</id><username>\${env.MAVEN_USERNAME}</username><password>\${env.MAVEN_PASSWORD}</password></server><server><id>gpg.passphrase</id><password>${{ secrets.GPG_PASSPHRASE }}</password></server></servers></settings>" > ~/.m2/settings.xml
           echo "<settingsSecurity><master>${{ secrets.GPG_PASSPHRASE }}</master></settingsSecurity>" > ~/.m2/settings-security.xml
           echo ---
           cat ~/.m2/settings.xml
