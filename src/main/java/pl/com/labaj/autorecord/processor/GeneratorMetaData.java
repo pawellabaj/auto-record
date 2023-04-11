@@ -31,6 +31,7 @@ import java.util.List;
 public
 record GeneratorMetaData(ProcessingEnvironment processingEnv,
                          TypeElement sourceInterface,
+                         String interfaceName,
                          AutoRecord.Options recordOptions,
                          RecordBuilder.Options builderOptions,
                          ArrayList<StaticImport> staticImports,

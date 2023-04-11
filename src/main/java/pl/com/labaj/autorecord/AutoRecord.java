@@ -27,28 +27,79 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * AutoRecord is a code generator that helps you easily generate Java records.
+ * It provides an easy way to avoid writing repetitive boilerplate code.
+ *
+ * <p>{@link AutoRecord} annotation is used to mark interface for annotation processing.
+ * Processor generates a Java {@code record} that implements annotated interface.
+ * The constructor parameters correspond, in order, to the interface methods.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki">Wiki</a>
+ */
 @Retention(SOURCE)
 @Target(TYPE)
 @Inherited
 public @interface AutoRecord {
 
+    /**
+     * Specifies options for the {@link AutoRecord} annotation.
+     *
+     * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization">Customization Wiki</a>
+     */
     @Retention(SOURCE)
     @Target({ANNOTATION_TYPE, TYPE})
     @Inherited
     @interface Options {
+        /**
+         * If {@code true}, {@link io.soabase.recordbuilder.core.RecordBuilder} annotation is added to generated record. This causes generating a builder.
+         *
+         * @return a flag indicating if builder should be generated
+         * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder">Builder Wiki</a>
+         */
         boolean withBuilder() default false;
 
+        /**
+         * If {@code true}, {@code hashCode()} method is memoized.
+         *
+         * @return a flag indicating if {@code hashCode()} method should be memoized.
+         * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Memoization#hashcode-memoization">Memoization Wiki</a>
+         */
         boolean memoizedHashCode() default false;
 
+        /**
+         * If {@code true}, {@code toString()} method is memoized.
+         *
+         * @return a flag indicating if {@code toString()} method should be memoized.
+         * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Memoization#tostring-memoization">Memoization Wiki</a>
+         */
         boolean memoizedToString() default false;
     }
 
+    /**
+     * Provides a base to create custom annotation that can be used to mark interfaces for record generation.
+     *
+     * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization#creating-a-custom-annotation">Custom Annotation Wiki</a>
+     */
     @Retention(CLASS)
     @Target(ANNOTATION_TYPE)
     @Inherited
     @interface Template {
+
+        /**
+         * Specifies options for the {@link AutoRecord} annotation applied during record generation.
+         *
+         * @return options for record generation
+         */
         AutoRecord.Options recordOptions() default @AutoRecord.Options();
 
+        /**
+         * Specifies options for the {@link io.soabase.recordbuilder.core.RecordBuilder} used for builder generation if enabled by
+         * {@link Options#withBuilder() withBuilder()}.
+         *
+         * @return options for builder generation
+         *@see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
+         */
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
     }
 }

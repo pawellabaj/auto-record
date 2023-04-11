@@ -25,6 +25,12 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * Annotates methods in {@link AutoRecord @AutoRecord} class for which the corresponding components in generated record are not relevant for
+ * equality checks - they are ignored in {@code hashCode()} and {@code toString()} methods.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Ignored-components">Ignored Components Wiki</a>
+ */
 @Retention(SOURCE)
 @Target({METHOD, TYPE_PARAMETER, PARAMETER})
 @Inherited

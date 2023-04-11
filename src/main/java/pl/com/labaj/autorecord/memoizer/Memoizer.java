@@ -18,11 +18,33 @@ package pl.com.labaj.autorecord.memoizer;
 
 import java.util.function.Supplier;
 
+/**
+ * Memoizer is a thread-safe utility class that allows for the memoization of a single value using the double-check idiom.
+ *
+ * <p>The value will be computed on the first call to {@link #computeIfAbsent(Supplier)} method and the same value will be returned for subsequent calls
+ * without invoking the original computation.
+ *
+ * @param <T> the type of value being memoized
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Memoization">Memoization Wiki</a>
+ */
 public final class Memoizer<T> {
+    /**
+     * Indicates whether the memoized value has already been computed
+     */
     private volatile boolean valueMemoized;
+
+    /**
+     * The memoized value
+     */
     @SuppressWarnings("java:S3077")
     private volatile T value;
 
+    /**
+     * Computes and memoizes the value of the function supplied if it has not already been computed.
+     *
+     * @param valueSupplier a {@link java.util.function.Supplier} representing the function that will generate the value to be memoized
+     * @return the memoized value
+     */
     public T computeIfAbsent(Supplier<T> valueSupplier) {
         if (!valueMemoized) {
             synchronized (this) {

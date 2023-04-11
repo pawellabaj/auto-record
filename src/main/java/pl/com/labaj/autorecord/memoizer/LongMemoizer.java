@@ -18,10 +18,33 @@ package pl.com.labaj.autorecord.memoizer;
 
 import java.util.function.LongSupplier;
 
-public class LongMemoizer {
+/**
+ * Memoizer is a thread-safe utility class that allows for the memoization of a single value using the double-check idiom.
+ *
+ * <p>The value will be computed on the first call to {@link #computeAsLongIfAbsent(LongSupplier)} method and the same value will be returned for
+ * subsequent calls
+ * without invoking the original computation.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Memoization">Memoization Wiki</a>
+ */
+public final class LongMemoizer {
+
+    /**
+     * Indicates whether the memoized value has already been computed
+     */
     private volatile boolean valueMemoized;
+
+    /**
+     * The memoized value
+     */
     private volatile long value;
 
+    /**
+     * Computes and memoizes the value of the function supplied if it has not already been computed.
+     *
+     * @param valueSupplier a {@link java.util.function.LongSupplier} representing the function that will generate the value to be memoized
+     * @return the memoized value
+     */
     public long computeAsLongIfAbsent(LongSupplier valueSupplier) {
         if (!valueMemoized) {
             synchronized (this) {
