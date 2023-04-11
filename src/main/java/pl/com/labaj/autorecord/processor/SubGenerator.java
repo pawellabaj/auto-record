@@ -16,16 +16,10 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-
-import java.util.List;
-
-public abstract class SubGenerator {
+public abstract class SubGenerator implements Generator {
     protected final GeneratorMetaData metaData;
 
     protected SubGenerator(GeneratorMetaData metaData) {
         this.metaData = metaData;
     }
-
-    public abstract void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger);
 }

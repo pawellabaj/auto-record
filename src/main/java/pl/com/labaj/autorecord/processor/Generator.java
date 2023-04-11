@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,19 +16,10 @@ package pl.com.labaj.autorecord.processor.memoization;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.processor.special.SpecialMethod;
+import com.squareup.javapoet.TypeSpec;
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Set;
 
-public record Memoization(Set<Item> items, EnumMap<SpecialMethod, Boolean> specialMemoized) {
-    public record Item(TypeMirror type, String name, List<AnnotationMirror> annotations, Set<Modifier> modifiers, boolean special) {
-        public String getMemoizerName() {
-            return name + "Memoizer";
-        }
-    }
+public interface Generator {
+    void generate(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger);
 }

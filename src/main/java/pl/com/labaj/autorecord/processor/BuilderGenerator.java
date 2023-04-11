@@ -65,17 +65,17 @@ class BuilderGenerator extends SubGenerator {
 
     private void createRecordBuilderOptionsAnnotation(TypeSpec.Builder recordSpecBuilder, List<StaticImport> staticImports, Logger logger) {
         var methods = RecordBuilder.Options.class.getDeclaredMethods();
-        var valuesList = Arrays.stream(methods)
+        var options = Arrays.stream(methods)
                 .map(method -> toOption(method, logger))
                 .filter(BuilderOption::actualDifferentThanDefault)
                 .toList();
 
-        if (valuesList.isEmpty()) {
+        if (options.isEmpty()) {
             return;
         }
 
         var optionsAnnotationBuilder = AnnotationSpec.builder(RecordBuilder.Options.class);
-        valuesList.forEach(builderOptions -> addMember(optionsAnnotationBuilder, staticImports, builderOptions));
+        options.forEach(builderOption -> addMember(optionsAnnotationBuilder, staticImports, builderOption));
 
         recordSpecBuilder.addAnnotation(optionsAnnotationBuilder.build());
     }
@@ -149,14 +149,14 @@ class BuilderGenerator extends SubGenerator {
         return null;
     }
 
-    private void addMember(AnnotationSpec.Builder optionsAnnotationBuilder, List<StaticImport> staticImports, BuilderOption builderOptions) {
-        var name = builderOptions.name;
-        var actualValue = builderOptions.actualValue;
-        var returnType = builderOptions.returnType;
+    private void addMember(AnnotationSpec.Builder optionsAnnotationBuilder, List<StaticImport> staticImports, BuilderOption builderOption) {
+        var name = builderOption.name;
+        var actualValue = builderOption.actualValue;
+        var returnType = builderOption.returnType;
 
         if (returnType.isPrimitive()) {
             optionsAnnotationBuilder.addMember(name, "$L", actualValue);
-        } else if (builderOptions.returnType().isEnum()) {
+        } else if (builderOption.returnType().isEnum()) {
             var enumName = ((Enum<?>) actualValue).name();
             metaData.staticImports().add(new StaticImport(returnType, enumName));
             optionsAnnotationBuilder.addMember(name, "$L", enumName);

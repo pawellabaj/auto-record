@@ -18,8 +18,8 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.utils.Method;
 import pl.com.labaj.autorecord.processor.memoization.Memoization;
+import pl.com.labaj.autorecord.processor.utils.Method;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.utils.SpecialMethod.TO_STRING;
+import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_STRING;
 
 class ToStringGenerator {
     private final GeneratorMetaData parameters;
