@@ -16,7 +16,7 @@ jobs:
     name: Deploy release
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: 0.4.0
+      RELEASE_VERSION: 0.5.0
 
     steps:
       - name: Checkout
@@ -36,12 +36,19 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Prepare Maven and GPG
         run: |
           echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
           gpg --import-ownertrust trustvalues.txt
+          echo ---
+          cat ~/.m2/settings.xml
+           echo ---
           cat > ~/.m2/settings.xml << EOF
           <settings>
             <servers>
