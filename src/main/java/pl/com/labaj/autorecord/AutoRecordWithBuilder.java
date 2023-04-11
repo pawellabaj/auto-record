@@ -24,6 +24,14 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * Custom annotation used to mark interface for annotation processing.
+ *
+ * <p>Record generated from interface with this annotation has builder generated. In addition, builder will handle collection to use immutable versions of them.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization#creating-a-custom-annotation">Custom Annotation Wiki</a>
+ * @see io.soabase.recordbuilder.core.RecordBuilder.Options#useImmutableCollections()
+ */
 @Retention(SOURCE)
 @Target(TYPE)
 @AutoRecord.Template(

@@ -16,10 +16,33 @@ package pl.com.labaj.autorecord.memoizer;
  * limitations under the License.
  */
 
-public class ByteMemoizer {
+/**
+ * Memoizer is a thread-safe utility class that allows for the memoization of a single value using the double-check idiom.
+ *
+ * <p>The value will be computed on the first call to {@link #computeAsByteIfAbsent(ByteSupplier)} method and the same value will be returned for
+ * subsequent calls
+ * without invoking the original computation.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Memoization">Memoization Wiki</a>
+ */
+public final class ByteMemoizer {
+
+    /**
+     * Indicates whether the memoized value has already been computed
+     */
     private volatile boolean valueMemoized;
+
+    /**
+     * The memoized value
+     */
     private volatile byte value;
 
+    /**
+     * Computes and memoizes the value of the function supplied if it has not already been computed.
+     *
+     * @param valueSupplier a {@link ByteSupplier} representing the function that will generate the value to be memoized
+     * @return the memoized value
+     */
     public byte computeAsByteIfAbsent(ByteSupplier valueSupplier) {
         if (!valueMemoized) {
             synchronized (this) {

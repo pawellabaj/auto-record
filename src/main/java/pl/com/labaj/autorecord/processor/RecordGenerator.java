@@ -20,10 +20,10 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.utils.Method;
 import pl.com.labaj.autorecord.processor.memoization.Memoization;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationFinder;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationGenerator;
+import pl.com.labaj.autorecord.processor.utils.Method;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
@@ -34,6 +34,7 @@ import java.util.List;
 
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
+import static javax.lang.model.element.Modifier.STATIC;
 
 class RecordGenerator {
 
@@ -60,14 +61,15 @@ class RecordGenerator {
 
     JavaFile buildJavaFile() {
         var staticImports = new ArrayList<StaticImport>();
-        var packageName = getPackageName(sourceInterface);
-        var recordModifiers = getRecordModifiers(sourceInterface);
-        var recordName = createRecordName(sourceInterface);
-        var propertyMethods = getPropertyMethods(sourceInterface);
+        var packageName = getPackageName();
+        var recordModifiers = getRecordModifiers();
+        var recordName = createRecordName();
+        var propertyMethods = getPropertyMethods();
         var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
 
         var metaData = new GeneratorMetaData(processingEnv,
                 sourceInterface,
+                getInterfaceName(),
                 recordOptions,
                 builderOptions,
                 staticImports,
@@ -123,21 +125,34 @@ class RecordGenerator {
                 .createToStringMethod();
     }
 
-    private String getPackageName(TypeElement sourceInterface) {
+    private String getPackageName() {
         return processingEnv.getElementUtils().getPackageOf(sourceInterface).getQualifiedName().toString();
     }
 
-    private String createRecordName(TypeElement sourceInterface) {
-        return sourceInterface.getSimpleName() + "Record";
+    private String createRecordName() {
+        return getInterfaceName().replace('.', '_') + "Record";
     }
 
-    private Modifier[] getRecordModifiers(TypeElement sourceInterface) {
+    private String getInterfaceName() {
+        var qualifiedName = sourceInterface.getQualifiedName().toString();
+        var packageName = getPackageName();
+
+        var index = packageName.length();
+        if (index > 0) {
+            index++;
+        }
+
+        return qualifiedName.substring(index);
+    }
+
+    private Modifier[] getRecordModifiers() {
         return sourceInterface.getModifiers().stream()
                 .filter(modifier -> modifier != ABSTRACT)
+                .filter(modifier -> modifier != STATIC)
                 .toArray(Modifier[]::new);
     }
 
-    private List<ExecutableElement> getPropertyMethods(TypeElement sourceInterface) {
+    private List<ExecutableElement> getPropertyMethods() {
         return processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)

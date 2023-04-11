@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>Auto Record</name>
@@ -13,8 +14,7 @@
     <inceptionYear>2023</inceptionYear>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -52,7 +52,12 @@
         </dependency>
         <dependency>
             <groupId>io.soabase.record-builder</groupId>
+            <artifactId>record-builder-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.soabase.record-builder</groupId>
             <artifactId>record-builder-processor</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -95,6 +100,11 @@
             </dependency>
             <dependency>
                 <groupId>io.soabase.record-builder</groupId>
+                <artifactId>record-builder-core</artifactId>
+                <version>${record-builder.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.soabase.record-builder</groupId>
                 <artifactId>record-builder-processor</artifactId>
                 <version>${record-builder.version}</version>
                 <exclusions>
@@ -114,19 +124,16 @@
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
                 <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -161,6 +168,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -203,7 +214,7 @@
                     <consoleOutputReporter>
                         <disable>true</disable>
                     </consoleOutputReporter>
-                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter" />
+                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
                 </configuration>
             </plugin>
             <plugin>
@@ -368,10 +379,14 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
-                            <includes>
-                                <include>src/main/java/pl/com/labaj/autorecord/*.java</include>
-                                <include>src/main/java/pl/com/labaj/autorecord/memoization/*.java</include>
-                            </includes>
+                            <subpackages>pl.com.labaj.autorecord</subpackages>
+                            <excludePackageNames>pl.com.labaj.autorecord.processor:pl.com.labaj.autorecord.processor.*</excludePackageNames>
+                            <links>
+                                <link>https://docs.oracle.com/en/java/javase/${java.version}/docs/api/</link>
+                                <link>https://javadoc.io/doc/io.soabase.record-builder/record-builder-core/${record-builder.version}</link>
+                            </links>
+                            <failOnWarnings>false</failOnWarnings>
+                            <failOnError>false</failOnError>
                         </configuration>
                         <executions>
                             <execution>

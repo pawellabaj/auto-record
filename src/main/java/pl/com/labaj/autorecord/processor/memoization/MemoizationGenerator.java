@@ -57,7 +57,7 @@ public class MemoizationGenerator extends SubGenerator {
                 .filter(modifer -> modifer != ABSTRACT)
                 .filter(modifier -> modifier != DEFAULT)
                 .toList();
-        var supplierName = item.special() ? "_" + name : metaData.sourceInterface().getSimpleName() + ".super." + name;
+        var supplierName = item.special() ? "_" + name : metaData.interfaceName() + ".super." + name;
 
         var typeMemoizer = typeMemoizerWith(item.type());
 

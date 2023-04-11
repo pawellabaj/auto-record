@@ -30,9 +30,11 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * following properties:
  * <ul>
  *     <li>the annotation name includes <em>"Generated"</em></li>
- *     <li>the annotation retention policy is <code>RUNTIME</code> or <code>CLASS</code></li>
+ *     <li>the annotation retention policy is {@code RUNTIME} or {@code CLASS}</li>
  * </ul>
  * are excluded from test coverage reports.
+ * <p>
+ * The annotation is added to all generated records.
  */
 @Documented
 @Retention(CLASS)

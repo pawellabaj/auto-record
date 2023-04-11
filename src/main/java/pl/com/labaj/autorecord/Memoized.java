@@ -23,6 +23,12 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * Annotates methods in {@link AutoRecord @AutoRecord} class for which the generated record will <a href="https://en.wikipedia.org/wiki/Memoization">memoize</a>
+ * the returned value.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Memoization">Memoization Wiki</a>
+ */
 @Retention(SOURCE)
 @Target(METHOD)
 @Inherited

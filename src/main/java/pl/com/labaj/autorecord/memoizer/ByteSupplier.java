@@ -16,7 +16,25 @@ package pl.com.labaj.autorecord.memoizer;
  * limitations under the License.
  */
 
+/**
+ * Represents a supplier of {@code byte}-valued results.  This is the
+ * {@code byte}-producing primitive specialization of {@link java.util.function.Supplier}.
+ *
+ * <p>There is no requirement that a distinct result be returned each
+ * time the supplier is invoked.
+ *
+ * <p>This is a {@link java.util.function functional interface}
+ * whose functional method is {@link #getAsByte()}.
+ *
+ * @see java.util.function.Supplier
+ * @since 1.8
+ */
 @FunctionalInterface
 public interface ByteSupplier {
+    /**
+     * Gets a {@code byte}-valued result.
+     *
+     * @return a result
+     */
     byte getAsByte();
 }

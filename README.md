@@ -4,14 +4,11 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record) 
 [![Sonatype Lifft Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![javadoc](https://javadoc.io/badge2/pl.com.labaj/auto-record/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj/auto-record)
 
 Java record source generator
 
 ## What is AutoRecord
-
-Google [AutoValue](https://github.com/google/auto) has long been used as a way to work with _Value Classes_ in an easy way. 
-However, when Java [records](https://docs.oracle.com/en/java/javase/17/language/records.html) were introduced, they lacked some features that AutoValue had, such as nullability checking, builders, and memoization. 
-This is why AutoRecord was created.
 
 AutoRecord is a code generator that helps you easily generate Java records. 
 It provides an easy way to avoid writing repetitive boilerplate code. It generates the code with features such as:
@@ -19,6 +16,10 @@ It provides an easy way to avoid writing repetitive boilerplate code. It generat
 * builders - incorporating [Randgalt/record-builder](https://github.com/Randgalt/record-builder) library
 * [memoization](https://en.wikipedia.org/wiki/Memoization)
 * ignoring specified fields in `hashCode` and `equals` methods
+
+Google [AutoValue](https://github.com/google/auto) has long been used as a way to work with _Value Classes_ in an easy way.
+However, when Java [records](https://docs.oracle.com/en/java/javase/17/language/records.html) were introduced, they lacked some features that AutoValue had, such as nullability checking, builders, and memoization.
+This is why AutoRecord was created.
 
 ## How to use AutoRecord
 
