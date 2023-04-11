@@ -14,7 +14,6 @@ concurrency:
 jobs:
   next-version:
     name: Get Release version
-    if: ${{ github.ref == 'refs/heads/main' }}
     uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
 
   release-perform:
@@ -48,12 +47,18 @@ jobs:
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: GPG_PASSPHRASE
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Install GPG ownertrust
         run: |
           echo ${{ secrets.GPG_TRUSTVALUES }} > trustvalues.txt
           gpg --import-ownertrust trustvalues.txt
+          echo "<settingsSecurity><master>${{ secrets.GPG_PASSPHRASE }}</master></settingsSecurity>" > ~/.m2/settings-security.xml
+          echo ---
+          cat ~/.m2/settings.xml
+          echo ---
+          cat ~/.m2/settings-security.xml
+      
 
       - name: Perform Maven release
         env:
@@ -62,7 +67,7 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
-          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release
           mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
 
       - name: Create and merge pull request
