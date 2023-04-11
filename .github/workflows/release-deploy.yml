@@ -36,6 +36,7 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: maven
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
 
       - name: Install GPG ownertrust
         run: |
