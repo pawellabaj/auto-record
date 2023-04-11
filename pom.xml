@@ -8,7 +8,7 @@
 
     <groupId>pl.com.labaj</groupId>
     <artifactId>auto-record</artifactId>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.5.0</version>
     <packaging>jar</packaging>
     <inceptionYear>2023</inceptionYear>
 
@@ -464,7 +464,7 @@
         <url>https://github.com/pawellabaj/auto-record</url>
         <connection>scm:git:https://github.com/pawellabaj/auto-record.git</connection>
         <developerConnection>scm:git:https://github.com/pawellabaj/auto-record.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.5.0</tag>
     </scm>
 
     <distributionManagement>
