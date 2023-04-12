@@ -18,11 +18,9 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Ignored;
-import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.SubGenerator;
-import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.utils.Method;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.List;
@@ -31,27 +29,27 @@ import static pl.com.labaj.autorecord.processor.special.SpecialMethod.HASH_CODE;
 
 public class HashCodeEqualsGenerator extends SubGenerator {
 
-    public HashCodeEqualsGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
-        super(metaData, staticImports, logger);
+    public HashCodeEqualsGenerator(AutoRecordContext context) {
+        super(context);
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        var memoizedHashCode = metaData.memoization().specialMemoized().get(HASH_CODE);
-        var notIgnoredProperties = findNotIgnoredProperties();
+    public void generate(TypeSpec.Builder recordBuilder) {
+        boolean memoizedHashCode = context.generation().memoization().isMemoized(HASH_CODE);
+        List<ExecutableElement> notIgnoredProperties = findNotIgnoredProperties();
 
         if (shouldNotGenerateHashCodeAndEquals(memoizedHashCode, notIgnoredProperties)) {
             return;
         }
 
         List.of(
-                new HashCodeGenerator(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties),
-                new EqualsGenerator(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties)
-        ).forEach(generator -> generator.accept(recordSpecBuilder));
+                new HashCodeGenerator(context, memoizedHashCode, notIgnoredProperties),
+                new EqualsGenerator(context, memoizedHashCode, notIgnoredProperties)
+        ).forEach(generator -> generator.generate(recordBuilder));
     }
 
     private List<ExecutableElement> findNotIgnoredProperties() {
-        return metaData.propertyMethods().stream()
+        return context.source().propertyMethods().stream()
                 .map(Method::new)
                 .filter(method -> method.isNotAnnotatedWith(Ignored.class))
                 .map(Method::method)
@@ -63,7 +61,7 @@ public class HashCodeEqualsGenerator extends SubGenerator {
             return false;
         }
 
-        var hasIgnoredComponents = notIgnoredProperties.size() < metaData.propertyMethods().size();
+        var hasIgnoredComponents = notIgnoredProperties.size() < context.source().propertyMethods().size();
         if (hasIgnoredComponents) {
             return false;
         }
@@ -75,19 +73,22 @@ public class HashCodeEqualsGenerator extends SubGenerator {
         return !hasArrayComponents;
     }
 
-    protected static abstract class HashCodeEqualsSubGenerator extends SubGenerator {
-        protected final boolean memoizedHashCode;
-        protected final List<ExecutableElement> notIgnoredProperties;
+    static abstract class HashCodeEqualsSubGenerator extends SubGenerator {
+        private final boolean memoizedHashCode;
+        private final List<ExecutableElement> notIgnoredProperties;
 
-        protected HashCodeEqualsSubGenerator(MetaData metaData,
-                                             StaticImports staticImports,
-                                             Logger logger,
-                                             boolean memoizedHashCode,
-                                             List<ExecutableElement> notIgnoredProperties) {
-            super(metaData, staticImports, logger);
-
+        protected HashCodeEqualsSubGenerator(AutoRecordContext context, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
+            super(context);
             this.memoizedHashCode = memoizedHashCode;
             this.notIgnoredProperties = notIgnoredProperties;
+        }
+
+        protected boolean isMemoizedHashCode() {
+            return memoizedHashCode;
+        }
+
+        protected List<ExecutableElement> notIgnoredProperties() {
+            return notIgnoredProperties;
         }
     }
 }

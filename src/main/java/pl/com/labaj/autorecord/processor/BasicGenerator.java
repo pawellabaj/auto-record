@@ -24,11 +24,10 @@ import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 import pl.com.labaj.autorecord.Memoized;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.memoization.Memoization;
 import pl.com.labaj.autorecord.processor.memoization.TypeMemoizer;
-import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
@@ -50,56 +49,57 @@ public class BasicGenerator extends SubGenerator {
     private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
     private static final String OBJECTS_REQUIRE_NON_NULL = "requireNonNull";
 
-    public BasicGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
-        super(metaData, staticImports, logger);
+    public BasicGenerator(AutoRecordContext context) {
+        super(context);
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        createBasicElements(recordSpecBuilder);
-        createTypeVariables(recordSpecBuilder);
+    public void generate(TypeSpec.Builder recordBuilder) {
+        createBasicElements(recordBuilder);
+        createTypeVariables(recordBuilder);
 
-        var recordComponents = createRecordComponents(recordSpecBuilder);
+        var recordComponents = createRecordComponents(recordBuilder);
 
-        createAdditionalRecordComponents(recordSpecBuilder);
-        createAdditionalConstructor(recordSpecBuilder, recordComponents);
-        createCompactConstructor(recordSpecBuilder);
+        createAdditionalRecordComponents(recordBuilder);
+        createAdditionalConstructor(recordBuilder, recordComponents);
+        createCompactConstructor(recordBuilder);
     }
 
-    private void createBasicElements(TypeSpec.Builder recordSpecBuilder) {
-        recordSpecBuilder.addAnnotation(GENERATED_ANNOTATION)
+    private void createBasicElements(TypeSpec.Builder recordBuilder) {
+        recordBuilder.addAnnotation(GENERATED_ANNOTATION)
                 .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
-                .addModifiers(metaData.modifiers());
+                .addModifiers(context.target().modifiers())
+                .addSuperinterface(context.source().type());
     }
 
-    private void createTypeVariables(TypeSpec.Builder recordSpecBuilder) {
-        var typeParameters = metaData.typeParameters();
+    private void createTypeVariables(TypeSpec.Builder recordBuilder) {
+        var typeParameters = context.source().typeParameters();
 
         if (typeParameters.isEmpty()) {
             return;
         }
 
         var genericVariables = getGenericVariableNames(typeParameters);
-        recordSpecBuilder.addTypeVariables(genericVariables);
+        recordBuilder.addTypeVariables(genericVariables);
     }
 
-    private List<ParameterSpec> createRecordComponents(TypeSpec.Builder recordSpecBuilder) {
-        var recordComponents = metaData.propertyMethods().stream()
+    private List<ParameterSpec> createRecordComponents(TypeSpec.Builder recordBuilder) {
+        var recordComponents = context.source().propertyMethods().stream()
                 .map(this::toParameterSpec)
                 .toList();
-        recordSpecBuilder.addRecordComponents(recordComponents);
+        recordBuilder.addRecordComponents(recordComponents);
 
         return recordComponents;
     }
 
-    private void createAdditionalRecordComponents(TypeSpec.Builder recordSpecBuilder) {
-        metaData.memoization().items().stream()
+    private void createAdditionalRecordComponents(TypeSpec.Builder recordBuilder) {
+        context.generation().memoization().items().stream()
                 .map(this::toParameterSpec)
-                .forEach(recordSpecBuilder::addRecordComponent);
+                .forEach(recordBuilder::addRecordComponent);
     }
 
-    private void createAdditionalConstructor(TypeSpec.Builder recordSpecBuilder, List<ParameterSpec> recordComponents) {
-        var items = metaData.memoization().items();
+    private void createAdditionalConstructor(TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponents) {
+        var items = context.generation().memoization().items();
         if (items.isEmpty()) {
             return;
         }
@@ -113,16 +113,16 @@ public class BasicGenerator extends SubGenerator {
                 .collect(joining(", ", "this(", ")"));
 
         var constructor = MethodSpec.constructorBuilder()
-                .addModifiers(metaData.modifiers())
+                .addModifiers(context.target().modifiers())
                 .addParameters(recordComponents)
                 .addStatement(constructorCallFormat, recordComponents.toArray())
                 .build();
 
-        recordSpecBuilder.addMethod(constructor);
+        recordBuilder.addMethod(constructor);
     }
 
-    private void createCompactConstructor(TypeSpec.Builder recordSpecBuilder) {
-        var nonNullNames = metaData.propertyMethods().stream()
+    private void createCompactConstructor(TypeSpec.Builder recordBuilder) {
+        var nonNullNames = context.source().propertyMethods().stream()
                 .map(Method::new)
                 .filter(Method::doesNotReturnPrimitive)
                 .filter(method -> method.isNotAnnotatedWith(Nullable.class))
@@ -135,12 +135,12 @@ public class BasicGenerator extends SubGenerator {
         }
 
         var compactConstructorBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(metaData.modifiers());
+                .addModifiers(context.target().modifiers());
 
         nonNullNames.forEach(name -> compactConstructorBuilder.addStatement("$1N($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
-        staticImports.add(Objects.class, OBJECTS_REQUIRE_NON_NULL);
+        context.generation().staticImports().add(Objects.class, OBJECTS_REQUIRE_NON_NULL);
 
-        recordSpecBuilder.compactConstructor(compactConstructorBuilder.build());
+        recordBuilder.compactConstructor(compactConstructorBuilder.build());
     }
 
     private ParameterSpec toParameterSpec(ExecutableElement method) {
@@ -162,7 +162,7 @@ public class BasicGenerator extends SubGenerator {
                 List.of(Nullable.class),
                 List.of(Memoized.class));
 
-        return ParameterSpec.builder(typeMemoizer.getTypeName(type), memoizedElement.getMemoizerName())
+        return ParameterSpec.builder(typeMemoizer.getTypeName(type), typeMemoizer.getMemoizerName(memoizedElement.name()))
                 .addAnnotations(annotations)
                 .build();
     }

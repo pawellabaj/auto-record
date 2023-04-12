@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,15 +16,15 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
+import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.processor.memoization.Memoization;
+import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
-public abstract class SubGenerator {
-    protected final AutoRecordContext context;
-
-    protected SubGenerator(AutoRecordContext context) {
-        this.context = context;
-    }
-
-    public abstract void generate(TypeSpec.Builder recordBuilder);
+public record Generation(AutoRecord.Options recordOptions,
+                         RecordBuilder.Options builderOptions,
+                         Memoization memoization,
+                         StaticImports staticImports,
+                         Logger logger) {
 }

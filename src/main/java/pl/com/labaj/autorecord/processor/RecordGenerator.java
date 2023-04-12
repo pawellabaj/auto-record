@@ -20,6 +20,10 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
+import pl.com.labaj.autorecord.processor.context.Generation;
+import pl.com.labaj.autorecord.processor.context.SourceInterface;
+import pl.com.labaj.autorecord.processor.context.TargetRecord;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationFinder;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationGenerator;
 import pl.com.labaj.autorecord.processor.special.HashCodeEqualsGenerator;
@@ -28,17 +32,22 @@ import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
 import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.STATIC;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotationWithEnforcedValues;
 
 class RecordGenerator {
+    private static final Map<String, Object> BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
 
     private final TypeElement sourceInterface;
     private final AutoRecord.Options recordOptions;
@@ -46,52 +55,53 @@ class RecordGenerator {
     private final ProcessingEnvironment processingEnv;
     private final MemoizationFinder memoizationFinder;
     private final Logger logger;
+    private final List<Function<AutoRecordContext, SubGenerator>> subGenerators;
 
     RecordGenerator(TypeElement sourceInterface,
                     AutoRecord.Options recordOptions,
-                    RecordBuilder.Options builderOptions,
+                    @Nullable RecordBuilder.Options builderOptions,
                     ProcessingEnvironment processingEnv,
                     Logger logger) {
         this.sourceInterface = sourceInterface;
         this.recordOptions = recordOptions;
-        this.builderOptions = builderOptions;
+        this.builderOptions = prepareBuilderOptions(builderOptions);
         this.processingEnv = processingEnv;
 
         memoizationFinder = new MemoizationFinder(processingEnv.getElementUtils());
         this.logger = logger;
+
+        subGenerators = List.of(
+                BasicGenerator::new,
+                MemoizationGenerator::new,
+                BuilderGenerator::new,
+                HashCodeEqualsGenerator::new,
+                ToStringGenerator::new
+        );
+    }
+
+    private RecordBuilder.Options prepareBuilderOptions(@Nullable RecordBuilder.Options builderOptions) {
+        return getAnnotationWithEnforcedValues(builderOptions, RecordBuilder.Options.class, BUILDER_OPTIONS_ENFORCED_VALUES);
     }
 
     JavaFile buildJavaFile() {
-        var packageName = getPackageName();
-        var recordName = createRecordName();
-        var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
+        var context = createContext();
+        var recordBuilder = TypeSpec.recordBuilder(context.target().name());
 
-        var metaData = new MetaData(packageName,
-                getInterfaceName(),
-                recordName, recordOptions,
-                builderOptions,
-                getRecordModifiers(),
-                sourceInterface.getTypeParameters(),
-                getPropertyMethods(),
-                memoization);
+        subGenerators.stream()
+                .map(constructor -> constructor.apply(context))
+                .forEach(subGenerator -> subGenerator.generate(recordBuilder));
 
-        var recordSpecBuilder = TypeSpec.recordBuilder(recordName)
-                .addSuperinterface(sourceInterface.asType());
-        var staticImports = new StaticImports();
-        createSubGenerators(metaData, staticImports)
-                .forEach(subGenerator -> subGenerator.accept(recordSpecBuilder));
-
-        return buildJavaFile(packageName, recordSpecBuilder.build(), staticImports);
+        return buildJavaFile(context, recordBuilder.build());
     }
 
-    private List<SubGenerator> createSubGenerators(MetaData metaData, StaticImports staticImports) {
-        return List.of(
-                new BasicGenerator(metaData, staticImports, logger),
-                new MemoizationGenerator(metaData, staticImports, logger),
-                new BuilderGenerator(metaData, staticImports, logger),
-                new HashCodeEqualsGenerator(metaData, staticImports, logger),
-                new ToStringGenerator(metaData, staticImports, logger)
-        );
+    private AutoRecordContext createContext() {
+        var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
+
+        var source = new SourceInterface(getInterfaceName(), sourceInterface.asType(), getPropertyMethods(), sourceInterface.getTypeParameters());
+        var target = new TargetRecord(getPackageName(), createRecordName(), getRecordModifiers());
+        var generation = new Generation(recordOptions, builderOptions, memoization, new StaticImports(), logger);
+
+        return new AutoRecordContext(source, target, generation);
     }
 
     private String getPackageName() {
@@ -152,9 +162,9 @@ class RecordGenerator {
         return true;
     }
 
-    private JavaFile buildJavaFile(String packageName, TypeSpec recordSpec, StaticImports staticImports) {
-        var javaFileBuilder = JavaFile.builder(packageName, recordSpec);
-        staticImports.addTo(javaFileBuilder);
+    private JavaFile buildJavaFile(AutoRecordContext context, TypeSpec recordSpec) {
+        var javaFileBuilder = JavaFile.builder(context.target().packageName(), recordSpec);
+        context.generation().staticImports().addTo(javaFileBuilder);
 
         return javaFileBuilder.build();
     }

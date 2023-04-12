@@ -18,10 +18,8 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.MetaData;
-import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.utils.Method;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -37,32 +35,32 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 class HashCodeGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator {
     private static final String OBJECTS_HASH = "hash";
 
-    HashCodeGenerator(MetaData metaData, StaticImports staticImports, Logger logger, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-        super(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties);
+    HashCodeGenerator(AutoRecordContext context, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
+        super(context, memoizedHashCode, notIgnoredProperties);
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        var methodName = (memoizedHashCode ? "_" : "") + "hashCode";
-        var format = notIgnoredProperties.stream()
+    public void generate(TypeSpec.Builder recordBuilder) {
+        var methodName = (isMemoizedHashCode() ? "_" : "") + "hashCode";
+        var format = notIgnoredProperties().stream()
                 .map(Method::new)
                 .map(method -> method.returnsArray() ? "$T.hashCode($N)" : "$N")
                 .collect(joining(", ", "return " + OBJECTS_HASH + "(", ")"));
-        var arguments = notIgnoredProperties.stream()
+        var arguments = notIgnoredProperties().stream()
                 .flatMap(this::getArguments)
                 .toArray();
         var hashCodeMethodBuilder = MethodSpec.methodBuilder(methodName)
-                .addModifiers(memoizedHashCode ? PRIVATE : PUBLIC)
+                .addModifiers(isMemoizedHashCode() ? PRIVATE : PUBLIC)
                 .returns(INT)
                 .addStatement(format, arguments);
 
-        if (!memoizedHashCode) {
+        if (!isMemoizedHashCode()) {
             hashCodeMethodBuilder.addAnnotation(Override.class);
         }
 
-        staticImports.add(Objects.class, OBJECTS_HASH);
+        context.generation().staticImports().add(Objects.class, OBJECTS_HASH);
 
-        recordSpecBuilder.addMethod(hashCodeMethodBuilder.build());
+        recordBuilder.addMethod(hashCodeMethodBuilder.build());
     }
 
     private Stream<?> getArguments(ExecutableElement method) {

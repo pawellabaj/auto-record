@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,15 +16,7 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
+import javax.lang.model.element.Modifier;
 
-public abstract class SubGenerator {
-    protected final AutoRecordContext context;
-
-    protected SubGenerator(AutoRecordContext context) {
-        this.context = context;
-    }
-
-    public abstract void generate(TypeSpec.Builder recordBuilder);
+public record TargetRecord(String packageName, String name, Modifier[] modifiers) {
 }

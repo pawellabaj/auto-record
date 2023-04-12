@@ -18,10 +18,8 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.MetaData;
-import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.utils.Method;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -37,40 +35,42 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 class EqualsGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator {
     private static final String OTHER = "other";
     private static final String OTHER_RECORD = "otherRecord";
+    private static final String RETURN_TRUE_STATEMENT = "return true";
+    private static final String RETURN_FALSE_STATEMENT = "return false";
 
-    EqualsGenerator(MetaData metaData, StaticImports staticImports, Logger logger, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-        super(metaData, staticImports, logger, memoizedHashCode, notIgnoredProperties);
+    EqualsGenerator(AutoRecordContext context, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
+        super(context, memoizedHashCode, notIgnoredProperties);
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        var recordName = metaData.recordName();
+    public void generate(TypeSpec.Builder recordBuilder) {
+        var recordName = context.target().name();
         var equalsMethodBuilder = MethodSpec.methodBuilder("equals")
                 .addAnnotation(Override.class)
                 .addModifiers(PUBLIC)
                 .returns(BOOLEAN)
                 .addParameter(OBJECT, OTHER)
                 .beginControlFlow("if (this == $L)", OTHER)
-                .addStatement("return true")
+                .addStatement(RETURN_TRUE_STATEMENT)
                 .endControlFlow()
                 .beginControlFlow("if ($L == null)", OTHER)
-                .addStatement("return false")
+                .addStatement(RETURN_FALSE_STATEMENT)
                 .endControlFlow()
                 .beginControlFlow("if (!($L instanceof $L))", OTHER, recordName)
-                .addStatement("return false")
+                .addStatement(RETURN_FALSE_STATEMENT)
                 .endControlFlow();
 
-        if (memoizedHashCode) {
+        if (isMemoizedHashCode()) {
             equalsMethodBuilder
                     .beginControlFlow("if (hashCode() != $L.hashCode())", OTHER)
-                    .addStatement("return false")
+                    .addStatement(RETURN_FALSE_STATEMENT)
                     .endControlFlow();
         }
 
-        var format = notIgnoredProperties.stream()
+        var format = notIgnoredProperties().stream()
                 .map(method -> "$T.equals($N, %s.$N)".formatted(OTHER_RECORD))
                 .collect(joining("\n&& ", "return ", ""));
-        var arguments = notIgnoredProperties.stream()
+        var arguments = notIgnoredProperties().stream()
                 .flatMap(this::getArguments)
                 .toArray();
         var equalsMethod = equalsMethodBuilder
@@ -78,7 +78,7 @@ class EqualsGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator
                 .addStatement("var $L = ($L) $L", OTHER_RECORD, recordName, OTHER)
                 .addStatement(format, arguments)
                 .build();
-        recordSpecBuilder.addMethod(equalsMethod);
+        recordBuilder.addMethod(equalsMethod);
     }
 
     private Stream<?> getArguments(ExecutableElement method) {

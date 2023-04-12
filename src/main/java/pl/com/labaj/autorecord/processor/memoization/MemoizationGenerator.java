@@ -20,11 +20,9 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.SubGenerator;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.utils.Annotations;
-import pl.com.labaj.autorecord.processor.utils.Logger;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import java.lang.annotation.ElementType;
 import java.util.List;
@@ -36,15 +34,15 @@ import static pl.com.labaj.autorecord.processor.memoization.TypeMemoizer.typeMem
 
 public class MemoizationGenerator extends SubGenerator {
 
-    public MemoizationGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
-        super(metaData, staticImports, logger);
+    public MemoizationGenerator(AutoRecordContext context) {
+        super(context);
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        metaData.memoization().items().stream()
+    public void generate(TypeSpec.Builder recordBuilder) {
+        context.generation().memoization().items().stream()
                 .map(this::toMethodSpec)
-                .forEach(recordSpecBuilder::addMethod);
+                .forEach(recordBuilder::addMethod);
     }
 
     private MethodSpec toMethodSpec(Memoization.Item item) {
@@ -57,7 +55,8 @@ public class MemoizationGenerator extends SubGenerator {
                 .filter(modifer -> modifer != ABSTRACT)
                 .filter(modifier -> modifier != DEFAULT)
                 .toList();
-        var supplierName = item.special() ? "_" + name : metaData.interfaceName() + ".super." + name;
+        var interfaceName = context.source().name();
+        var supplierName = item.special() ? "_" + name : interfaceName + ".super." + name;
 
         var typeMemoizer = typeMemoizerWith(item.type());
 

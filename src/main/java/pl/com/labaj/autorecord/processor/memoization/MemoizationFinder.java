@@ -63,7 +63,7 @@ public class MemoizationFinder {
     }
 
     private EnumMap<SpecialMethod, Boolean> findSpecialMemoized(LinkedHashSet<Memoization.Item> items) {
-        var specialMemoized = items.stream()
+        return items.stream()
                 .filter(Memoization.Item::special)
                 .map(Memoization.Item::name)
                 .collect(toMap(
@@ -72,10 +72,6 @@ public class MemoizationFinder {
                         (m1, m2) -> m1 || m2,
                         () -> new EnumMap<>(SpecialMethod.class)
                 ));
-
-        allSpecialMethods().forEach(m -> specialMemoized.computeIfAbsent(m, sm -> false));
-
-        return specialMemoized;
     }
 
     private boolean isMethod(Element element) {

@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you believe you have found a security vulnerability in our project, please do not hesitate to contact us by [mail](mailto:auto-record@labaj.com.pl?subject=Security Vulnerability) or open a [draft security advisory](https://github.com/pawellabaj/auto-record/security/advisories/new).
+If you believe you have found a security vulnerability in our project, please do not hesitate to contact us by [mail](mailto:auto-record@labaj.com.pl?subject=Security%20Vulnerability) or open a [draft security advisory](https://github.com/pawellabaj/auto-record/security/advisories/new).
 
 We take all security reports seriously and will do our best to address the issue promptly.
 

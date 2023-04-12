@@ -25,10 +25,12 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.Boolean.TRUE;
+
 public record Memoization(Set<Item> items, EnumMap<SpecialMethod, Boolean> specialMemoized) {
-    public record Item(TypeMirror type, String name, List<AnnotationMirror> annotations, Set<Modifier> modifiers, boolean special) {
-        public String getMemoizerName() {
-            return name + "Memoizer";
-        }
+    public boolean isMemoized(SpecialMethod specialMethod) {
+        return TRUE.equals(specialMemoized().get(specialMethod));
     }
+
+    public record Item(TypeMirror type, String name, List<AnnotationMirror> annotations, Set<Modifier> modifiers, boolean special) {}
 }

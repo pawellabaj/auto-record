@@ -19,6 +19,7 @@ package pl.com.labaj.autorecord.processor.utils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
+import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -79,9 +80,9 @@ public final class Annotations {
     }
 
     @SuppressWarnings("unchecked")
-    public static <A extends Annotation> A getAnnotationWithEnforcedValues(Element element, Class<A> annotationClass, Map<String, Object> enforcedValues) {
-        var annotation = getAnnotation(element, annotationClass).orElse(null);
-
+    public static <A extends Annotation> A getAnnotationWithEnforcedValues(@Nullable A annotation,
+                                                                           Class<A> annotationClass,
+                                                                           Map<String, Object> enforcedValues) {
         return (A) Proxy.newProxyInstance(
                 annotationClass.getClassLoader(),
                 new Class[] {annotationClass},
@@ -94,19 +95,19 @@ public final class Annotations {
                 });
     }
 
+    @SuppressWarnings("unchecked")
+    private static <A extends Annotation> A getAnnotationWithDefaults(Class<A> annotationClass) {
+        return (A) Proxy.newProxyInstance(
+                annotationClass.getClassLoader(),
+                new Class[] {annotationClass},
+                (proxy, method, args) -> method.getDefaultValue());
+    }
+
     private static boolean canAnnotateElementType(TypeElement annotation, ElementType targetType) {
         return getAnnotation(annotation, Target.class)
                 .map(Target::value)
                 .map(Arrays::stream)
                 .map(elementTypes -> elementTypes.anyMatch(elementType -> elementType == targetType))
                 .orElse(true);
-    }
-
-    @SuppressWarnings("unchecked")
-    static <A extends Annotation> A getAnnotationWithDefaults(Class<A> annotationClass) {
-        return (A) Proxy.newProxyInstance(
-                annotationClass.getClassLoader(),
-                new Class[] {annotationClass},
-                (proxy, method, args) -> method.getDefaultValue());
     }
 }

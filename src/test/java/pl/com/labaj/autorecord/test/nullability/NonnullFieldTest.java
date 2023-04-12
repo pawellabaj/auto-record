@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class NonnullFieldTest {
 
     @TestFor(NonnullField.class)
-    void shouldThrowExcpetionWhenNonullComponentIsMissing() {
+    void shouldThrowExceptionWhenNonullComponentIsMissing() {
         var nullPointerException = assertThrows(NullPointerException.class, () -> new NonnullFieldRecord(null, null));
         assertThat(nullPointerException).hasMessageStartingWith("one");
     }

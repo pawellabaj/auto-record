@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,23 +16,10 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.memoization.Memoization;
-
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
-@SuppressWarnings("java:S6218")
-public
-record MetaData(String packageName,
-                String interfaceName,
-                String recordName,
-                AutoRecord.Options recordOptions,
-                RecordBuilder.Options builderOptions,
-                Modifier[] modifiers,
-                List<? extends TypeParameterElement> typeParameters,
-                List<ExecutableElement> propertyMethods,
-                Memoization memoization) {}
+public record SourceInterface(String name, TypeMirror type, List<ExecutableElement> propertyMethods, List<? extends TypeParameterElement> typeParameters) {
+}

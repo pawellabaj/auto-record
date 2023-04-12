@@ -22,7 +22,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
@@ -42,29 +42,29 @@ class BuilderGenerator extends SubGenerator {
     private final RecordBuilder.Options builderOptions;
     private final String recordBuilderName;
 
-    BuilderGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
-        super(metaData, staticImports, logger);
-        builderOptions = metaData.builderOptions();
-        recordBuilderName = metaData.recordName() + builderOptions.suffix();
+    BuilderGenerator(AutoRecordContext context) {
+        super(context);
+        builderOptions = context.generation().builderOptions();
+        recordBuilderName = context.target().name() + builderOptions.suffix();
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        if (!metaData.recordOptions().withBuilder()) {
+    public void generate(TypeSpec.Builder recordBuilder) {
+        if (!context.generation().recordOptions().withBuilder()) {
             return;
         }
 
-        createRecordBuilderAnnotation(recordSpecBuilder);
-        createRecordBuilderOptionsAnnotation(recordSpecBuilder);
-        createBuilderMethod(recordSpecBuilder);
-        createToBuilderMethod(recordSpecBuilder);
+        createRecordBuilderAnnotation(recordBuilder);
+        createRecordBuilderOptionsAnnotation(recordBuilder);
+        createBuilderMethod(recordBuilder);
+        createToBuilderMethod(recordBuilder);
     }
 
-    private void createRecordBuilderAnnotation(TypeSpec.Builder recordSpecBuilder) {
-        recordSpecBuilder.addAnnotation(BUILDER_ANNOTATION);
+    private void createRecordBuilderAnnotation(TypeSpec.Builder recordBuilder) {
+        recordBuilder.addAnnotation(BUILDER_ANNOTATION);
     }
 
-    private void createRecordBuilderOptionsAnnotation(TypeSpec.Builder recordSpecBuilder) {
+    private void createRecordBuilderOptionsAnnotation(TypeSpec.Builder recordBuilder) {
         var methods = RecordBuilder.Options.class.getDeclaredMethods();
         var options = Arrays.stream(methods)
                 .map(this::toOption)
@@ -78,21 +78,21 @@ class BuilderGenerator extends SubGenerator {
         var optionsAnnotationBuilder = AnnotationSpec.builder(RecordBuilder.Options.class);
         options.forEach(builderOption -> addMember(optionsAnnotationBuilder, builderOption));
 
-        recordSpecBuilder.addAnnotation(optionsAnnotationBuilder.build());
+        recordBuilder.addAnnotation(optionsAnnotationBuilder.build());
     }
 
-    private void createBuilderMethod(TypeSpec.Builder recordSpecBuilder) {
+    private void createBuilderMethod(TypeSpec.Builder recordBuilder) {
         var builderMethodBuilder = MethodSpec.methodBuilder("builder")
-                .addModifiers(metaData.modifiers())
+                .addModifiers(context.target().modifiers())
                 .addModifiers(STATIC)
                 .addStatement("return $L.$L()", recordBuilderName, builderOptions.builderMethodName());
         var methodSpec = builderMethodSpec(builderMethodBuilder);
 
-        recordSpecBuilder.addMethod(methodSpec);
+        recordBuilder.addMethod(methodSpec);
     }
 
-    private void createToBuilderMethod(TypeSpec.Builder recordSpecBuilder) {
-        var propertyMethods = metaData.propertyMethods();
+    private void createToBuilderMethod(TypeSpec.Builder recordBuilder) {
+        var propertyMethods = context.source().propertyMethods();
 
         var format = propertyMethods.stream()
                 .map(method -> ".$N($N)")
@@ -109,17 +109,17 @@ class BuilderGenerator extends SubGenerator {
                 });
 
         var toBuilderMethodBuilder = MethodSpec.methodBuilder("toBuilder")
-                .addModifiers(metaData.modifiers())
+                .addModifiers(context.target().modifiers())
                 .addStatement(format, arguments.toArray());
         var methodSpec = builderMethodSpec(toBuilderMethodBuilder);
 
-        recordSpecBuilder.addMethod(methodSpec);
+        recordBuilder.addMethod(methodSpec);
     }
 
     private MethodSpec builderMethodSpec(MethodSpec.Builder methodBuilder) {
-        var returClassName = ClassName.get(metaData.packageName(), recordBuilderName);
+        var returClassName = ClassName.get(context.target().packageName(), recordBuilderName);
 
-        var typeParameters = metaData.typeParameters();
+        var typeParameters = context.source().typeParameters();
         if (typeParameters.isEmpty()) {
             methodBuilder.returns(returClassName);
         } else {
@@ -145,7 +145,7 @@ class BuilderGenerator extends SubGenerator {
         try {
             return method.invoke(builderOptions);
         } catch (Exception e) {
-            logger.error("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()));
+            context.generation().logger().error("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()));
         }
         return null;
     }
@@ -154,6 +154,7 @@ class BuilderGenerator extends SubGenerator {
         var name = builderOption.name;
         var actualValue = builderOption.actualValue;
         var returnType = builderOption.returnType;
+        var staticImports = context.generation().staticImports();
 
         if (returnType.isPrimitive()) {
             optionsAnnotationBuilder.addMember(name, "$L", actualValue);

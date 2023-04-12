@@ -18,11 +18,9 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.MetaData;
 import pl.com.labaj.autorecord.processor.SubGenerator;
-import pl.com.labaj.autorecord.processor.utils.Logger;
+import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.utils.Method;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -35,24 +33,25 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_STRING;
 
 public class ToStringGenerator extends SubGenerator {
-    public ToStringGenerator(MetaData metaData, StaticImports staticImports, Logger logger) {
-        super(metaData, staticImports, logger);
+    public ToStringGenerator(AutoRecordContext context) {
+        super(context);
     }
 
     @Override
-    public void accept(TypeSpec.Builder recordSpecBuilder) {
-        var memoizedToString = metaData.memoization().specialMemoized().get(TO_STRING);
-        var propertyMethods = metaData.propertyMethods();
+    public void generate(TypeSpec.Builder recordBuilder) {
+        var memoizedToString = context.generation().memoization().isMemoized(TO_STRING);
+        var propertyMethods = context.source().propertyMethods();
 
         if (shouldNotGenerateToString(memoizedToString, propertyMethods)) {
             return;
         }
 
+        var recordName = context.target().name();
         var methodName = (memoizedToString ? "_" : "") + "toString";
         var toStringFormat = propertyMethods.stream()
                 .map(Method::new)
                 .map(this::getFormat)
-                .collect(joining(" + \", \" +\n", "return \"" + metaData.recordName() + "[\" +\n", " +\n\"]\""));
+                .collect(joining(" + \", \" +\n", "return \"" + recordName + "[\" +\n", " +\n\"]\""));
         var arguments = propertyMethods.stream()
                 .map(Method::new)
                 .flatMap(this::getArguments)
@@ -63,7 +62,7 @@ public class ToStringGenerator extends SubGenerator {
                 .addStatement(toStringFormat, arguments)
                 .build();
 
-        recordSpecBuilder.addMethod(toStringMethod);
+        recordBuilder.addMethod(toStringMethod);
     }
 
     private boolean shouldNotGenerateToString(boolean memoizedToString, List<ExecutableElement> propertyMethods) {

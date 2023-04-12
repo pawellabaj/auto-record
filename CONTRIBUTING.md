@@ -29,7 +29,7 @@ If you want to contribute code to our project, please open an issue our [issue t
 Our project provides annotation processing to generate Java records based on annotated interfaces during compilation. Here are some guidelines to follow when working with annotation processing:
 
 * make sure that your code follows the [Java Language Specification](https://docs.oracle.com/javase/specs/jls/se17/html/index.html) and the [Java Annotation Processing API](https://docs.oracle.com/en/java/javase/17/docs/api/java.compiler/javax/annotation/processing/package-summary.html).
-* make sure that the processor is thread-safe and do not have any side-effects
+* make sure that the processor is thread-safe and do not have any side effects
 * make sure that the processor generates valid Java code that can be compiled by the Java compiler
 
 ## License
