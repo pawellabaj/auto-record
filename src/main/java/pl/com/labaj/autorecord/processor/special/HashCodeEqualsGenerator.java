@@ -73,7 +73,7 @@ public class HashCodeEqualsGenerator extends SubGenerator {
         return !hasArrayComponents;
     }
 
-    static abstract class HashCodeEqualsSubGenerator extends SubGenerator {
+    abstract static class HashCodeEqualsSubGenerator extends SubGenerator {
         private final boolean memoizedHashCode;
         private final List<ExecutableElement> notIgnoredProperties;
 
