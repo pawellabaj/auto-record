@@ -16,6 +16,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.build.outputTimestamp>2023-04-12T00:00:00Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
@@ -384,6 +385,7 @@
                                 <link>https://docs.oracle.com/en/java/javase/${java.version}/docs/api/</link>
                                 <link>https://javadoc.io/doc/io.soabase.record-builder/record-builder-core/${record-builder.version}</link>
                             </links>
+                            <notimestamp>true</notimestamp>
                             <failOnWarnings>false</failOnWarnings>
                             <failOnError>false</failOnError>
                         </configuration>
