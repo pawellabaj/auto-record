@@ -18,7 +18,9 @@ package pl.com.labaj.autorecord.processor;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.processor.utils.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -34,7 +36,7 @@ import static pl.com.labaj.autorecord.processor.utils.Annotations.getDefaultAnno
 @SupportedAnnotationTypes("pl.com.labaj.autorecord.*")
 public class AutoRecordProcessor extends AbstractProcessor {
 
-    static final String AUTO_RECORD_CLASS_NAME = AutoRecord.class.getName();
+    private static final String AUTO_RECORD_CLASS_NAME = AutoRecord.class.getName();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -66,7 +68,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
 
         if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
             var recordOptions = getDefaultAnnotationIfNotPresent(sourceInterface, AutoRecord.Options.class);
-            var builderOptions = getDefaultAnnotationIfNotPresent(sourceInterface, RecordBuilder.Options.class);
+            var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
 
             processElement(sourceInterface, recordOptions, builderOptions);
         } else {
@@ -80,7 +82,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
         }
     }
 
-    private void processElement(TypeElement sourceInterface, AutoRecord.Options recordOptions, RecordBuilder.Options builderOptions) {
+    private void processElement(TypeElement sourceInterface, AutoRecord.Options recordOptions, @Nullable RecordBuilder.Options builderOptions) {
         var logger = new Logger(processingEnv.getMessager(), sourceInterface);
         logger.debug("Generate record for %s".formatted(sourceInterface));
 

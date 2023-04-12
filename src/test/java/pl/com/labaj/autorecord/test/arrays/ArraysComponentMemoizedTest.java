@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class ArraysComponentMemoizedTest {
 
     @TestFor(ArrayComponentMemoized.class)
-    void shouldGenerateEquaslAndToString() {
+    void shouldGenerateEqualsAndToString() {
         //given
         var one = new Counters();
         var record1 = new ArrayComponentMemoizedRecord(one, new String[] {"A", "B", "C"});

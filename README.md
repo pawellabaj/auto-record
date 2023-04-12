@@ -2,7 +2,7 @@
 
 [![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml) 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record) 
-[![Sonatype Lifft Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
+[![Sonatype Lift Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 [![javadoc](https://javadoc.io/badge2/pl.com.labaj/auto-record/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj/auto-record)
 
@@ -51,13 +51,13 @@ record PersonRecord(String name, int age) implements Person {
 }
 ```
 
-| :memo: Note |
-|:---|
+| :memo: Note                                                                                                                                                                                                               |
+|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Here you can see example of generated record with all features provided by the library: [WithAllFeaturesRecord.java](https://gist.github.com/pawellabaj/c773e35a17e3f7f4d75d2829d75680df#file-withallfeaturesrecord-java) |
 
 ## Documentation
 
-For more information on how to use AutoRecord in your Java project, please refer to the project's [wiki](https://github.com/pawellabaj/auto-record/wiki).
+For more information on how to use AutoRecord and all its features, please visit the project's [Wiki](https://github.com/pawellabaj/auto-record/wiki).
 
 ## Getting started
 

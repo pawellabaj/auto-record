@@ -18,8 +18,8 @@ package pl.com.labaj.autorecord.processor.memoization;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Memoized;
+import pl.com.labaj.autorecord.processor.special.SpecialMethod;
 import pl.com.labaj.autorecord.processor.utils.Method;
-import pl.com.labaj.autorecord.processor.utils.SpecialMethod;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
 
 import static java.util.stream.Collectors.toMap;
 import static javax.lang.model.element.ElementKind.METHOD;
-import static pl.com.labaj.autorecord.processor.utils.SpecialMethod.allSpecialMethods;
+import static pl.com.labaj.autorecord.processor.special.SpecialMethod.allSpecialMethods;
 
 public class MemoizationFinder {
     private final Elements elementUtils;
@@ -63,7 +63,7 @@ public class MemoizationFinder {
     }
 
     private EnumMap<SpecialMethod, Boolean> findSpecialMemoized(LinkedHashSet<Memoization.Item> items) {
-        var specialMemoized = items.stream()
+        return items.stream()
                 .filter(Memoization.Item::special)
                 .map(Memoization.Item::name)
                 .collect(toMap(
@@ -72,10 +72,6 @@ public class MemoizationFinder {
                         (m1, m2) -> m1 || m2,
                         () -> new EnumMap<>(SpecialMethod.class)
                 ));
-
-        allSpecialMethods().forEach(m -> specialMemoized.computeIfAbsent(m, sm -> false));
-
-        return specialMemoized;
     }
 
     private boolean isMethod(Element element) {

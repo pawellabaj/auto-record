@@ -71,6 +71,10 @@ public enum TypeMemoizer {
         return MEMOIZERS_BY_KIND.get(kind);
     }
 
+    public String getMemoizerName(String name) {
+        return name + "Memoizer";
+    }
+
     public TypeName getTypeName(TypeMirror type) {
         var className = ClassName.get(memoizerClass());
         return kind.isPrimitive() ? className : ParameterizedTypeName.get(className, TypeName.get(type));

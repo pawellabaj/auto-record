@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 class BooleanMemoizerTest {
     @Test
-    @SuppressWarnings(" java:S5838")
+    @SuppressWarnings("java:S5838")
     void testMemoizer() {
         // given
         var memoizer = new BooleanMemoizer();

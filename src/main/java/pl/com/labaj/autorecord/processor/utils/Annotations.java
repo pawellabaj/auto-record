@@ -19,6 +19,7 @@ package pl.com.labaj.autorecord.processor.utils;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 
+import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -29,10 +30,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.isNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
@@ -44,9 +47,9 @@ public final class Annotations {
     }
 
     public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors,
-                                                      ElementType target,
-                                                      List<Class<? extends Annotation>> annotationsToAdd,
-                                                      List<Class<? extends Annotation>> annotationsToExclude) {
+                                                             ElementType target,
+                                                             List<Class<? extends Annotation>> annotationsToAdd,
+                                                             List<Class<? extends Annotation>> annotationsToExclude) {
         var classNamesStream = annotationMirrors.stream()
                 .map(AnnotationMirror::getAnnotationType)
                 .map(DeclaredType::asElement)
@@ -76,12 +79,20 @@ public final class Annotations {
                 .orElseGet(() -> getAnnotationWithDefaults(annotationClass));
     }
 
-    private static boolean canAnnotateElementType(TypeElement annotation, ElementType targetType) {
-        return getAnnotation(annotation, Target.class)
-                .map(Target::value)
-                .map(Arrays::stream)
-                .map(elementTypes -> elementTypes.anyMatch(elementType -> elementType == targetType))
-                .orElse(true);
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> A getAnnotationWithEnforcedValues(@Nullable A annotation,
+                                                                           Class<A> annotationClass,
+                                                                           Map<String, Object> enforcedValues) {
+        return (A) Proxy.newProxyInstance(
+                annotationClass.getClassLoader(),
+                new Class[] {annotationClass},
+                (proxy, method, args) -> {
+                    var methodName = method.getName();
+                    if (enforcedValues.containsKey(methodName)) {
+                        return enforcedValues.get(methodName);
+                    }
+                    return isNull(annotation) ? method.getDefaultValue() : method.invoke(annotation);
+                });
     }
 
     @SuppressWarnings("unchecked")
@@ -90,5 +101,13 @@ public final class Annotations {
                 annotationClass.getClassLoader(),
                 new Class[] {annotationClass},
                 (proxy, method, args) -> method.getDefaultValue());
+    }
+
+    private static boolean canAnnotateElementType(TypeElement annotation, ElementType targetType) {
+        return getAnnotation(annotation, Target.class)
+                .map(Target::value)
+                .map(Arrays::stream)
+                .map(elementTypes -> elementTypes.anyMatch(elementType -> elementType == targetType))
+                .orElse(true);
     }
 }

@@ -17,6 +17,7 @@ package pl.com.labaj.autorecord.processor.utils;
  */
 
 import pl.com.labaj.autorecord.processor.memoization.Memoization;
+import pl.com.labaj.autorecord.processor.special.SpecialMethod;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;

@@ -25,7 +25,7 @@ class ArraysComponentTest {
 
 
     @TestFor(ArrayComponent.class)
-    void shouldGenerateEquaslAndToString() {
+    void shouldGenerateEqualsAndToString() {
         //given
         var record1 = new ArrayComponentRecord("one", new String[]{"A","B","C"});
         var record2 = new ArrayComponentRecord("one", new String[]{"A","B","C"});

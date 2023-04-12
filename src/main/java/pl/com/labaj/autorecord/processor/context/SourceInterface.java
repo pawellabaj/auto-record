@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,21 +16,10 @@ package pl.com.labaj.autorecord.processor.memoization;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.processor.special.SpecialMethod;
-
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Modifier;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Set;
 
-import static java.lang.Boolean.TRUE;
-
-public record Memoization(Set<Item> items, EnumMap<SpecialMethod, Boolean> specialMemoized) {
-    public boolean isMemoized(SpecialMethod specialMethod) {
-        return TRUE.equals(specialMemoized().get(specialMethod));
-    }
-
-    public record Item(TypeMirror type, String name, List<AnnotationMirror> annotations, Set<Modifier> modifiers, boolean special) {}
+public record SourceInterface(String name, TypeMirror type, List<ExecutableElement> propertyMethods, List<? extends TypeParameterElement> typeParameters) {
 }
