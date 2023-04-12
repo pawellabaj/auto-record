@@ -34,7 +34,7 @@ public class Logger {
     }
 
     public void debug(String message) {
-        messager.printMessage(NOTE, message);
+        messager.printMessage(NOTE, message, elementContext);
     }
 
     public void error(String message) {

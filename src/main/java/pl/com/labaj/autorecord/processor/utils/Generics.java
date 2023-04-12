@@ -41,10 +41,10 @@ public final class Generics {
         return TypeVariableName.get(name, bounds);
     }
 
-    public static TypeName[] getGenericTypeNames(List<? extends TypeParameterElement> typeParameters) {
+    public static List<TypeVariableName> getGenericTypeNames(List<? extends TypeParameterElement> typeParameters) {
         return typeParameters.stream()
                 .map(Object::toString)
                 .map(TypeVariableName::get)
-                .toArray(TypeName[]::new);
+                .toList();
     }
 }
