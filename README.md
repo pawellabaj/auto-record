@@ -1,12 +1,14 @@
 # AutoRecord
 
-[![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml) 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record) 
-[![Sonatype Lift Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
+Java record source generator
+
+[![Maven Central version](https://img.shields.io/maven-central/v/pl.com.labaj/auto-record)](https://mvnrepository.com/artifact/pl.com.labaj/auto-record)
 [![javadoc](https://javadoc.io/badge2/pl.com.labaj/auto-record/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj/auto-record)
 
-Java record source generator
+[![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record)
+[![Sonatype Lift Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
 
 ## What is AutoRecord
 
