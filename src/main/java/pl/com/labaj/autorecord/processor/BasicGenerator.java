@@ -108,7 +108,7 @@ public class BasicGenerator extends SubGenerator {
         var memoizerFormats = items.stream()
                 .map(Memoization.Item::type)
                 .map(TypeMemoizer::typeMemoizerWith)
-                .map(TypeMemoizer::getConstructorStatement);
+                .map(TypeMemoizer::getNewStatement);
         var constructorCallFormat = Stream.concat(componentFormats, memoizerFormats)
                 .collect(joining(", ", "this(", ")"));
 

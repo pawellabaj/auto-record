@@ -80,7 +80,7 @@ public enum TypeMemoizer {
         return kind.isPrimitive() ? className : ParameterizedTypeName.get(className, TypeName.get(type));
     }
 
-    public String getConstructorStatement() {
+    public String getNewStatement() {
         return kind.isPrimitive() ? "new " + memoizerClass.getSimpleName() + "()" : "new Memoizer<>()";
     }
 

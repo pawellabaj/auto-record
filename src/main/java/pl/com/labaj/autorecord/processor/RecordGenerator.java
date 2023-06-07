@@ -27,6 +27,7 @@ import pl.com.labaj.autorecord.processor.context.TargetRecord;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationFinder;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationGenerator;
 import pl.com.labaj.autorecord.processor.special.HashCodeEqualsGenerator;
+import pl.com.labaj.autorecord.processor.special.SpecialMethod;
 import pl.com.labaj.autorecord.processor.special.ToStringGenerator;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
@@ -37,6 +38,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,6 +46,7 @@ import java.util.function.Function;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.STATIC;
+import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_BUILDER;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotationWithEnforcedValues;
 
 class RecordGenerator {
@@ -97,7 +100,13 @@ class RecordGenerator {
     private AutoRecordContext createContext() {
         var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
 
-        var source = new SourceInterface(getInterfaceName(), sourceInterface.asType(), getPropertyMethods(), sourceInterface.getTypeParameters());
+        var propertyMethods1 = getMethods(recordOptions, logger);
+
+        var source = new SourceInterface(getInterfaceName(),
+                sourceInterface.asType(),
+                propertyMethods1.propertyMethods(),
+                propertyMethods1.specialMethods(),
+                sourceInterface.getTypeParameters());
         var target = new TargetRecord(getPackageName(), createRecordName(), getRecordModifiers());
         var generation = new Generation(recordOptions, builderOptions, memoization, new StaticImports(), logger);
 
@@ -131,17 +140,40 @@ class RecordGenerator {
                 .toArray(Modifier[]::new);
     }
 
-    private List<ExecutableElement> getPropertyMethods() {
-        return processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
+    private Methods getMethods(AutoRecord.Options recordOptions, Logger logger) {
+        var specialMethods = new HashMap<SpecialMethod, ExecutableElement>();
+        var propertyMethods = processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)
                 .map(Method::new)
                 .filter(Method::isAbstract)
                 .filter(this::hasNoParameters)
                 .filter(this::doesNotReturnVoid)
+                .filter(method -> checkSpecialMethod(method, recordOptions, logger, specialMethods))
                 .filter(Method::isNotSpecial)
                 .map(Method::method)
                 .toList();
+        return new Methods(propertyMethods, specialMethods);
+    }
+
+    private boolean checkSpecialMethod(Method method,
+                                       AutoRecord.Options recordOptions,
+                                       Logger logger,
+                                       HashMap<SpecialMethod, ExecutableElement> specialMethods) {
+        if (method.isNotSpecial()) {
+            return true;
+        }
+
+        var specialMethod = SpecialMethod.fromName(method.methodeName());
+
+        if (specialMethod == TO_BUILDER && !recordOptions.withBuilder()) {
+            logger.error("Method " + TO_BUILDER + " is not allowed in the interface without builder generation enabled!");
+            return false;
+        }
+
+        specialMethods.put(specialMethod, method.method());
+
+        return true;
     }
 
     private boolean hasNoParameters(Method method) {
@@ -168,4 +200,6 @@ class RecordGenerator {
 
         return javaFileBuilder.build();
     }
+
+    private record Methods(List<ExecutableElement> propertyMethods, HashMap<SpecialMethod, ExecutableElement> specialMethods) {}
 }

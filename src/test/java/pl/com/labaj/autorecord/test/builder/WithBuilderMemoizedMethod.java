@@ -16,21 +16,22 @@ package pl.com.labaj.autorecord.test.builder;
  * limitations under the License.
  */
 
-import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-
-import static javax.lang.model.element.Modifier.FINAL;
+import pl.com.labaj.autorecord.Memoized;
 
 @AutoRecord
 @AutoRecord.Options(withBuilder = true)
-@RecordBuilder.Options(suffix = "_Builder",
-        builderMethodName = "create",
-        copyMethodName = "copyOf",
-        buildMethodName = "buildRecord",
-        enableWither = false,
-        builderClassModifiers = {FINAL})
-public interface WithBuilderOptions {
-    String one();
+interface WithBuilderMemoizedMethod {
 
-    int two();
+    static WithBuilderMemoizedMethodRecordBuilder toBuilder(WithBuilderMemoizedMethod record) {
+        return ((WithBuilderMemoizedMethodRecord) record).toBuilder();
+    }
+
+    WithBuilderMemoizedMethodRecordBuilder toBuilder();
+
+    @Memoized
+    default String aMethod() {
+        return "A";
+    }
 }
+
