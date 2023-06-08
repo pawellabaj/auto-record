@@ -25,7 +25,7 @@ import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
