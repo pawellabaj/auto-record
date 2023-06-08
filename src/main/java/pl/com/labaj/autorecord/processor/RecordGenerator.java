@@ -40,7 +40,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -143,7 +143,7 @@ class RecordGenerator {
     }
 
     private Methods getMethods(AutoRecord.Options recordOptions) {
-        var specialMethods = new HashMap<SpecialMethod, ExecutableElement>();
+        var specialMethods = new EnumMap<SpecialMethod, ExecutableElement>(SpecialMethod.class);
         var propertyMethods = processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)
@@ -158,7 +158,7 @@ class RecordGenerator {
         return new Methods(propertyMethods, specialMethods);
     }
 
-    private boolean isNotSpecialMethod(Method method, AutoRecord.Options recordOptions, HashMap<SpecialMethod, ExecutableElement> specialMethods) {
+    private boolean isNotSpecialMethod(Method method, AutoRecord.Options recordOptions, EnumMap<SpecialMethod, ExecutableElement> specialMethods) {
         if (method.isNotSpecial()) {
             return true;
         }
@@ -202,5 +202,5 @@ class RecordGenerator {
         return javaFileBuilder.build();
     }
 
-    private record Methods(List<ExecutableElement> propertyMethods, HashMap<SpecialMethod, ExecutableElement> specialMethods) {}
+    private record Methods(List<ExecutableElement> propertyMethods, EnumMap<SpecialMethod, ExecutableElement> specialMethods) {}
 }

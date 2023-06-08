@@ -36,8 +36,11 @@ class WithBuilderMemoizedMethodTest {
 
     @TestFor(WithBuilderMemoizedMethod.class)
     void shouldThrowNPEWhenForgotToInitializeMemoizer() {
-        //given then
-        assertThrows(NullPointerException.class, () -> WithBuilderMemoizedMethodRecordBuilder.builder().build());
+        //given
+        var builder = WithBuilderMemoizedMethodRecordBuilder.builder();
+
+        //then
+        assertThrows(NullPointerException.class, builder::build);
     }
 
     @TestFor(WithBuilderMemoizedMethod.class)
