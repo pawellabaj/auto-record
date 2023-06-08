@@ -28,6 +28,10 @@ import java.util.Set;
 import static java.lang.Boolean.TRUE;
 
 public record Memoization(Set<Item> items, EnumMap<SpecialMethod, Boolean> specialMemoized) {
+    public static String getMemoizerName(String name) {
+        return name + "Memoizer";
+    }
+
     public boolean isMemoized(SpecialMethod specialMethod) {
         return TRUE.equals(specialMemoized().get(specialMethod));
     }

@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.stream.Collectors.joining;
+import static pl.com.labaj.autorecord.processor.memoization.Memoization.getMemoizerName;
 import static pl.com.labaj.autorecord.processor.memoization.TypeMemoizer.typeMemoizerWith;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 import static pl.com.labaj.autorecord.processor.utils.Generics.getGenericVariableNames;
@@ -129,15 +130,20 @@ public class BasicGenerator extends SubGenerator {
                 .map(Method::method)
                 .map(ExecutableElement::getSimpleName)
                 .toList();
+        var memoizerNames = context.generation().memoization().items().stream()
+                .map(Memoization.Item::name)
+                .map(Memoization::getMemoizerName)
+                .toList();
 
-        if (nonNullNames.isEmpty()) {
+        if (nonNullNames.isEmpty() && memoizerNames.isEmpty()) {
             return;
         }
 
         var compactConstructorBuilder = MethodSpec.constructorBuilder()
                 .addModifiers(context.target().modifiers());
 
-        nonNullNames.forEach(name -> compactConstructorBuilder.addStatement("$1N($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
+        nonNullNames.forEach(name -> compactConstructorBuilder.addStatement("$1L($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
+        memoizerNames.forEach(name -> compactConstructorBuilder.addStatement("$1L($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
         context.generation().staticImports().add(Objects.class, OBJECTS_REQUIRE_NON_NULL);
 
         recordBuilder.compactConstructor(compactConstructorBuilder.build());
@@ -162,7 +168,7 @@ public class BasicGenerator extends SubGenerator {
                 List.of(Nullable.class),
                 List.of(Memoized.class));
 
-        return ParameterSpec.builder(typeMemoizer.getTypeName(type), typeMemoizer.getMemoizerName(memoizedElement.name()))
+        return ParameterSpec.builder(typeMemoizer.getTypeName(type), getMemoizerName(memoizedElement.name()))
                 .addAnnotations(annotations)
                 .build();
     }

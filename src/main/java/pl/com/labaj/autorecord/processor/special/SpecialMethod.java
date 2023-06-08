@@ -51,10 +51,15 @@ public enum SpecialMethod {
             return recordOptions.memoizedToString();
         }
     },
-    TO_BUILDER("toBuilder", DECLARED) {
+    TO_BUILDER("toBuilder") {
         @Override
         public boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
             return false;
+        }
+
+        @Override
+        public Memoization.Item toMemoizedItem() {
+            throw new IllegalStateException("Method " + TO_BUILDER + " cannot be memoized!");
         }
     };
 
@@ -63,9 +68,9 @@ public enum SpecialMethod {
     private final String methodName;
     private final TypeMirror type;
 
-    SpecialMethod(String methodName, TypeKind typeKind) {
+    SpecialMethod(String methodName) {
         this.methodName = methodName;
-        type = new InternalTypeMirror(typeKind, null);
+        type = null;
     }
 
     SpecialMethod(String methodName, TypeKind typeKind, TypeName typeName) {

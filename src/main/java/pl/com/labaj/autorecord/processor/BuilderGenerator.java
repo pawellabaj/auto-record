@@ -24,7 +24,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
-import pl.com.labaj.autorecord.processor.memoization.TypeMemoizer;
 
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.Method;
@@ -38,6 +37,8 @@ import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
+import static pl.com.labaj.autorecord.processor.memoization.Memoization.getMemoizerName;
+import static pl.com.labaj.autorecord.processor.memoization.TypeMemoizer.typeMemoizerWith;
 import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_BUILDER;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 import static pl.com.labaj.autorecord.processor.utils.Generics.getGenericTypeNames;
@@ -126,9 +127,9 @@ class BuilderGenerator extends SubGenerator {
 
         memoizedItems.forEach(item -> {
             var type = item.type();
-            var typeMemoizer = TypeMemoizer.typeMemoizerWith(type);
+            var typeMemoizer = typeMemoizerWith(type);
 
-            statementValues.add(typeMemoizer.getMemoizerName(item.name()));
+            statementValues.add(getMemoizerName(item.name()));
             statementValues.add(typeMemoizer.getNewStatement());
         });
 
@@ -165,10 +166,8 @@ class BuilderGenerator extends SubGenerator {
             var parentReturnClass = returnType.toString();
             var properReturnClass = returnClassName.toString();
 
-            context.generation().logger().debug("*--> " + parentReturnClass + ", " + properReturnClass);
-
             if (!(parentReturnClass.equals(properReturnClass) || parentReturnClass.equals(recordBuilderName))) {
-                context.generation().logger().error("Method " + TO_BUILDER + " has to return " + properReturnClass);
+                throw new AutoRecordProcessorException("Method " + TO_BUILDER + " has to return " + properReturnClass);
             }
         });
 
@@ -222,9 +221,8 @@ class BuilderGenerator extends SubGenerator {
         try {
             return method.invoke(builderOptions);
         } catch (Exception e) {
-            context.generation().logger().error("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()));
+            throw new AutoRecordProcessorException("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()));
         }
-        return null;
     }
 
     private void addMember(AnnotationSpec.Builder optionsAnnotationBuilder, BuilderOption builderOption) {

@@ -16,10 +16,11 @@ package pl.com.labaj.autorecord.test.builder;
  * limitations under the License.
  */
 
-import org.junit.jupiter.api.Disabled;
+import pl.com.labaj.autorecord.memoizer.Memoizer;
 import pl.com.labaj.autorecord.test.TestFor;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WithBuilderMemoizedMethodTest {
 
@@ -30,18 +31,24 @@ class WithBuilderMemoizedMethodTest {
                 .build();
 
         //then
-        assertDoesNotThrow(() -> recordFromBuilder.aMethod());
+        assertDoesNotThrow(recordFromBuilder::aMethod);
     }
 
     @TestFor(WithBuilderMemoizedMethod.class)
-    @Disabled
+    void shouldThrowNPEWhenForgotToInitializeMemoizer() {
+        //given then
+        assertThrows(NullPointerException.class, () -> WithBuilderMemoizedMethodRecordBuilder.builder().build());
+    }
+
+    @TestFor(WithBuilderMemoizedMethod.class)
     void shouldGenerateRecordFromBuilder() {
         //given
         var recordFromBuilder = WithBuilderMemoizedMethodRecordBuilder.builder()
+                .aMethodMemoizer(new Memoizer<>())
                 .build();
 
         //then
-        assertDoesNotThrow(() -> recordFromBuilder.aMethod());
+        assertDoesNotThrow(recordFromBuilder::aMethod);
     }
 
     @TestFor(WithBuilderMemoizedMethod.class)
@@ -51,6 +58,6 @@ class WithBuilderMemoizedMethodTest {
         var recordFromBuilder = recordFromBuilderParent.toBuilder().build();
 
         //then
-        assertDoesNotThrow(() -> recordFromBuilder.aMethod());
+        assertDoesNotThrow(recordFromBuilder::aMethod);
     }
 }

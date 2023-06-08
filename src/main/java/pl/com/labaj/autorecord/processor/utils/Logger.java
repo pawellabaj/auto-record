@@ -16,6 +16,8 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
+import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
+
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 
@@ -42,7 +44,11 @@ public class Logger {
     }
 
     public void error(String message, Throwable throwable) {
-        messager.printMessage(ERROR, errorMessage(message) + ": " + getStackTrace(throwable), elementContext);
+        if (throwable instanceof AutoRecordProcessorException) {
+            error(throwable.getLocalizedMessage());
+        } else {
+            messager.printMessage(ERROR, errorMessage(message) + ": " + getStackTrace(throwable), elementContext);
+        }
     }
 
     private String errorMessage(String message) {
