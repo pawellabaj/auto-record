@@ -50,12 +50,28 @@ public enum SpecialMethod {
         public boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
             return recordOptions.memoizedToString();
         }
+    },
+    TO_BUILDER("toBuilder") {
+        @Override
+        public boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
+            return false;
+        }
+
+        @Override
+        public Memoization.Item toMemoizedItem() {
+            throw new IllegalStateException("Method " + TO_BUILDER + " cannot be memoized!");
+        }
     };
 
-    private static final List<SpecialMethod> ALL_METHODS = List.of(HASH_CODE, TO_STRING);
+    private static final List<SpecialMethod> ALL_METHODS = List.of(HASH_CODE, TO_STRING, TO_BUILDER);
     private static final Map<String, SpecialMethod> METHODS_BY_NAME = ALL_METHODS.stream().collect(toMap(SpecialMethod::methodName, identity()));
     private final String methodName;
     private final TypeMirror type;
+
+    SpecialMethod(String methodName) {
+        this.methodName = methodName;
+        type = null;
+    }
 
     SpecialMethod(String methodName, TypeKind typeKind, TypeName typeName) {
         this.methodName = methodName;
@@ -71,7 +87,6 @@ public enum SpecialMethod {
         return METHODS_BY_NAME.containsKey(methodName.toString());
     }
 
-
     public static SpecialMethod fromName(String methodName) {
         return METHODS_BY_NAME.get(methodName);
     }
@@ -80,8 +95,9 @@ public enum SpecialMethod {
         return methodName;
     }
 
-    public TypeMirror type() {
-        return type;
+    @Override
+    public String toString() {
+        return methodName;
     }
 
     public Memoization.Item toMemoizedItem() {

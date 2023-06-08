@@ -20,6 +20,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 import pl.com.labaj.autorecord.processor.context.Generation;
 import pl.com.labaj.autorecord.processor.context.SourceInterface;
@@ -27,7 +28,9 @@ import pl.com.labaj.autorecord.processor.context.TargetRecord;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationFinder;
 import pl.com.labaj.autorecord.processor.memoization.MemoizationGenerator;
 import pl.com.labaj.autorecord.processor.special.HashCodeEqualsGenerator;
+import pl.com.labaj.autorecord.processor.special.SpecialMethod;
 import pl.com.labaj.autorecord.processor.special.ToStringGenerator;
+import pl.com.labaj.autorecord.processor.utils.Annotations;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Method;
 import pl.com.labaj.autorecord.processor.utils.StaticImports;
@@ -37,6 +40,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,6 +48,7 @@ import java.util.function.Function;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.STATIC;
+import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_BUILDER;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotationWithEnforcedValues;
 
 class RecordGenerator {
@@ -97,7 +102,13 @@ class RecordGenerator {
     private AutoRecordContext createContext() {
         var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
 
-        var source = new SourceInterface(getInterfaceName(), sourceInterface.asType(), getPropertyMethods(), sourceInterface.getTypeParameters());
+        var propertyMethods = getMethods(recordOptions);
+
+        var source = new SourceInterface(getInterfaceName(),
+                sourceInterface.asType(),
+                propertyMethods.propertyMethods(),
+                propertyMethods.specialMethods(),
+                sourceInterface.getTypeParameters());
         var target = new TargetRecord(getPackageName(), createRecordName(), getRecordModifiers());
         var generation = new Generation(recordOptions, builderOptions, memoization, new StaticImports(), logger);
 
@@ -131,23 +142,46 @@ class RecordGenerator {
                 .toArray(Modifier[]::new);
     }
 
-    private List<ExecutableElement> getPropertyMethods() {
-        return processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
+    private Methods getMethods(AutoRecord.Options recordOptions) {
+        var specialMethods = new HashMap<SpecialMethod, ExecutableElement>();
+        var propertyMethods = processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)
                 .map(Method::new)
                 .filter(Method::isAbstract)
                 .filter(this::hasNoParameters)
                 .filter(this::doesNotReturnVoid)
+                .filter(method -> isNotSpecialMethod(method, recordOptions, specialMethods))
                 .filter(Method::isNotSpecial)
                 .map(Method::method)
                 .toList();
+        return new Methods(propertyMethods, specialMethods);
+    }
+
+    private boolean isNotSpecialMethod(Method method, AutoRecord.Options recordOptions, HashMap<SpecialMethod, ExecutableElement> specialMethods) {
+        if (method.isNotSpecial()) {
+            return true;
+        }
+
+        var specialMethod = SpecialMethod.fromName(method.methodeName());
+
+        if (specialMethod == TO_BUILDER) {
+            if (!recordOptions.withBuilder()) {
+                throw new AutoRecordProcessorException("Method " + TO_BUILDER + " is not allowed in the interface without builder generation enabled!");
+            }
+            if (Annotations.getAnnotation(method.method(), Memoized.class).isPresent()) {
+                throw new AutoRecordProcessorException("Method " + TO_BUILDER + " cannot be memoized!");
+            }
+        }
+
+        specialMethods.put(specialMethod, method.method());
+
+        return false;
     }
 
     private boolean hasNoParameters(Method method) {
         if (method.hasParameters()) {
-            logger.error("The interface has abstract method with parameters: %s".formatted(method.methodeName()));
-            return false;
+            throw new AutoRecordProcessorException("The interface cannot have abstract method with parameters: %s".formatted(method.methodeName()));
         }
 
         return true;
@@ -155,8 +189,7 @@ class RecordGenerator {
 
     private boolean doesNotReturnVoid(Method method) {
         if (method.returnsVoid()) {
-            logger.error("The interface has abstract method returning void: %s".formatted(method.methodeName()));
-            return false;
+            throw new AutoRecordProcessorException("The interface cannot have abstract method returning void: %s".formatted(method.methodeName()));
         }
 
         return true;
@@ -168,4 +201,6 @@ class RecordGenerator {
 
         return javaFileBuilder.build();
     }
+
+    private record Methods(List<ExecutableElement> propertyMethods, HashMap<SpecialMethod, ExecutableElement> specialMethods) {}
 }

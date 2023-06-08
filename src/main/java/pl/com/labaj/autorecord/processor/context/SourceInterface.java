@@ -16,10 +16,17 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
+import pl.com.labaj.autorecord.processor.special.SpecialMethod;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public record SourceInterface(String name, TypeMirror type, List<ExecutableElement> propertyMethods, List<? extends TypeParameterElement> typeParameters) {
+public record SourceInterface(String name, TypeMirror type, List<ExecutableElement> propertyMethods, Map<SpecialMethod, ExecutableElement> specialMethods,  List<? extends TypeParameterElement> typeParameters) {
+    public Optional<ExecutableElement> specialMethod(SpecialMethod specialMethod) {
+        return Optional.ofNullable(specialMethods.get(specialMethod));
+    }
 }

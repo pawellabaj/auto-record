@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.test.builder;
+package pl.com.labaj.autorecord.processor;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,21 +16,8 @@ package pl.com.labaj.autorecord.test.builder;
  * limitations under the License.
  */
 
-import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.AutoRecord;
-
-import static javax.lang.model.element.Modifier.FINAL;
-
-@AutoRecord
-@AutoRecord.Options(withBuilder = true)
-@RecordBuilder.Options(suffix = "_Builder",
-        builderMethodName = "create",
-        copyMethodName = "copyOf",
-        buildMethodName = "buildRecord",
-        enableWither = false,
-        builderClassModifiers = {FINAL})
-public interface WithBuilderOptions {
-    String one();
-
-    int two();
+public class AutoRecordProcessorException extends RuntimeException {
+    public AutoRecordProcessorException(String message) {
+        super(message);
+    }
 }

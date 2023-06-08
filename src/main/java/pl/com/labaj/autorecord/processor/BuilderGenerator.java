@@ -25,14 +25,22 @@ import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 
-import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
+import static java.lang.annotation.ElementType.METHOD;
 import static java.util.stream.Collectors.joining;
+import static javax.lang.model.element.Modifier.PROTECTED;
+import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
+import static pl.com.labaj.autorecord.processor.memoization.Memoization.getMemoizerName;
+import static pl.com.labaj.autorecord.processor.memoization.TypeMemoizer.typeMemoizerWith;
+import static pl.com.labaj.autorecord.processor.special.SpecialMethod.TO_BUILDER;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 import static pl.com.labaj.autorecord.processor.utils.Generics.getGenericTypeNames;
 import static pl.com.labaj.autorecord.processor.utils.Generics.getGenericVariableNames;
 
@@ -82,52 +90,21 @@ class BuilderGenerator extends SubGenerator {
     }
 
     private void createBuilderMethod(TypeSpec.Builder recordBuilder) {
+        var memoizedItems = context.generation().memoization().items();
+
         var builderMethodBuilder = MethodSpec.methodBuilder("builder")
                 .addModifiers(context.target().modifiers())
                 .addModifiers(STATIC);
 
-        var nreturnClassName = ClassName.get(context.target().packageName(), recordBuilderName);
-
-        var typeParameters = context.source().typeParameters();
-        if (typeParameters.isEmpty()) {
-            builderMethodBuilder.returns(nreturnClassName)
-                    .addStatement("return $L.$L()", recordBuilderName, builderOptions.builderMethodName());
-        } else {
-            var genericVariables = getGenericVariableNames(typeParameters);
-            var genericNames = getGenericTypeNames(typeParameters);
-
-            var statementFormat = genericVariables.stream()
-                    .map(v -> "$T")
-                    .collect(joining(", ", "return $L.<", ">$L()"));
-
-            var statementValues = new ArrayList<>();
-            statementValues.add(recordBuilderName);
-            statementValues.addAll(genericNames);
-            statementValues.add(builderOptions.builderMethodName());
-
-            builderMethodBuilder.addTypeVariables(genericVariables)
-                    .returns(ParameterizedTypeName.get(nreturnClassName, genericNames.toArray(TypeName[]::new)))
-                    .addStatement(statementFormat, statementValues.toArray());
-        }
-
-        recordBuilder.addMethod(builderMethodBuilder.build());
-    }
-
-    private void createToBuilderMethod(TypeSpec.Builder recordBuilder) {
-        var propertyMethods = context.source().propertyMethods();
-        var typeParameters = context.source().typeParameters();
-
-        var toBuilderMethodBuilder = MethodSpec.methodBuilder("toBuilder")
-                .addModifiers(context.target().modifiers());
-
         String formatPefix;
         var statementValues = new ArrayList<>();
         statementValues.add(recordBuilderName);
-        var returClassName = ClassName.get(context.target().packageName(), recordBuilderName);
+        var returnClassName = ClassName.get(context.target().packageName(), recordBuilderName);
 
+        var typeParameters = context.source().typeParameters();
         if (typeParameters.isEmpty()) {
             formatPefix = "return $L.$L()";
-            toBuilderMethodBuilder.returns(returClassName);
+            builderMethodBuilder.returns(returnClassName);
         } else {
             var genericVariables = getGenericVariableNames(typeParameters);
             var genericNames = getGenericTypeNames(typeParameters);
@@ -138,26 +115,98 @@ class BuilderGenerator extends SubGenerator {
 
             statementValues.addAll(genericNames);
 
-            toBuilderMethodBuilder.returns(ParameterizedTypeName.get(returClassName, genericNames.toArray(TypeName[]::new)));
+            builderMethodBuilder.addTypeVariables(genericVariables)
+                    .returns(ParameterizedTypeName.get(returnClassName, genericNames.toArray(TypeName[]::new)));
         }
 
-
-        var statementFormat = propertyMethods.stream()
+        var statementFormat = memoizedItems.stream()
                 .map(method -> ".$N($N)")
                 .collect(joining("", formatPefix, ""));
 
         statementValues.add(builderOptions.builderMethodName());
-        propertyMethods.stream()
-                .map(ExecutableElement::getSimpleName)
-                .forEach(name -> {
-                    statementValues.add(name);
-                    statementValues.add(name);
-                });
 
+        memoizedItems.forEach(item -> {
+            var type = item.type();
+            var typeMemoizer = typeMemoizerWith(type);
+
+            statementValues.add(getMemoizerName(item.name()));
+            statementValues.add(typeMemoizer.getNewStatement());
+        });
+
+        builderMethodBuilder.addStatement(statementFormat, statementValues.toArray());
+
+        recordBuilder.addMethod(builderMethodBuilder.build());
+    }
+
+    private void createToBuilderMethod(TypeSpec.Builder recordBuilder) {
+        var parentToBuilderMethod = context.source().specialMethod(TO_BUILDER);
+        var typeParameters = context.source().typeParameters();
+
+        var modifiers = context.target().modifiers();
+
+        if (parentToBuilderMethod.isPresent()) {
+            modifiers = forcePublicModifier(modifiers);
+        }
+
+        var toBuilderMethodBuilder = MethodSpec.methodBuilder("toBuilder")
+                .addModifiers(modifiers);
+
+        parentToBuilderMethod.ifPresent(parentMethod -> {
+            var annotationSpecs = createAnnotationSpecs(parentMethod.getAnnotationMirrors(), METHOD, List.of(Override.class), List.of());
+            toBuilderMethodBuilder.addAnnotations(annotationSpecs);
+        });
+
+        String statementFormat;
+        var statementValues = new ArrayList<>();
+        statementValues.add(recordBuilderName);
+        var returnClassName = ClassName.get(context.target().packageName(), recordBuilderName);
+
+        parentToBuilderMethod.ifPresent(parentMethod -> {
+            var returnType = parentMethod.getReturnType();
+            var parentReturnClass = returnType.toString();
+            var properReturnClass = returnClassName.toString();
+
+            if (!(parentReturnClass.equals(properReturnClass) || parentReturnClass.equals(recordBuilderName))) {
+                throw new AutoRecordProcessorException("Method " + TO_BUILDER + " has to return " + properReturnClass);
+            }
+        });
+
+        if (typeParameters.isEmpty()) {
+            statementFormat = "return $L.$L(this)";
+            toBuilderMethodBuilder.returns(returnClassName);
+        } else {
+            var genericVariables = getGenericVariableNames(typeParameters);
+            var genericNames = getGenericTypeNames(typeParameters);
+
+            statementFormat = genericVariables.stream()
+                    .map(v -> "$T")
+                    .collect(joining(", ", "return $L.<", ">$L(this)"));
+
+            statementValues.addAll(genericNames);
+
+            toBuilderMethodBuilder.returns(ParameterizedTypeName.get(returnClassName, genericNames.toArray(TypeName[]::new)));
+        }
+
+        statementValues.add(builderOptions.copyMethodName());
 
         toBuilderMethodBuilder.addStatement(statementFormat, statementValues.toArray());
 
         recordBuilder.addMethod(toBuilderMethodBuilder.build());
+    }
+
+    private Modifier[] forcePublicModifier(Modifier[] modifiers1) {
+        var mods = new ArrayList<Modifier>();
+        mods.add(PUBLIC);
+
+        for (Modifier m : modifiers1) {
+            if (m == PROTECTED || m == PUBLIC) {
+                continue;
+            }
+            mods.add(m);
+        }
+
+        modifiers1 = mods.toArray(new Modifier[0]);
+        return modifiers1;
     }
 
     private BuilderOption toOption(Method method) {
@@ -172,9 +221,8 @@ class BuilderGenerator extends SubGenerator {
         try {
             return method.invoke(builderOptions);
         } catch (Exception e) {
-            context.generation().logger().error("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()));
+            throw new AutoRecordProcessorException("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()));
         }
-        return null;
     }
 
     private void addMember(AnnotationSpec.Builder optionsAnnotationBuilder, BuilderOption builderOption) {
