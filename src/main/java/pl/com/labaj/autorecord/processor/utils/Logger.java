@@ -20,6 +20,7 @@ import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
+import javax.tools.Diagnostic;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
@@ -39,19 +40,23 @@ public class Logger {
         messager.printMessage(NOTE, message, elementContext);
     }
 
+    public void warn(String message) {
+        messager.printMessage(Diagnostic.Kind.WARNING, processorMessage(message), elementContext);
+    }
+
     public void error(String message) {
-        messager.printMessage(ERROR, errorMessage(message), elementContext);
+        messager.printMessage(ERROR, processorMessage(message), elementContext);
     }
 
     public void error(String message, Throwable throwable) {
         if (throwable instanceof AutoRecordProcessorException) {
             error(throwable.getLocalizedMessage());
         } else {
-            messager.printMessage(ERROR, errorMessage(message) + ": " + getStackTrace(throwable), elementContext);
+            messager.printMessage(ERROR, processorMessage(message) + ": " + getStackTrace(throwable), elementContext);
         }
     }
 
-    private String errorMessage(String message) {
+    private String processorMessage(String message) {
         return "AutoRecordProcessor: " + message;
     }
 }

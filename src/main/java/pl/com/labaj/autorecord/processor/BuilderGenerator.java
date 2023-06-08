@@ -25,6 +25,7 @@ import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
 
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -161,15 +162,7 @@ class BuilderGenerator extends SubGenerator {
         statementValues.add(recordBuilderName);
         var returnClassName = ClassName.get(context.target().packageName(), recordBuilderName);
 
-        parentToBuilderMethod.ifPresent(parentMethod -> {
-            var returnType = parentMethod.getReturnType();
-            var parentReturnClass = returnType.toString();
-            var properReturnClass = returnClassName.toString();
-
-            if (!(parentReturnClass.equals(properReturnClass) || parentReturnClass.equals(recordBuilderName))) {
-                throw new AutoRecordProcessorException("Method " + TO_BUILDER + " has to return " + properReturnClass);
-            }
-        });
+        parentToBuilderMethod.ifPresent(parentMethod -> validateReturnedClass(parentMethod, returnClassName));
 
         if (typeParameters.isEmpty()) {
             statementFormat = "return $L.$L(this)";
@@ -192,6 +185,22 @@ class BuilderGenerator extends SubGenerator {
         toBuilderMethodBuilder.addStatement(statementFormat, statementValues.toArray());
 
         recordBuilder.addMethod(toBuilderMethodBuilder.build());
+    }
+
+    private void validateReturnedClass(ExecutableElement parentMethod, ClassName returnClassName) {
+        var returnType = parentMethod.getReturnType();
+        var parentReturnClass = returnType.toString();
+
+        if (parentReturnClass.equals("<any>")) {
+            context.generation().logger().warn("Cannot parse returned class of " + TO_BUILDER + " method");
+            return;
+        }
+
+        var properReturnClass = returnClassName.toString();
+
+        if (!(parentReturnClass.equals(properReturnClass) || parentReturnClass.equals(recordBuilderName))) {
+            throw new AutoRecordProcessorException("Method " + TO_BUILDER + " has to return " + properReturnClass);
+        }
     }
 
     private Modifier[] forcePublicModifier(Modifier[] modifiers1) {
