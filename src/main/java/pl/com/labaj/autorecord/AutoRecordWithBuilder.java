@@ -36,7 +36,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @Target(TYPE)
 @AutoRecord.Template(
         recordOptions = @AutoRecord.Options(withBuilder = true),
-        builderOptions = @RecordBuilder.Options(useImmutableCollections = true)
+        builderOptions = @RecordBuilder.Options(useUnmodifiableCollections = true, enableWither = false)
 )
 public @interface AutoRecordWithBuilder {
 }
