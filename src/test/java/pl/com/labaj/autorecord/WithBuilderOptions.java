@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.testcase;
+package pl.com.labaj.autorecord;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,17 +16,19 @@ package pl.com.labaj.autorecord.testcase;
  * limitations under the License.
  */
 
-import static java.util.Objects.requireNonNull;
+import io.soabase.recordbuilder.core.RecordBuilder;
 
-import java.lang.String;
-import javax.annotation.Nullable;
-import javax.annotation.processing.Generated;
-import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import static javax.lang.model.element.Modifier.FINAL;
 
-@Generated("pl.com.labaj.autorecord.AutoRecord")
-@GeneratedWithAutoRecord
-public record NonnullFieldRecord(String one, @Nullable String two) implements NonnullField {
-    public NonnullFieldRecord {
-        requireNonNull(one, "one must not be null");
-    }
+@AutoRecord
+@AutoRecord.Options(withBuilder = true)
+@RecordBuilder.Options(builderMethodName = "create",
+        copyMethodName = "copyOf",
+        buildMethodName = "buildRecord",
+        enableWither = false,
+        builderClassModifiers = {FINAL})
+interface WithBuilderOptions {
+    String one();
+
+    int two();
 }

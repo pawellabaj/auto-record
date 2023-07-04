@@ -17,6 +17,7 @@ package pl.com.labaj.autorecord.testcase;
  */
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 import java.lang.Override;
 import java.lang.String;
@@ -34,9 +35,10 @@ public record ToStringMemoizedByAnnotationRecord(String one,
                                                  Counters three,
                                                  @Nullable Memoizer<String> toStringMemoizer) implements ToStringMemoizedByAnnotation {
     public ToStringMemoizedByAnnotationRecord {
-        requireNonNull(one, () -> "one must not be null");
-        requireNonNull(three, () -> "three must not be null");
-        requireNonNull(toStringMemoizer, () -> "toStringMemoizer must not be null");
+        requireNonNull(one, "one must not be null");
+        requireNonNull(three, "three must not be null");
+
+        toStringMemoizer = requireNonNullElseGet(toStringMemoizer, Memoizer::new);
     }
 
     public ToStringMemoizedByAnnotationRecord(String one, int two, Counters three) {
@@ -46,7 +48,7 @@ public record ToStringMemoizedByAnnotationRecord(String one,
     @Memoized
     @Override
     public String toString() {
-        return toStringMemoizer.computeIfAbsent(() -> _toString());
+        return toStringMemoizer.computeIfAbsent(this::_toString);
     }
 
     private String _toString() {

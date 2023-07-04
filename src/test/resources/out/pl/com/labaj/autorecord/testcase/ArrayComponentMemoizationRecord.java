@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.testcase;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 import java.lang.Object;
 import java.lang.Override;
@@ -39,10 +40,11 @@ public record ArrayComponentMemoizationRecord(Counters counters,
                                               @Nullable IntMemoizer hashCodeMemoizer,
                                               @Nullable Memoizer<String> toStringMemoizer) implements ArrayComponentMemoization {
     public ArrayComponentMemoizationRecord {
-        requireNonNull(counters, () -> "counters must not be null");
-        requireNonNull(anArray, () -> "anArray must not be null");
-        requireNonNull(hashCodeMemoizer, () -> "hashCodeMemoizer must not be null");
-        requireNonNull(toStringMemoizer, () -> "toStringMemoizer must not be null");
+        requireNonNull(counters, "counters must not be null");
+        requireNonNull(anArray, "anArray must not be null");
+
+        hashCodeMemoizer = requireNonNullElseGet(hashCodeMemoizer, IntMemoizer::new);
+        toStringMemoizer = requireNonNullElseGet(toStringMemoizer, Memoizer::new);
     }
 
     public ArrayComponentMemoizationRecord(Counters counters, String[] anArray) {
@@ -52,13 +54,13 @@ public record ArrayComponentMemoizationRecord(Counters counters,
     @Memoized
     @Override
     public int hashCode() {
-        return hashCodeMemoizer.computeAsIntIfAbsent(() -> _hashCode());
+        return hashCodeMemoizer.computeAsIntIfAbsent(this::_hashCode);
     }
 
     @Memoized
     @Override
     public String toString() {
-        return toStringMemoizer.computeIfAbsent(() -> _toString());
+        return toStringMemoizer.computeIfAbsent(this::_toString);
     }
 
     private int _hashCode() {

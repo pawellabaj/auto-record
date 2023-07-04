@@ -29,8 +29,8 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 @GeneratedWithAutoRecord
 public record GenericsRecord<A, B extends Function<Integer, B> & Comparable<B>, C extends HashSet<A>>(A one, B two, C three) implements Generics<A, B, C> {
     public GenericsRecord {
-        requireNonNull(one, () -> "one must not be null");
-        requireNonNull(two, () -> "two must not be null");
-        requireNonNull(three, () -> "three must not be null");
+        requireNonNull(one, "one must not be null");
+        requireNonNull(two, "two must not be null");
+        requireNonNull(three, "three must not be null");
     }
 }

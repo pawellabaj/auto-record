@@ -19,8 +19,9 @@ package pl.com.labaj.autorecord.processor.memoization;
 import org.junit.jupiter.api.Test;
 import pl.com.labaj.autorecord.memoizer.Memoizer;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WithBuilderMemoizedMethodTest {
 
@@ -35,12 +36,12 @@ class WithBuilderMemoizedMethodTest {
     }
 
     @Test
-    void shouldThrowNPEWhenForgotToInitializeMemoizer() {
+    void shouldNotThrowNPEWhenForgotToInitializeMemoizer() {
         //given
         var builder = WithBuilderMemoizedMethodRecordBuilder.builder();
 
         //then
-        assertThrows(NullPointerException.class, builder::build);
+        assertDoesNotThrow(builder::build);
     }
 
     @Test
@@ -61,6 +62,9 @@ class WithBuilderMemoizedMethodTest {
         var recordFromBuilder = recordFromBuilderParent.toBuilder().build();
 
         //then
-        assertDoesNotThrow(recordFromBuilder::aMethod);
+        assertAll(
+                () -> assertDoesNotThrow(recordFromBuilder::aMethod),
+                () -> assertThat(recordFromBuilderParent.aMethodMemoizer()).isNotSameInstanceAs(recordFromBuilder.aMethodMemoizer())
+        );
     }
 }

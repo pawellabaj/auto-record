@@ -27,7 +27,7 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 @GeneratedWithAutoRecord
 public record NoPackageRecord(String text, int number, List<Optional<Integer>> genericCollection) implements NoPackage {
     public NoPackageRecord {
-        requireNonNull(text, () -> "text must not be null");
-        requireNonNull(genericCollection, () -> "genericCollection must not be null");
+        requireNonNull(text, "text must not be null");
+        requireNonNull(genericCollection, "genericCollection must not be null");
     }
 }

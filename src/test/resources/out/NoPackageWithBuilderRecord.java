@@ -32,8 +32,8 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 )
 public record NoPackageWithBuilderRecord(String text, int number, List<Optional<Integer>> genericCollection) implements NoPackageWithBuilder {
     public NoPackageWithBuilderRecord {
-        requireNonNull(text, () -> "text must not be null");
-        requireNonNull(genericCollection, () -> "genericCollection must not be null");
+        requireNonNull(text, "text must not be null");
+        requireNonNull(genericCollection, "genericCollection must not be null");
     }
 
     public static NoPackageWithBuilderRecordBuilder builder() {

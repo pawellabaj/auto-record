@@ -29,7 +29,7 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 @GeneratedWithAutoRecord
 public record BasicRecord(String text, int number, List<Optional<Integer>> genericCollection) implements Basic {
     public BasicRecord {
-        requireNonNull(text, () -> "text must not be null");
-        requireNonNull(genericCollection, () -> "genericCollection must not be null");
+        requireNonNull(text, "text must not be null");
+        requireNonNull(genericCollection, "genericCollection must not be null");
     }
 }

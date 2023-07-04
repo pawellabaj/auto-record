@@ -49,6 +49,7 @@ public class BasicGenerator extends SubGenerator {
             .build();
     private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
     private static final String OBJECTS_REQUIRE_NON_NULL = "requireNonNull";
+    private static final String OBJECTS_REQUIRE_NON_NULL_ELSE_GET = "requireNonNullElseGet";
 
     public BasicGenerator(AutoRecordContext context) {
         super(context);
@@ -100,13 +101,13 @@ public class BasicGenerator extends SubGenerator {
     }
 
     private void createAdditionalConstructor(TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponents) {
-        var items = context.generation().memoization().items();
-        if (items.isEmpty()) {
+        var memoizedItems = context.generation().memoization().items();
+        if (memoizedItems.isEmpty()) {
             return;
         }
 
         var componentFormats = recordComponents.stream().map(p -> "$N");
-        var memoizerFormats = items.stream()
+        var memoizerFormats = memoizedItems.stream()
                 .map(Memoization.Item::type)
                 .map(TypeMemoizer::typeMemoizerWith)
                 .map(TypeMemoizer::getNewStatement);
@@ -130,21 +131,33 @@ public class BasicGenerator extends SubGenerator {
                 .map(Method::method)
                 .map(ExecutableElement::getSimpleName)
                 .toList();
-        var memoizerNames = context.generation().memoization().items().stream()
-                .map(Memoization.Item::name)
-                .map(Memoization::getMemoizerName)
-                .toList();
+        var memoizedItems = context.generation().memoization().items();
 
-        if (nonNullNames.isEmpty() && memoizerNames.isEmpty()) {
+        if (nonNullNames.isEmpty() && memoizedItems.isEmpty()) {
             return;
         }
 
         var compactConstructorBuilder = MethodSpec.constructorBuilder()
                 .addModifiers(context.target().modifiers());
 
-        nonNullNames.forEach(name -> compactConstructorBuilder.addStatement("$1L($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
-        memoizerNames.forEach(name -> compactConstructorBuilder.addStatement("$1L($2N, () -> \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
-        context.generation().staticImports().add(Objects.class, OBJECTS_REQUIRE_NON_NULL);
+        if (!nonNullNames.isEmpty()) {
+            nonNullNames.forEach(name -> compactConstructorBuilder.addStatement("$1L($2N, \"$2N must not be null\")", OBJECTS_REQUIRE_NON_NULL, name));
+            context.generation().staticImports().add(Objects.class, OBJECTS_REQUIRE_NON_NULL);
+        }
+
+        if (!nonNullNames.isEmpty() && !memoizedItems.isEmpty()) {
+            compactConstructorBuilder.addCode("\n");
+        }
+
+        if (!memoizedItems.isEmpty()) {
+            memoizedItems.forEach(item -> {
+                var name = getMemoizerName(item.name());
+                var newReference = typeMemoizerWith(item.type()).getNewReference();
+                compactConstructorBuilder.addStatement("$2N = $1L($2N, $3L)", OBJECTS_REQUIRE_NON_NULL_ELSE_GET, name, newReference);
+            });
+            context.generation().staticImports().add(Objects.class, OBJECTS_REQUIRE_NON_NULL_ELSE_GET);
+        }
+
 
         recordBuilder.compactConstructor(compactConstructorBuilder.build());
     }

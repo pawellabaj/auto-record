@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.testcase;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 import java.lang.Object;
 import java.lang.Override;
@@ -36,9 +37,10 @@ public record NestedInterface_Intermediate_InternalRecord(String name,
                                                           @Nullable IntMemoizer hashCodeMemoizer,
                                                           @Nullable Memoizer<String> alaMemoizer) implements NestedInterface.Intermediate.Internal {
     public NestedInterface_Intermediate_InternalRecord {
-        requireNonNull(name, () -> "name must not be null");
-        requireNonNull(hashCodeMemoizer, () -> "hashCodeMemoizer must not be null");
-        requireNonNull(alaMemoizer, () -> "alaMemoizer must not be null");
+        requireNonNull(name, "name must not be null");
+
+        hashCodeMemoizer = requireNonNullElseGet(hashCodeMemoizer, IntMemoizer::new);
+        alaMemoizer = requireNonNullElseGet(alaMemoizer, Memoizer::new);
     }
 
     public NestedInterface_Intermediate_InternalRecord(String name) {
@@ -48,13 +50,13 @@ public record NestedInterface_Intermediate_InternalRecord(String name,
     @Memoized
     @Override
     public int hashCode() {
-        return hashCodeMemoizer.computeAsIntIfAbsent(() -> _hashCode());
+        return hashCodeMemoizer.computeAsIntIfAbsent(this::_hashCode);
     }
 
     @Memoized
     @Override
     public String ala() {
-        return alaMemoizer.computeIfAbsent(() -> NestedInterface.Intermediate.Internal.super.ala());
+        return alaMemoizer.computeIfAbsent(NestedInterface.Intermediate.Internal.super::ala);
     }
 
     private int _hashCode() {

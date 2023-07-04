@@ -17,6 +17,7 @@ package pl.com.labaj.autorecord.testcase;
  */
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 import java.lang.Override;
 import java.lang.String;
@@ -31,8 +32,9 @@ import pl.com.labaj.autorecord.test.Counters;
 @GeneratedWithAutoRecord
 public record DefaultMethodMemoizedRecord(Counters property, @Nullable Memoizer<String> aMethodMemoizer) implements DefaultMethodMemoized {
     public DefaultMethodMemoizedRecord {
-        requireNonNull(property, () -> "property must not be null");
-        requireNonNull(aMethodMemoizer, () -> "aMethodMemoizer must not be null");
+        requireNonNull(property, "property must not be null");
+
+        aMethodMemoizer = requireNonNullElseGet(aMethodMemoizer, Memoizer::new);
     }
 
     public DefaultMethodMemoizedRecord(Counters property) {
@@ -42,6 +44,6 @@ public record DefaultMethodMemoizedRecord(Counters property, @Nullable Memoizer<
     @Memoized
     @Override
     public String aMethod() {
-        return aMethodMemoizer.computeIfAbsent(() -> DefaultMethodMemoized.super.aMethod());
+        return aMethodMemoizer.computeIfAbsent(DefaultMethodMemoized.super::aMethod);
     }
 }

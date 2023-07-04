@@ -32,9 +32,9 @@ import pl.com.labaj.autorecord.test.Counters;
 @GeneratedWithAutoRecord
 public record IgnoredFieldsRecord(String one, int two, @Ignored String three, @Ignored Counters four) implements IgnoredFields {
     public IgnoredFieldsRecord {
-        requireNonNull(one, () -> "one must not be null");
-        requireNonNull(three, () -> "three must not be null");
-        requireNonNull(four, () -> "four must not be null");
+        requireNonNull(one, "one must not be null");
+        requireNonNull(three, "three must not be null");
+        requireNonNull(four, "four must not be null");
     }
 
     @Override

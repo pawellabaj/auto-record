@@ -50,7 +50,7 @@ import javax.annotation.processing.Generated;
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 record PersonRecord(String name, int age) implements Person {
   PersonRecord {
-    requireNonNull(name, () -> "name must not be null");
+    requireNonNull(name, "name must not be null");
   }
 }
 ```
