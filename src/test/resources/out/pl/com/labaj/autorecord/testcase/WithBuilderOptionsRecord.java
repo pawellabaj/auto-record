@@ -37,7 +37,7 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 )
 record WithBuilderOptionsRecord(String one, int two) implements WithBuilderOptions {
     WithBuilderOptionsRecord {
-        requireNonNull(one, () -> "one must not be null");
+        requireNonNull(one, "one must not be null");
     }
 
     static WithBuilderOptionsRecordBuilder builder() {

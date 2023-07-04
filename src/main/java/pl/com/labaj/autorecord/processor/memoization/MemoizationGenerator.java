@@ -56,7 +56,7 @@ public class MemoizationGenerator extends SubGenerator {
                 .filter(modifier -> modifier != DEFAULT)
                 .toList();
         var interfaceName = context.source().name();
-        var supplierName = item.special() ? "_" + name : interfaceName + ".super." + name;
+        var supplierName = item.special() ? "this::_" + name : interfaceName + ".super::" + name;
 
         var typeMemoizer = typeMemoizerWith(item.type());
 

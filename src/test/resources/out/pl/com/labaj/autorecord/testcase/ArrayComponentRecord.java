@@ -30,7 +30,7 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 @GeneratedWithAutoRecord
 public record ArrayComponentRecord(String[] anArray) implements ArrayComponent {
     public ArrayComponentRecord {
-        requireNonNull(anArray, () -> "anArray must not be null");
+        requireNonNull(anArray, "anArray must not be null");
     }
 
     @Override

@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.testcase;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 import java.lang.Object;
 import java.lang.Override;
@@ -33,8 +34,9 @@ import pl.com.labaj.autorecord.test.Counters;
 @GeneratedWithAutoRecord
 public record HashCodeMemoizedRecord(Counters one, @Nullable IntMemoizer hashCodeMemoizer) implements HashCodeMemoized {
     public HashCodeMemoizedRecord {
-        requireNonNull(one, () -> "one must not be null");
-        requireNonNull(hashCodeMemoizer, () -> "hashCodeMemoizer must not be null");
+        requireNonNull(one, "one must not be null");
+
+        hashCodeMemoizer = requireNonNullElseGet(hashCodeMemoizer, IntMemoizer::new);
     }
 
     public HashCodeMemoizedRecord(Counters one) {
@@ -44,7 +46,7 @@ public record HashCodeMemoizedRecord(Counters one, @Nullable IntMemoizer hashCod
     @Memoized
     @Override
     public int hashCode() {
-        return hashCodeMemoizer.computeAsIntIfAbsent(() -> _hashCode());
+        return hashCodeMemoizer.computeAsIntIfAbsent(this::_hashCode);
     }
 
     private int _hashCode() {

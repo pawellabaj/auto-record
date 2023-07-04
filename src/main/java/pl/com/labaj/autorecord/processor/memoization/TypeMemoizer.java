@@ -39,14 +39,14 @@ import java.util.stream.Collectors;
 import static java.util.function.Function.identity;
 
 public enum TypeMemoizer {
-    BOOLEAN(TypeKind.BOOLEAN, BooleanMemoizer.class, "return $LMemoizer.computeAsBooleanIfAbsent(() -> $L())"),
-    BYTE(TypeKind.BYTE, ByteMemoizer.class, "return $LMemoizer.computeAsByteIfAbsent(() -> $L())"),
-    SHORT(TypeKind.SHORT, ShortMemoizer.class, "return $LMemoizer.computeAsShortIfAbsent(() -> $L())"),
-    INT(TypeKind.INT, IntMemoizer.class, "return $LMemoizer.computeAsIntIfAbsent(() -> $L())"),
-    LONG(TypeKind.LONG, LongMemoizer.class, "return $LMemoizer.computeAsLongIfAbsent(() -> $L())"),
-    CHAR(TypeKind.CHAR, CharMemoizer.class, "return $LMemoizer.computeAsCharIfAbsent(() -> $L())"),
-    FLOAT(TypeKind.FLOAT, FloatMemoizer.class, "return $LMemoizer.computeAsFloatIfAbsent(() -> $L())"),
-    DOUBLE(TypeKind.DOUBLE, DoubleMemoizer.class, "return $LMemoizer.computeAsDoubleIfAbsent(() -> $L())"),
+    BOOLEAN(TypeKind.BOOLEAN, BooleanMemoizer.class, "return $LMemoizer.computeAsBooleanIfAbsent($L)"),
+    BYTE(TypeKind.BYTE, ByteMemoizer.class, "return $LMemoizer.computeAsByteIfAbsent($L)"),
+    SHORT(TypeKind.SHORT, ShortMemoizer.class, "return $LMemoizer.computeAsShortIfAbsent($L)"),
+    INT(TypeKind.INT, IntMemoizer.class, "return $LMemoizer.computeAsIntIfAbsent($L)"),
+    LONG(TypeKind.LONG, LongMemoizer.class, "return $LMemoizer.computeAsLongIfAbsent($L)"),
+    CHAR(TypeKind.CHAR, CharMemoizer.class, "return $LMemoizer.computeAsCharIfAbsent($L)"),
+    FLOAT(TypeKind.FLOAT, FloatMemoizer.class, "return $LMemoizer.computeAsFloatIfAbsent($L)"),
+    DOUBLE(TypeKind.DOUBLE, DoubleMemoizer.class, "return $LMemoizer.computeAsDoubleIfAbsent($L)"),
     ARRAY(TypeKind.ARRAY, Memoizer.class, Constants.COMMON_RETURN_STATEMENT),
     DECLARED(TypeKind.DECLARED, Memoizer.class, Constants.COMMON_RETURN_STATEMENT),
     TYPEVAR(TypeKind.TYPEVAR, Memoizer.class, Constants.COMMON_RETURN_STATEMENT);
@@ -74,6 +74,10 @@ public enum TypeMemoizer {
     public TypeName getTypeName(TypeMirror type) {
         var className = ClassName.get(memoizerClass());
         return kind.isPrimitive() ? className : ParameterizedTypeName.get(className, TypeName.get(type));
+    }
+
+    public String getNewReference() {
+        return memoizerClass.getSimpleName() +"::new";
     }
 
     public String getNewStatement() {
@@ -108,6 +112,6 @@ public enum TypeMemoizer {
     }
 
     private static class Constants {
-        static final String COMMON_RETURN_STATEMENT = "return $LMemoizer.computeIfAbsent(() -> $L())";
+        static final String COMMON_RETURN_STATEMENT = "return $LMemoizer.computeIfAbsent($L)";
     }
 }

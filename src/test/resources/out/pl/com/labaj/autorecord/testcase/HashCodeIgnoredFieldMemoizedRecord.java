@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.testcase;
 
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
+import static java.util.Objects.requireNonNullElseGet;
 
 import java.lang.Object;
 import java.lang.Override;
@@ -39,10 +40,11 @@ public record HashCodeIgnoredFieldMemoizedRecord(String used,
                                                  @Ignored Counters anotherIgnored,
                                                  @Nullable IntMemoizer hashCodeMemoizer) implements HashCodeIgnoredFieldMemoized {
     public HashCodeIgnoredFieldMemoizedRecord {
-        requireNonNull(used, () -> "used must not be null");
-        requireNonNull(ignored, () -> "ignored must not be null");
-        requireNonNull(anotherIgnored, () -> "anotherIgnored must not be null");
-        requireNonNull(hashCodeMemoizer, () -> "hashCodeMemoizer must not be null");
+        requireNonNull(used, "used must not be null");
+        requireNonNull(ignored, "ignored must not be null");
+        requireNonNull(anotherIgnored, "anotherIgnored must not be null");
+
+        hashCodeMemoizer = requireNonNullElseGet(hashCodeMemoizer, IntMemoizer::new);
     }
 
     public HashCodeIgnoredFieldMemoizedRecord(String used, int anotherUsed, @Ignored String ignored,
@@ -53,7 +55,7 @@ public record HashCodeIgnoredFieldMemoizedRecord(String used,
     @Memoized
     @Override
     public int hashCode() {
-        return hashCodeMemoizer.computeAsIntIfAbsent(() -> _hashCode());
+        return hashCodeMemoizer.computeAsIntIfAbsent(this::_hashCode);
     }
 
     private int _hashCode() {
