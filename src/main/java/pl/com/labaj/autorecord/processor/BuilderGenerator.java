@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.lang.annotation.ElementType.METHOD;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -78,6 +79,7 @@ class BuilderGenerator extends SubGenerator {
         var options = Arrays.stream(methods)
                 .map(this::toOption)
                 .filter(BuilderOption::actualDifferentThanDefault)
+                .sorted(comparing(BuilderOption::name))
                 .toList();
 
         if (options.isEmpty()) {

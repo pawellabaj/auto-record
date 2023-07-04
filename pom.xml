@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>Auto Record</name>
@@ -42,7 +40,11 @@
         <assertj.version>3.24.2</assertj.version>
         <compile-testing.version>0.21.0</compile-testing.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
-        <maven-surefire-plugin.argLine>--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</maven-surefire-plugin.argLine>
+        <maven-surefire-plugin.argLine>
+            --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+            --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+        </maven-surefire-plugin.argLine>
     </properties>
 
     <dependencies>
@@ -203,16 +205,9 @@
                             <goal>testCompile</goal>
                         </goals>
                         <configuration>
-                            <compilerArgs>
-                                <arg>-implicit:class</arg>
-                            </compilerArgs>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>pl.com.labaj</groupId>
-                                    <artifactId>auto-record</artifactId>
-                                    <version>${project.version}</version>
-                                </path>
-                            </annotationProcessorPaths>
+                            <testExcludes>
+                                <exclude>**/pl/com/labaj/autorecord/testcase/**/*</exclude>
+                            </testExcludes>
                         </configuration>
                     </execution>
                 </executions>
@@ -322,7 +317,11 @@
                 <sonar.organization>pawellabaj</sonar.organization>
                 <sonar.projectKey>pawellabaj:auto-record</sonar.projectKey>
                 <!--suppress UnresolvedMavenProperty -->
-                <maven-surefire-plugin.argLine>${argLine} --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</maven-surefire-plugin.argLine>
+                <maven-surefire-plugin.argLine>${argLine}
+                    --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+                    --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
+                    --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+                </maven-surefire-plugin.argLine>
             </properties>
 
             <build>
@@ -346,7 +345,6 @@
                                 <configuration>
                                     <formats>
                                         <format>XML</format>
-                                        <format>HTML</format>
                                     </formats>
                                 </configuration>
                             </execution>
