@@ -47,11 +47,11 @@ public final class Counters {
         return hashCodeCounter.get();
     }
 
-    public int toStringCount() {
-        return toStringCounter.get();
-    }
-
     public int equalsCount() {
         return equalsCounter.get();
+    }
+
+    public int toStringCount() {
+        return toStringCounter.get();
     }
 }

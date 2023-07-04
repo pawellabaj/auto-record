@@ -27,10 +27,12 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * Custom annotation used to mark interface for annotation processing.
  *
- * <p>Record generated from interface with this annotation has builder generated. In addition, builder will handle collection to use immutable versions of them.
+ * <p>Record generated from interface with this annotation has builder without <em>With</em> interface generated.
+ * In addition, builder will handle collection to use unmodifiable views of them.
  *
  * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization#creating-a-custom-annotation">Custom Annotation Wiki</a>
- * @see io.soabase.recordbuilder.core.RecordBuilder.Options#useImmutableCollections()
+ * @see io.soabase.recordbuilder.core.RecordBuilder.Options#useUnmodifiableCollections()
+ * @see io.soabase.recordbuilder.core.RecordBuilder.Options#enableWither()
  */
 @Retention(SOURCE)
 @Target(TYPE)
