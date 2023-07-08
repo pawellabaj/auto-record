@@ -16,15 +16,12 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
+import com.squareup.javapoet.ClassName;
 
-public abstract class SubGenerator {
-    protected final AutoRecordContext context;
+public interface StaticImportsCollector {
+    void add(Class<?> aClass, String name);
 
-    protected SubGenerator(AutoRecordContext context) {
-        this.context = context;
-    }
+    void add(Enum<?> constant);
 
-    public abstract void generate(TypeSpec.Builder recordBuilder);
+    void add(ClassName className, String name);
 }

@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.context;
+package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,5 +16,10 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
-public record AutoRecordContext(SourceInterface source, TargetRecord target, Generation generation) {
+import com.squareup.javapoet.TypeSpec;
+import pl.com.labaj.autorecord.processor.StaticImportsCollector;
+import pl.com.labaj.autorecord.processor.context.GenerationContext;
+
+public interface RecordGenerator {
+    void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder);
 }

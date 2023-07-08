@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,12 +16,20 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-public class AutoRecordProcessorException extends RuntimeException {
-    public AutoRecordProcessorException(String message) {
-        super(message);
-    }
+import java.util.List;
 
-    public AutoRecordProcessorException(String message, Throwable cause) {
-        super(message + " caused by " + cause.getLocalizedMessage());
+public final class Generators {
+    private static final List<RecordGenerator> GENERATOR_CONSTRUCTORS = List.of(
+            new BasicGenerator(),
+            new MemoizationGenerator(),
+            new HashCodeEqualsGenerator(),
+            new ToStringGenerator(),
+            new BuilderGenerator()
+    );
+
+    private Generators() {}
+
+    public static List<RecordGenerator> generators() {
+        return GENERATOR_CONSTRUCTORS;
     }
 }

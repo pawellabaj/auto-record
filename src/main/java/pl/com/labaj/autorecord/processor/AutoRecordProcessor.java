@@ -31,7 +31,6 @@ import java.util.Set;
 
 import static javax.lang.model.element.ElementKind.INTERFACE;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
-import static pl.com.labaj.autorecord.processor.utils.Annotations.getDefaultAnnotationIfNotPresent;
 
 @SupportedAnnotationTypes("pl.com.labaj.autorecord.*")
 public class AutoRecordProcessor extends AbstractProcessor {
@@ -67,7 +66,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
         var annotationQualifiedName = annotation.getQualifiedName();
 
         if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
-            var recordOptions = getDefaultAnnotationIfNotPresent(sourceInterface, AutoRecord.Options.class);
+            var recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
             var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
 
             processElement(sourceInterface, recordOptions, builderOptions);
@@ -87,7 +86,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
         logger.debug("Generate record for %s".formatted(sourceInterface));
 
         try {
-            var recordGenerator = new RecordGenerator(sourceInterface, recordOptions, builderOptions, processingEnv, logger);
+            var recordGenerator = new RecordJavaFileBuilder(sourceInterface, recordOptions, builderOptions, processingEnv, logger);
             var javaFile = recordGenerator.buildJavaFile();
             javaFile.writeTo(processingEnv.getFiler());
         } catch (Exception e) {

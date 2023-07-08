@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.special;
+package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,8 +18,7 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
-import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.StaticImportsCollector;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
@@ -31,40 +30,41 @@ import static com.squareup.javapoet.TypeName.INT;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.context.SpecialMethod.HASH_CODE;
+import static pl.com.labaj.autorecord.processor.utils.Methods.returnsArray;
 
-class HashCodeGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator {
+class HashCodeSubGenerator {
     private static final String OBJECTS_HASH = "hash";
 
-    HashCodeGenerator(AutoRecordContext context, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-        super(context, memoizedHashCode, notIgnoredProperties);
-    }
-
-    @Override
-    public void generate(TypeSpec.Builder recordBuilder) {
-        var methodName = (isMemoizedHashCode() ? "_" : "") + "hashCode";
-        var format = notIgnoredProperties().stream()
-                .map(Method::new)
-                .map(method -> method.returnsArray() ? "$T.hashCode($N)" : "$N")
+    void generate(StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<ExecutableElement> requiredProperties) {
+        var methodName = (memoizedHashCode ? "_" : "") + HASH_CODE;
+        var format = requiredProperties.stream()
+                .map(this::methodStatementFormat)
                 .collect(joining(", ", "return " + OBJECTS_HASH + "(", ")"));
-        var arguments = notIgnoredProperties().stream()
-                .flatMap(this::getArguments)
+        var arguments = requiredProperties.stream()
+                .flatMap(this::methodStatementArguments)
                 .toArray();
+
         var hashCodeMethodBuilder = MethodSpec.methodBuilder(methodName)
-                .addModifiers(isMemoizedHashCode() ? PRIVATE : PUBLIC)
+                .addModifiers(memoizedHashCode ? PRIVATE : PUBLIC)
                 .returns(INT)
                 .addStatement(format, arguments);
 
-        if (!isMemoizedHashCode()) {
+        if (!memoizedHashCode) {
             hashCodeMethodBuilder.addAnnotation(Override.class);
         }
 
-        context.generation().staticImports().add(Objects.class, OBJECTS_HASH);
+        staticImports.add(Objects.class, OBJECTS_HASH);
 
-        recordBuilder.addMethod(hashCodeMethodBuilder.build());
+        var hashCodeMethod = hashCodeMethodBuilder.build();
+        recordBuilder.addMethod(hashCodeMethod);
     }
 
-    private Stream<?> getArguments(ExecutableElement method) {
-        var returnsArray = new Method(method).returnsArray();
-        return returnsArray ? Stream.of(Arrays.class, method.getSimpleName()) : Stream.of(method.getSimpleName());
+    private String methodStatementFormat(ExecutableElement method) {
+        return returnsArray(method) ? "$T.hashCode($N)" : "$N";
+    }
+
+    private Stream<Object> methodStatementArguments(ExecutableElement method) {
+        return returnsArray(method) ? Stream.of(Arrays.class, method.getSimpleName()) : Stream.of(method.getSimpleName());
     }
 }

@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -38,31 +38,31 @@ import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
 
-public enum TypeMemoizer {
-    BOOLEAN(TypeKind.BOOLEAN, BooleanMemoizer.class, "return $LMemoizer.computeAsBooleanIfAbsent($L)"),
-    BYTE(TypeKind.BYTE, ByteMemoizer.class, "return $LMemoizer.computeAsByteIfAbsent($L)"),
-    SHORT(TypeKind.SHORT, ShortMemoizer.class, "return $LMemoizer.computeAsShortIfAbsent($L)"),
-    INT(TypeKind.INT, IntMemoizer.class, "return $LMemoizer.computeAsIntIfAbsent($L)"),
-    LONG(TypeKind.LONG, LongMemoizer.class, "return $LMemoizer.computeAsLongIfAbsent($L)"),
-    CHAR(TypeKind.CHAR, CharMemoizer.class, "return $LMemoizer.computeAsCharIfAbsent($L)"),
-    FLOAT(TypeKind.FLOAT, FloatMemoizer.class, "return $LMemoizer.computeAsFloatIfAbsent($L)"),
-    DOUBLE(TypeKind.DOUBLE, DoubleMemoizer.class, "return $LMemoizer.computeAsDoubleIfAbsent($L)"),
-    ARRAY(TypeKind.ARRAY, Memoizer.class, Constants.COMMON_RETURN_STATEMENT),
-    DECLARED(TypeKind.DECLARED, Memoizer.class, Constants.COMMON_RETURN_STATEMENT),
-    TYPEVAR(TypeKind.TYPEVAR, Memoizer.class, Constants.COMMON_RETURN_STATEMENT);
+public enum MemoizerType {
+    BOOLEAN(TypeKind.BOOLEAN, BooleanMemoizer.class, "computeAsBooleanIfAbsent"),
+    BYTE(TypeKind.BYTE, ByteMemoizer.class, "computeAsByteIfAbsent"),
+    SHORT(TypeKind.SHORT, ShortMemoizer.class, "computeAsShortIfAbsent"),
+    INT(TypeKind.INT, IntMemoizer.class, "computeAsIntIfAbsent"),
+    LONG(TypeKind.LONG, LongMemoizer.class, "computeAsLongIfAbsent"),
+    CHAR(TypeKind.CHAR, CharMemoizer.class, "computeAsCharIfAbsent"),
+    FLOAT(TypeKind.FLOAT, FloatMemoizer.class, "computeAsFloatIfAbsent"),
+    DOUBLE(TypeKind.DOUBLE, DoubleMemoizer.class, "computeAsDoubleIfAbsent"),
+    ARRAY(TypeKind.ARRAY, Memoizer.class, Constants.COMPUTE_IF_ABSENT),
+    DECLARED(TypeKind.DECLARED, Memoizer.class, Constants.COMPUTE_IF_ABSENT),
+    TYPEVAR(TypeKind.TYPEVAR, Memoizer.class, Constants.COMPUTE_IF_ABSENT);
 
-    private static final Map<TypeKind, TypeMemoizer> MEMOIZERS_BY_KIND = Arrays.stream(values()).collect(Collectors.toMap(TypeMemoizer::kind, identity()));
+    private static final Map<TypeKind, MemoizerType> MEMOIZERS_BY_KIND = Arrays.stream(values()).collect(Collectors.toMap(MemoizerType::kind, identity()));
     private final TypeKind kind;
     private final Class<?> memoizerClass;
-    private final String returnStatement;
+    private final String computeMethod;
 
-    TypeMemoizer(TypeKind kind, Class<?> memoizerClass, String returnStatement) {
+    MemoizerType(TypeKind kind, Class<?> memoizerClass, String computeMethod) {
         this.kind = kind;
         this.memoizerClass = memoizerClass;
-        this.returnStatement = returnStatement;
+        this.computeMethod = computeMethod;
     }
 
-    public static TypeMemoizer typeMemoizerWith(TypeMirror type) {
+    public static MemoizerType from(TypeMirror type) {
         var kind = type.getKind();
         if (!MEMOIZERS_BY_KIND.containsKey(kind)) {
             throw new MemoizerUnknownTypeException(type);
@@ -71,29 +71,25 @@ public enum TypeMemoizer {
         return MEMOIZERS_BY_KIND.get(kind);
     }
 
-    public TypeName getTypeName(TypeMirror type) {
-        var className = ClassName.get(memoizerClass());
+    public TypeName typeName(TypeMirror type) {
+        var className = ClassName.get(memoizerClass);
         return kind.isPrimitive() ? className : ParameterizedTypeName.get(className, TypeName.get(type));
     }
 
     public String getNewReference() {
-        return memoizerClass.getSimpleName() +"::new";
+        return memoizerClass.getSimpleName() + "::new";
     }
 
-    public String getNewStatement() {
-        return kind.isPrimitive() ? "new " + memoizerClass.getSimpleName() + "()" : "new Memoizer<>()";
+    public String getConstructorStatement() {
+        return "new " + memoizerClass.getSimpleName() + (kind.isPrimitive() ? "" : "<>") + "()";
     }
 
-    public String getReturnStatement() {
-        return returnStatement;
+    public String computeMethod() {
+        return computeMethod;
     }
 
     private TypeKind kind() {
         return kind;
-    }
-
-    private Class<?> memoizerClass() {
-        return memoizerClass;
     }
 
     @SuppressWarnings("java:S110")
@@ -107,11 +103,12 @@ public enum TypeMemoizer {
 
         @Override
         public String getMessage() {
-            return super.getMessage() + ": Can't get TypeMemoizer with %s kind".formatted(type.getKind());
+            return super.getMessage() + ": Can't get MemoizerType with %s kind".formatted(type.getKind());
         }
     }
 
+    @SuppressWarnings({"java:S3985", "java:S2094"})
     private static class Constants {
-        static final String COMMON_RETURN_STATEMENT = "return $LMemoizer.computeIfAbsent($L)";
+        private static final String COMPUTE_IF_ABSENT = "computeIfAbsent";
     }
 }

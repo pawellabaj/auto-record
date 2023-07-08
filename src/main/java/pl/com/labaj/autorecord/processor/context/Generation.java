@@ -18,13 +18,10 @@ package pl.com.labaj.autorecord.processor.context;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.memoization.Memoization;
 import pl.com.labaj.autorecord.processor.utils.Logger;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 public record Generation(AutoRecord.Options recordOptions,
                          RecordBuilder.Options builderOptions,
                          Memoization memoization,
-                         StaticImports staticImports,
                          Logger logger) {
 }

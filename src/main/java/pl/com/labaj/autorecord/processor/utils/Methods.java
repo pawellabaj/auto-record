@@ -16,10 +16,8 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.processor.memoization.Memoization;
-import pl.com.labaj.autorecord.processor.special.SpecialMethod;
+import pl.com.labaj.autorecord.processor.context.SpecialMethod;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
 
@@ -28,69 +26,54 @@ import static javax.lang.model.type.TypeKind.ARRAY;
 import static javax.lang.model.type.TypeKind.VOID;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 
-public record Method(ExecutableElement method) {
+public final class Methods {
+    private Methods() {}
 
-    public String methodeName() {
-        return method.getSimpleName().toString();
+    public static boolean hasParameters(ExecutableElement method) {
+        return !hasNoParameters(method);
     }
 
-    public boolean hasParameters() {
-        return !hasNoParameters();
-    }
-
-    public boolean hasNoParameters() {
+    public static boolean hasNoParameters(ExecutableElement method) {
         return method.getParameters().isEmpty();
     }
 
-    public boolean doesNotReturnVoid() {
-        return !returnsVoid();
+    public static boolean isNotVoid(ExecutableElement method) {
+        return !isVoid(method);
     }
 
-    public boolean returnsVoid() {
+    public static boolean isVoid(ExecutableElement method) {
         return method.getReturnType().getKind() == VOID;
     }
 
-    public boolean isAbstract() {
+    public static boolean isAbstract(ExecutableElement method) {
         return method.getModifiers().contains(ABSTRACT);
     }
 
-    public boolean doesNotReturnPrimitive() {
-        return !returnsPrimitive();
+    public static boolean doesNotReturnPrimitive(ExecutableElement method) {
+        return !returnsPrimitive(method);
     }
 
-    public boolean returnsPrimitive() {
+    public static boolean returnsPrimitive(ExecutableElement method) {
         return method.getReturnType().getKind().isPrimitive();
     }
 
-    public boolean returnsArray() {
+    public static boolean returnsArray(ExecutableElement method) {
         return method.getReturnType().getKind() == ARRAY;
     }
 
-    public boolean isSpecial() {
+    public static boolean isSpecial(ExecutableElement method) {
         return SpecialMethod.isSpecial(method);
     }
 
-    public boolean isNotSpecial() {
-        return !isSpecial();
+    public static boolean isNotSpecial(ExecutableElement method) {
+        return !isSpecial(method);
     }
 
-    public boolean isAnnotatedWith(Class<? extends Annotation> annotationClass) {
+    public static boolean isAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {
         return getAnnotation(method, annotationClass).isPresent();
     }
 
-    public boolean isNotAnnotatedWith(Class<? extends Annotation> annotationClass) {
-        return !isAnnotatedWith(annotationClass);
-    }
-
-    public Memoization.Item getToMemoizedItem() {
-        var annotations = method.getAnnotationMirrors().stream()
-                .map(AnnotationMirror.class::cast)
-                .toList();
-
-        return new Memoization.Item(method.getReturnType(),
-                methodeName(),
-                annotations,
-                method.getModifiers(),
-                isSpecial());
+    public static boolean isNotAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {
+        return !isAnnotatedWith(method, annotationClass);
     }
 }

@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.special;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -19,7 +19,6 @@ package pl.com.labaj.autorecord.processor.special;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.memoization.Memoization;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
@@ -56,11 +55,6 @@ public enum SpecialMethod {
         public boolean isMemoizedInOptions(AutoRecord.Options recordOptions) {
             return false;
         }
-
-        @Override
-        public Memoization.Item toMemoizedItem() {
-            throw new IllegalStateException("Method " + TO_BUILDER + " cannot be memoized!");
-        }
     };
 
     private static final List<SpecialMethod> ALL_METHODS = List.of(HASH_CODE, TO_STRING, TO_BUILDER);
@@ -89,6 +83,10 @@ public enum SpecialMethod {
 
     public static SpecialMethod fromName(String methodName) {
         return METHODS_BY_NAME.get(methodName);
+    }
+
+    public static SpecialMethod fromMethod(ExecutableElement method) {
+        return METHODS_BY_NAME.get(method.getSimpleName().toString());
     }
 
     public String methodName() {

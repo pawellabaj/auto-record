@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,19 +18,18 @@ package pl.com.labaj.autorecord.processor.memoization;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.processor.special.SpecialMethod;
-import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.utils.Methods;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import java.util.EnumMap;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
-import static java.util.stream.Collectors.toMap;
 import static javax.lang.model.element.ElementKind.METHOD;
-import static pl.com.labaj.autorecord.processor.special.SpecialMethod.allSpecialMethods;
+import static pl.com.labaj.autorecord.processor.context.SpecialMethod.allSpecialMethods;
+import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
 
 public class MemoizationFinder {
     private final Elements elementUtils;
@@ -40,7 +39,7 @@ public class MemoizationFinder {
     }
 
     public Memoization findMemoization(TypeElement sourceInterface, AutoRecord.Options recordOptions) {
-        var items = new LinkedHashSet<Memoization.Item>();
+        var items = new ArrayList<Memoization.Item>();
 
         allSpecialMethods().stream()
                 .filter(specialMethod -> specialMethod.isMemoizedInOptions(recordOptions))
@@ -50,28 +49,25 @@ public class MemoizationFinder {
         elementUtils.getAllMembers(sourceInterface).stream()
                 .filter(this::isMethod)
                 .map(ExecutableElement.class::cast)
-                .map(Method::new)
-                .filter(method -> method.isAnnotatedWith(Memoized.class))
-                .filter(Method::hasNoParameters)
-                .filter(Method::doesNotReturnVoid)
-                .map(Method::getToMemoizedItem)
+                .filter(method -> isAnnotatedWith(method, Memoized.class))
+                .filter(Methods::hasNoParameters)
+                .filter(Methods::isNotVoid)
+                .map(this::toMemoizedItem)
                 .forEach(items::add);
 
-        var specialMemoized = findSpecialMemoized(items);
-
-        return new Memoization(items, specialMemoized);
+        return new Memoization(items);
     }
 
-    private EnumMap<SpecialMethod, Boolean> findSpecialMemoized(LinkedHashSet<Memoization.Item> items) {
-        return items.stream()
-                .filter(Memoization.Item::special)
-                .map(Memoization.Item::name)
-                .collect(toMap(
-                        SpecialMethod::fromName,
-                        name -> true,
-                        (m1, m2) -> m1 || m2,
-                        () -> new EnumMap<>(SpecialMethod.class)
-                ));
+    private Memoization.Item toMemoizedItem(ExecutableElement method) {
+        var annotations = method.getAnnotationMirrors().stream()
+                .map(AnnotationMirror.class::cast)
+                .toList();
+
+        return new Memoization.Item(method.getReturnType(),
+                method.getSimpleName().toString(),
+                annotations,
+                method.getModifiers(),
+                Methods.isSpecial(method));
     }
 
     private boolean isMethod(Element element) {

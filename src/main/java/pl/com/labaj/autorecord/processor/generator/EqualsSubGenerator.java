@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.special;
+package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,33 +18,30 @@ package pl.com.labaj.autorecord.processor.special;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.context.AutoRecordContext;
-import pl.com.labaj.autorecord.processor.utils.Method;
+import pl.com.labaj.autorecord.processor.context.GenerationContext;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.squareup.javapoet.TypeName.BOOLEAN;
 import static com.squareup.javapoet.TypeName.OBJECT;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.utils.Methods.returnsArray;
 
-class EqualsGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator {
+class EqualsSubGenerator {
     private static final String OTHER = "other";
     private static final String OTHER_RECORD = "otherRecord";
     private static final String RETURN_TRUE_STATEMENT = "return true";
     private static final String RETURN_FALSE_STATEMENT = "return false";
 
-    EqualsGenerator(AutoRecordContext context, boolean memoizedHashCode, List<ExecutableElement> notIgnoredProperties) {
-        super(context, memoizedHashCode, notIgnoredProperties);
-    }
+    void generate(GenerationContext context, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<ExecutableElement> requiredProperties) {
+        var recordName = context.recordName();
 
-    @Override
-    public void generate(TypeSpec.Builder recordBuilder) {
-        var recordName = context.target().name();
         var equalsMethodBuilder = MethodSpec.methodBuilder("equals")
                 .addAnnotation(Override.class)
                 .addModifiers(PUBLIC)
@@ -60,31 +57,39 @@ class EqualsGenerator extends HashCodeEqualsGenerator.HashCodeEqualsSubGenerator
                 .addStatement(RETURN_FALSE_STATEMENT)
                 .endControlFlow();
 
-        if (isMemoizedHashCode()) {
+        if (memoizedHashCode) {
             equalsMethodBuilder
                     .beginControlFlow("if (hashCode() != $L.hashCode())", OTHER)
                     .addStatement(RETURN_FALSE_STATEMENT)
                     .endControlFlow();
         }
 
-        var format = notIgnoredProperties().stream()
-                .map(method -> "$T.equals($N, %s.$N)".formatted(OTHER_RECORD))
+        equalsMethodBuilder
+                .addCode("\n")
+                .addStatement("var $L = ($L) $L", OTHER_RECORD, recordName, OTHER);
+
+        var format = IntStream.range(0, requiredProperties.size())
+                .mapToObj(this::methodStatementFormat)
                 .collect(joining("\n&& ", "return ", ""));
-        var arguments = notIgnoredProperties().stream()
-                .flatMap(this::getArguments)
+        var arguments = requiredProperties.stream()
+                .flatMap(this::methodStatementArguments)
                 .toArray();
         var equalsMethod = equalsMethodBuilder
-                .addCode("\n")
-                .addStatement("var $L = ($L) $L", OTHER_RECORD, recordName, OTHER)
                 .addStatement(format, arguments)
                 .build();
+
         recordBuilder.addMethod(equalsMethod);
     }
 
-    private Stream<?> getArguments(ExecutableElement method) {
-        var methodName = method.getSimpleName();
-        var returnsArray = new Method(method).returnsArray();
+    private String methodStatementFormat(int index) {
+        var classType = "$" + (index * 2 + 1) + "T";
+        var name = "$" + (index * 2 + 2) + "N";
 
-        return returnsArray ? Stream.of(Arrays.class, methodName, methodName) : Stream.of(Objects.class, methodName, methodName);
+        return classType + ".equals(" + name + ", " + OTHER_RECORD + "." + name + ")";
+    }
+
+    private Stream<Object> methodStatementArguments(ExecutableElement method) {
+        var classToCall = returnsArray(method) ? Arrays.class : Objects.class;
+        return Stream.of(classToCall, method.getSimpleName());
     }
 }
