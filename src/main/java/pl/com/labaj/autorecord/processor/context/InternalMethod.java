@@ -39,6 +39,7 @@ import static java.util.stream.Collectors.toSet;
 import static javax.lang.model.type.TypeKind.DECLARED;
 import static javax.lang.model.type.TypeKind.INT;
 
+@SuppressWarnings("ImmutableEnumChecker")
 public enum InternalMethod {
     HASH_CODE("hashCode", INT, TypeName.INT) {
         @Override
