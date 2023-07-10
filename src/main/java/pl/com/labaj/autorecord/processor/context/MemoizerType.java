@@ -107,7 +107,7 @@ public enum MemoizerType {
         }
     }
 
-    @SuppressWarnings({"java:S3985", "java:S2094"})
+    @SuppressWarnings({"java:S2094", "java:S3985"})
     private static class Constants {
         private static final String COMPUTE_IF_ABSENT = "computeIfAbsent";
     }

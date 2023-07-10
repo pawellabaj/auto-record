@@ -60,7 +60,7 @@ class MemoizationGenerator implements RecordGenerator {
                 .build();
     }
 
-    private static CodeBlock methodStatement(GenerationContext context, Memoization.Item item, String name, MemoizerType memoizerType) {
+    private CodeBlock methodStatement(GenerationContext context, Memoization.Item item, String name, MemoizerType memoizerType) {
         var memoizerName = item.getMemoizerName();
         var computeMethod = memoizerType.computeMethod();
 

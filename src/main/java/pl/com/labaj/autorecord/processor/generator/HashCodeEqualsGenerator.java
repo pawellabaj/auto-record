@@ -24,6 +24,7 @@ import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import static pl.com.labaj.autorecord.processor.context.SpecialMethod.HASH_CODE;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
+import static pl.com.labaj.autorecord.processor.utils.Methods.isNotAnnotatedWith;
 
 class HashCodeEqualsGenerator implements RecordGenerator {
     private final HashCodeSubGenerator hashCodeSubGenerator = new HashCodeSubGenerator();
@@ -37,7 +38,7 @@ class HashCodeEqualsGenerator implements RecordGenerator {
 
         boolean memoizedHashCode = context.memoization().isMemoized(HASH_CODE);
         var requiredProperties = context.propertyMethods().stream()
-                .filter(method -> Methods.isNotAnnotatedWith(method, Ignored.class))
+                .filter(method -> isNotAnnotatedWith(method, Ignored.class))
                 .toList();
 
         hashCodeSubGenerator.generate(staticImports, recordBuilder, memoizedHashCode, requiredProperties);

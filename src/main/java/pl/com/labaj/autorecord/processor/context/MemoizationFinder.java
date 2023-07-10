@@ -21,13 +21,11 @@ import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import java.util.ArrayList;
 
-import static javax.lang.model.element.ElementKind.METHOD;
 import static pl.com.labaj.autorecord.processor.context.SpecialMethod.allSpecialMethods;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
 
@@ -47,7 +45,7 @@ public class MemoizationFinder {
                 .forEach(items::add);
 
         elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(this::isMethod)
+                .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .filter(method -> isAnnotatedWith(method, Memoized.class))
                 .filter(Methods::hasNoParameters)
@@ -68,9 +66,5 @@ public class MemoizationFinder {
                 annotations,
                 method.getModifiers(),
                 Methods.isSpecial(method));
-    }
-
-    private boolean isMethod(Element element) {
-        return element.getKind() == METHOD;
     }
 }

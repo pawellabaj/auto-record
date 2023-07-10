@@ -80,9 +80,9 @@ class BuilderOptionsSubGenerator {
         }
 
         if (valueClass.isEnum()) {
-            var enumName = ((Enum<?>) value).name();
-            staticImports.add(valueClass, enumName);
-            return enumName;
+            Enum<?> enumValue = (Enum<?>) value;
+            staticImports.add(enumValue);
+            return enumValue.name();
         }
 
         return "\"" + value + "\"";

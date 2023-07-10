@@ -19,6 +19,7 @@ package pl.com.labaj.autorecord.testcase;
 import static java.util.Objects.requireNonNull;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
+import java.lang.Override;
 import java.lang.String;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
@@ -30,6 +31,7 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
         addClassRetainedGenerated = true
 )
 public record WithBuilderRecord(String one, int two) implements WithBuilder {
+
     public WithBuilderRecord {
         requireNonNull(one, "one must not be null");
     }
@@ -38,6 +40,7 @@ public record WithBuilderRecord(String one, int two) implements WithBuilder {
         return WithBuilderRecordBuilder.builder();
     }
 
+    @Override
     public WithBuilderRecordBuilder toBuilder() {
         return WithBuilderRecordBuilder.builder(this);
     }

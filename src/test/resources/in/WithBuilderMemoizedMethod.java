@@ -16,13 +16,19 @@ package pl.com.labaj.autorecord.testcase;
  * limitations under the License.
  */
 
+
+
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.Memoized;
 
 @AutoRecord
 @AutoRecord.Options(withBuilder = true)
-public interface WithBuilder {
-    String one();
+interface WithBuilderMemoizedMethod {
+    
+    WithBuilderMemoizedMethodRecordBuilder toBuilder();
 
-    int two();
+    @Memoized
+    default String aMethod() {
+        return "A";
+    }
 }
-

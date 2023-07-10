@@ -18,9 +18,11 @@ package pl.com.labaj.autorecord.processor.utils;
 
 import pl.com.labaj.autorecord.processor.context.SpecialMethod;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
 
+import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.type.TypeKind.ARRAY;
 import static javax.lang.model.type.TypeKind.VOID;
@@ -28,6 +30,10 @@ import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 
 public final class Methods {
     private Methods() {}
+
+    public static boolean isMethod(Element element) {
+        return element.getKind() == METHOD;
+    }
 
     public static boolean hasParameters(ExecutableElement method) {
         return !hasNoParameters(method);

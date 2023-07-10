@@ -26,9 +26,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static com.google.testing.compile.Compiler.javac;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static pl.com.labaj.autorecord.test.TestUtils.assertThat;
+import static pl.com.labaj.autorecord.test.TestUtils.expectedGenearatedRecordName;
 import static pl.com.labaj.autorecord.test.TestUtils.expectedResourceName;
 import static pl.com.labaj.autorecord.test.TestUtils.generatedRecordBuilderName;
-import static pl.com.labaj.autorecord.test.TestUtils.generatedRecordName;
 import static pl.com.labaj.autorecord.test.TestUtils.inputResourceName;
 
 class GenerationWithBuilderTest {
@@ -38,7 +38,9 @@ class GenerationWithBuilderTest {
     @ParameterizedTest(name = "{0}.java")
     @ValueSource(strings = {
             "WithBuilder",
-            "WithBuilderOptions"
+            "WithBuilderOptions",
+            "WithBuilderGenerics",
+            "WithBuilderMemoizedMethod"
     })
     void shouldGenerateRecordAndBuilder(String interfaceName) {
         //given
@@ -51,7 +53,7 @@ class GenerationWithBuilderTest {
         //then
         assertAll(
                 () -> assertThat(compilation).succeeded(),
-                () -> assertThat(compilation).generatedSourceFile(generatedRecordName(interfaceName)).hasSourceEquivalentTo(expectedRecord),
+                () -> assertThat(compilation).generatedSourceFile(expectedGenearatedRecordName(interfaceName)).hasSourceEquivalentTo(expectedRecord),
                 () -> assertThat(compilation).generatedSourceFile(generatedRecordBuilderName(interfaceName)).isPresent()
         );
     }
@@ -59,8 +61,8 @@ class GenerationWithBuilderTest {
     @Test
     void shouldGenerateRecordWithNoPackage() {
         //given
-        var inputInterface = JavaFileObjects.forResource("in/NoPackageWithBuilder.java");
-        var expectedRecord = JavaFileObjects.forResource("out/NoPackageWithBuilderRecord.java");
+        var inputInterface = JavaFileObjects.forResource(inputResourceName("NoPackageWithBuilder"));
+        var expectedRecord = JavaFileObjects.forResource(expectedResourceName("NoPackageWithBuilder"));
 
         //when
         var compilation = compiler.compile(inputInterface);

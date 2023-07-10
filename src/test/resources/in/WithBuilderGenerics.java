@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.context;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,12 +16,16 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
-import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.utils.Logger;
+import java.util.Map;
 
-public record Generation(AutoRecord.Options recordOptions,
-                         RecordBuilder.Options builderOptions,
-                         Memoization memoization,
-                         Logger logger) {
+@AutoRecord
+@AutoRecord.Options(withBuilder = true)
+interface WithBuilderGenerics<K, V extends Number> {
+    String one();
+
+    Map<K, V> two();
+
+    WithBuilderGenericsRecordBuilder<K, V> toBuilder();
 }
+

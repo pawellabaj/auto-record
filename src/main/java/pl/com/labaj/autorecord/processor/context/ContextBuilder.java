@@ -23,15 +23,12 @@ import pl.com.labaj.autorecord.processor.utils.Generics;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import java.util.function.Predicate;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
-import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Methods.hasParameters;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isVoid;
@@ -62,7 +59,7 @@ public class ContextBuilder {
 
         boolean isPublic = sourceInterface.getModifiers().contains(PUBLIC);
         var propertyMetods = elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(isMethod())
+                .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .filter(Methods::isAbstract)
                 .filter(this::hasNoParameters)
@@ -70,7 +67,7 @@ public class ContextBuilder {
                 .filter(Methods::isNotSpecial)
                 .toList();
         var specialMethods = elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(element -> element.getKind() == METHOD)
+                .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .filter(Methods::isAbstract)
                 .filter(Methods::hasNoParameters)
@@ -111,10 +108,6 @@ public class ContextBuilder {
 
     private String createRecordName() {
         return getInterfaceName().replace('.', '_') + "Record";
-    }
-
-    private Predicate<Element> isMethod() {
-        return element -> element.getKind() == METHOD;
     }
 
     private boolean hasNoParameters(ExecutableElement method) {

@@ -17,7 +17,6 @@ package pl.com.labaj.autorecord.processor.generator;
  */
 
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeVariableName;
 import pl.com.labaj.autorecord.processor.context.GenerationContext;
@@ -43,7 +42,7 @@ class BuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected Optional<List<AnnotationSpec>> annotations(GenerationContext context, ClassName returnedClassName, String recordBuilderName) {
+    protected Optional<List<AnnotationSpec>> annotations(GenerationContext context) {
         return Optional.empty();
     }
 

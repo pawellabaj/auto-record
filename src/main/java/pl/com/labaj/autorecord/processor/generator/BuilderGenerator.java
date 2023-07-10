@@ -65,7 +65,7 @@ class BuilderGenerator implements RecordGenerator {
             var methodBuilder = MethodSpec.methodBuilder(methodName())
                     .addModifiers(modifiers(context));
 
-            annotations(context, returnedClassName, recordBuilderName).ifPresent(methodBuilder::addAnnotations);
+            annotations(context).ifPresent(methodBuilder::addAnnotations);
 
             var statementFormat = new StringBuilder();
             var statementArguments = new ArrayList<>();
@@ -110,7 +110,7 @@ class BuilderGenerator implements RecordGenerator {
 
         protected abstract Modifier[] modifiers(GenerationContext context);
 
-        protected abstract Optional<List<AnnotationSpec>> annotations(GenerationContext context, ClassName returnedClassName, String recordBuilderName);
+        protected abstract Optional<List<AnnotationSpec>> annotations(GenerationContext context);
 
         protected abstract String methodArgument();
 

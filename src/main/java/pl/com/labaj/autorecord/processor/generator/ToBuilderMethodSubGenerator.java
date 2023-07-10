@@ -17,13 +17,10 @@ package pl.com.labaj.autorecord.processor.generator;
  */
 
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeVariableName;
-import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 import pl.com.labaj.autorecord.processor.context.GenerationContext;
 
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 import java.util.Optional;
@@ -46,12 +43,10 @@ class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected Optional<List<AnnotationSpec>> annotations(GenerationContext context, ClassName returnedClassName, String recordBuilderName) {
+    protected Optional<List<AnnotationSpec>> annotations(GenerationContext context) {
         if (context.specialMethods().containsKey(TO_BUILDER)) {
             var parentMethod = context.specialMethods().get(TO_BUILDER);
-            validateReturnedClass(context, parentMethod, returnedClassName, recordBuilderName);
-            var annotationSpecs = createAnnotationSpecs(parentMethod.getAnnotationMirrors(), METHOD, List.of(Override.class), List.of());
-            return Optional.of(annotationSpecs);
+            return Optional.of(createAnnotationSpecs(parentMethod.getAnnotationMirrors(), METHOD, List.of(Override.class), List.of()));
         }
 
         return Optional.empty();
@@ -70,21 +65,5 @@ class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     @Override
     protected BiConsumer<MethodSpec.Builder, List<TypeVariableName>> genericVariableConsumer() {
         return (b, l) -> {};
-    }
-
-    private void validateReturnedClass(GenerationContext context, ExecutableElement parentMethod, ClassName returnClassName, String recordBuilderName) {
-        var returnType = parentMethod.getReturnType();
-        var parentReturnClass = returnType.toString();
-
-        if (parentReturnClass.equals("<any>")) {
-            context.logger().warn("Cannot parse returned class of " + TO_BUILDER + " method");
-            return;
-        }
-
-        var properReturnClass = returnClassName.toString();
-
-        if (!(parentReturnClass.equals(properReturnClass) || parentReturnClass.equals(recordBuilderName))) {
-            throw new AutoRecordProcessorException("Method " + TO_BUILDER + " has to return " + properReturnClass);
-        }
     }
 }

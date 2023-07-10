@@ -81,12 +81,9 @@ public enum SpecialMethod {
         return METHODS_BY_NAME.containsKey(methodName.toString());
     }
 
-    public static SpecialMethod fromName(String methodName) {
-        return METHODS_BY_NAME.get(methodName);
-    }
-
     public static SpecialMethod fromMethod(ExecutableElement method) {
-        return METHODS_BY_NAME.get(method.getSimpleName().toString());
+        var methodName = method.getSimpleName();
+        return METHODS_BY_NAME.get(methodName.toString());
     }
 
     public String methodName() {

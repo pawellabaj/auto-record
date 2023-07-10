@@ -41,7 +41,6 @@ import java.util.stream.Stream;
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.context.MemoizerType.from;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 
 class BasicGenerator implements RecordGenerator {
@@ -133,7 +132,7 @@ class BasicGenerator implements RecordGenerator {
 
         memoization.ifPresent(items -> {
             items.forEach(item -> {
-                var memoizerType = from(item.type());
+                var memoizerType = MemoizerType.from(item.type());
                 var newReference = memoizerType.getNewReference();
                 compactConstructorBuilder.addStatement("$2N = $1L($2N, $3L)", OBJECTS_REQUIRE_NON_NULL_ELSE_GET, item.getMemoizerName(), newReference);
             });
@@ -158,7 +157,7 @@ class BasicGenerator implements RecordGenerator {
     private ParameterSpec toParameterSpec(Memoization.Item memoizedElement) {
         var memoizerType = memoizedElement.type();
 
-        var typeMemoizer = from(memoizerType);
+        var typeMemoizer = MemoizerType.from(memoizerType);
         var annotations = createAnnotationSpecs(memoizedElement.annotations(),
                 TYPE_PARAMETER,
                 List.of(Nullable.class),

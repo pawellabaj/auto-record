@@ -25,8 +25,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static com.google.testing.compile.Compiler.javac;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static pl.com.labaj.autorecord.test.TestUtils.assertThat;
+import static pl.com.labaj.autorecord.test.TestUtils.expectedGenearatedRecordName;
 import static pl.com.labaj.autorecord.test.TestUtils.expectedResourceName;
-import static pl.com.labaj.autorecord.test.TestUtils.generatedRecordName;
 import static pl.com.labaj.autorecord.test.TestUtils.inputResourceName;
 
 class GenerationTest {
@@ -60,15 +60,15 @@ class GenerationTest {
         //then
         assertAll(
                 () -> assertThat(compilation).succeeded(),
-                () -> assertThat(compilation).generatedSourceFile(generatedRecordName(interfaceName)).hasSourceEquivalentTo(expectedRecord)
+                () -> assertThat(compilation).generatedSourceFile(expectedGenearatedRecordName(interfaceName)).hasSourceEquivalentTo(expectedRecord)
         );
     }
 
     @Test
     void shouldGenerateRecordWithNoPackage() {
         //given
-        var inputInterface = JavaFileObjects.forResource("in/NoPackage.java");
-        var expectedRecord = JavaFileObjects.forResource("out/NoPackageRecord.java");
+        var inputInterface = JavaFileObjects.forResource(inputResourceName("NoPackage"));
+        var expectedRecord = JavaFileObjects.forResource(expectedResourceName("NoPackage"));
 
         //when
         var compilation = compiler.compile(inputInterface);
@@ -92,7 +92,7 @@ class GenerationTest {
         //then
         assertAll(
                 () -> assertThat(compilation).succeeded(),
-                () -> assertThat(compilation).generatedSourceFile(generatedRecordName("NestedInterface_Intermediate_Internal")).hasSourceEquivalentTo(expectedRecord)
+                () -> assertThat(compilation).generatedSourceFile(expectedGenearatedRecordName("NestedInterface_Intermediate_Internal")).hasSourceEquivalentTo(expectedRecord)
         );
     }
 }

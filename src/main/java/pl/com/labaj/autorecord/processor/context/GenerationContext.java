@@ -16,6 +16,8 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
+import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.processor.utils.Generics;
 import pl.com.labaj.autorecord.processor.utils.Logger;
 
@@ -27,8 +29,8 @@ import java.util.Map;
 public record GenerationContext(boolean isRecordPublic,
                                 String interfaceName,
                                 TypeMirror superType,
-                                pl.com.labaj.autorecord.AutoRecord.Options recordOptions,
-                                io.soabase.recordbuilder.core.RecordBuilder.Options builderOptions,
+                                AutoRecord.Options recordOptions,
+                                RecordBuilder.Options builderOptions,
                                 List<ExecutableElement> propertyMethods,
                                 Map<SpecialMethod, ExecutableElement> specialMethods,
                                 Generics generics,
