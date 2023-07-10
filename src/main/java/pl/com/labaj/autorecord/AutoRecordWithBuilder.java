@@ -16,8 +16,6 @@ package pl.com.labaj.autorecord;
  * limitations under the License.
  */
 
-import io.soabase.recordbuilder.core.RecordBuilder;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -27,18 +25,14 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 /**
  * Custom annotation used to mark interface for annotation processing.
  *
- * <p>Record generated from interface with this annotation has builder without <em>With</em> interface generated.
- * In addition, builder will handle collection to use unmodifiable views of them.
+ * <p>Record generated from an interface with this annotation has builder with default options.
  *
  * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization#creating-a-custom-annotation">Custom Annotation Wiki</a>
- * @see io.soabase.recordbuilder.core.RecordBuilder.Options#useUnmodifiableCollections()
- * @see io.soabase.recordbuilder.core.RecordBuilder.Options#enableWither()
+ * @see AutoRecord.Options
+ * @see io.soabase.recordbuilder.core.RecordBuilder.Options
  */
 @Retention(SOURCE)
 @Target(TYPE)
-@AutoRecord.Template(
-        recordOptions = @AutoRecord.Options(withBuilder = true),
-        builderOptions = @RecordBuilder.Options(useUnmodifiableCollections = true, enableWither = false)
-)
+@AutoRecord.Template(recordOptions = @AutoRecord.Options(withBuilder = true))
 public @interface AutoRecordWithBuilder {
 }
