@@ -16,8 +16,6 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.processor.context.SpecialMethod;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
@@ -65,14 +63,6 @@ public final class Methods {
 
     public static boolean returnsArray(ExecutableElement method) {
         return method.getReturnType().getKind() == ARRAY;
-    }
-
-    public static boolean isSpecial(ExecutableElement method) {
-        return SpecialMethod.isSpecial(method);
-    }
-
-    public static boolean isNotSpecial(ExecutableElement method) {
-        return !isSpecial(method);
     }
 
     public static boolean isAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {

@@ -64,7 +64,8 @@ public class ContextBuilder {
                 .filter(Methods::isAbstract)
                 .filter(this::hasNoParameters)
                 .filter(this::doesNotReturnVoid)
-                .filter(Methods::isNotSpecial)
+                .filter(InternalMethod::isNotInternal)
+                .filter(SpecialMethod::isNotSpecial)
                 .toList();
         var specialMethods = elementUtils.getAllMembers(sourceInterface).stream()
                 .filter(Methods::isMethod)
@@ -72,7 +73,7 @@ public class ContextBuilder {
                 .filter(Methods::isAbstract)
                 .filter(Methods::hasNoParameters)
                 .filter(Methods::isNotVoid)
-                .filter(Methods::isSpecial)
+                .filter(SpecialMethod::isSpecial)
                 .collect(toMap(SpecialMethod::fromMethod, identity()));
 
         return new GenerationContext(

@@ -24,9 +24,13 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Stream;
 
-import static pl.com.labaj.autorecord.processor.context.SpecialMethod.allSpecialMethods;
+import static java.util.Collections.emptyList;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.context.InternalMethod.allInternalMethods;
+import static pl.com.labaj.autorecord.processor.context.InternalMethod.isInternal;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
 
 public class MemoizationFinder {
@@ -37,21 +41,22 @@ public class MemoizationFinder {
     }
 
     public Memoization findMemoization(TypeElement sourceInterface, AutoRecord.Options recordOptions) {
-        var items = new ArrayList<Memoization.Item>();
+        var itemsFromOptions = allInternalMethods()
+                .filter(internalMethod -> internalMethod.isMemoizedInOptions(recordOptions))
+                .map(internalMethod -> new Memoization.Item(internalMethod.type(), internalMethod.methodName(), emptyList(), Set.of(PUBLIC), true));
 
-        allSpecialMethods().stream()
-                .filter(specialMethod -> specialMethod.isMemoizedInOptions(recordOptions))
-                .map(SpecialMethod::toMemoizedItem)
-                .forEach(items::add);
-
-        elementUtils.getAllMembers(sourceInterface).stream()
+        var itemsFromAnnotation = elementUtils.getAllMembers(sourceInterface).stream()
                 .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .filter(method -> isAnnotatedWith(method, Memoized.class))
                 .filter(Methods::hasNoParameters)
                 .filter(Methods::isNotVoid)
-                .map(this::toMemoizedItem)
-                .forEach(items::add);
+                .filter(SpecialMethod::isNotSpecial)
+                .map(this::toMemoizedItem);
+
+        var items = Stream.concat(itemsFromOptions, itemsFromAnnotation)
+                .distinct()
+                .toList();
 
         return new Memoization(items);
     }
@@ -65,6 +70,6 @@ public class MemoizationFinder {
                 method.getSimpleName().toString(),
                 annotations,
                 method.getModifiers(),
-                Methods.isSpecial(method));
+                isInternal(method));
     }
 }

@@ -22,7 +22,7 @@ import pl.com.labaj.autorecord.processor.StaticImportsCollector;
 import pl.com.labaj.autorecord.processor.context.GenerationContext;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
-import static pl.com.labaj.autorecord.processor.context.SpecialMethod.HASH_CODE;
+import static pl.com.labaj.autorecord.processor.context.InternalMethod.HASH_CODE;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isNotAnnotatedWith;
 
@@ -32,20 +32,21 @@ class HashCodeEqualsGenerator implements RecordGenerator {
 
     @Override
     public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
-        if (!shouldGenerate(context)) {
+        var isHashCodeMemoized = context.recordOptions().memoizedHashCode() || context.memoization().isMemoized(HASH_CODE);
+
+        if (!shouldGenerate(context, isHashCodeMemoized)) {
             return;
         }
 
-        boolean memoizedHashCode = context.memoization().isMemoized(HASH_CODE);
         var requiredProperties = context.propertyMethods().stream()
                 .filter(method -> isNotAnnotatedWith(method, Ignored.class))
                 .toList();
 
-        hashCodeSubGenerator.generate(staticImports, recordBuilder, memoizedHashCode, requiredProperties);
-        equalsSubGenerator.generate(context, recordBuilder, memoizedHashCode, requiredProperties);
+        hashCodeSubGenerator.generate(staticImports, recordBuilder, isHashCodeMemoized, requiredProperties);
+        equalsSubGenerator.generate(context, recordBuilder, isHashCodeMemoized, requiredProperties);
     }
 
-    private boolean shouldGenerate(GenerationContext context) {
+    private boolean shouldGenerate(GenerationContext context, boolean isHashCodeMemoized) {
         if (context.propertyMethods().stream()
                 .anyMatch(method -> isAnnotatedWith(method, Ignored.class))) {
             return true;
@@ -56,6 +57,6 @@ class HashCodeEqualsGenerator implements RecordGenerator {
             return true;
         }
 
-        return context.memoization().isMemoized(HASH_CODE);
+        return isHashCodeMemoized;
     }
 }

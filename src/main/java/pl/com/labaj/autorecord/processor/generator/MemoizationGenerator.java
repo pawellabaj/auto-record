@@ -64,7 +64,7 @@ class MemoizationGenerator implements RecordGenerator {
         var memoizerName = item.getMemoizerName();
         var computeMethod = memoizerType.computeMethod();
 
-        if (item.special()) {
+        if (item.internal()) {
             return CodeBlock.of("return $L.$L(this::_$L)", memoizerName, computeMethod, name);
         }
 

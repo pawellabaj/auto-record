@@ -30,22 +30,22 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.context.SpecialMethod.TO_STRING;
+import static pl.com.labaj.autorecord.processor.context.InternalMethod.TO_STRING;
 import static pl.com.labaj.autorecord.processor.utils.Methods.returnsArray;
 
 public class ToStringGenerator implements RecordGenerator {
 
     @Override
     public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
-        var memoizedToString = context.memoization().isMemoized(TO_STRING);
-        var propertyMethods = context.propertyMethods();
+        var isToStringMemoized = context.recordOptions().memoizedToString() || context.memoization().isMemoized(TO_STRING);
 
-        if (!shouldGenerate(context)) {
+        if (!shouldGenerate(context, isToStringMemoized)) {
             return;
         }
 
+        var propertyMethods = context.propertyMethods();
         var recordName = context.recordName();
-        var methodName = (memoizedToString ? "_" : "") + TO_STRING;
+        var methodName = (isToStringMemoized ? "_" : "") + TO_STRING;
         var counter = new AtomicInteger(0);
         var format = propertyMethods.stream()
                 .map(method -> methodStatementFormat(method, counter))
@@ -55,7 +55,7 @@ public class ToStringGenerator implements RecordGenerator {
                 .toArray();
 
         var toStringMethod = MethodSpec.methodBuilder(methodName)
-                .addModifiers(memoizedToString ? PRIVATE : PUBLIC)
+                .addModifiers(isToStringMemoized ? PRIVATE : PUBLIC)
                 .returns(String.class)
                 .addStatement(format, arguments)
                 .build();
@@ -63,13 +63,13 @@ public class ToStringGenerator implements RecordGenerator {
         recordBuilder.addMethod(toStringMethod);
     }
 
-    private boolean shouldGenerate(GenerationContext context) {
+    private boolean shouldGenerate(GenerationContext context, boolean isToStringMemoized) {
         if (context.propertyMethods().stream()
                 .anyMatch(Methods::returnsArray)) {
             return true;
         }
 
-        return context.memoization().isMemoized(TO_STRING);
+        return isToStringMemoized;
     }
 
     private String methodStatementFormat(ExecutableElement method, AtomicInteger counter) {

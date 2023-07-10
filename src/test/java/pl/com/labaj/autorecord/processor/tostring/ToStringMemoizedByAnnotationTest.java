@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.special;
+package pl.com.labaj.autorecord.processor.tostring;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -25,19 +25,19 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-class HashCodeMemoizedTest {
+class ToStringMemoizedByAnnotationTest {
 
     @Test
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    void shouldMemoizeHashCode() {
+    void shouldMemoizeToString() {
         //given
-        var one = new Counters();
-        var record = new HashCodeMemoizedRecord(one);
+        var three = new Counters();
+        var record = new ToStringMemoizedByAnnotationRecord("one", 2, three);
 
         //then
         var assertions = IntStream.range(0, 5)
-                .peek(i -> record.hashCode())
-                .map(i -> one.hashCodeCount())
+                .peek(i -> record.toString())
+                .map(i -> three.toStringCount())
                 .mapToObj(count -> (Executable) () -> assertThat(count).isEqualTo(1));
 
         //then

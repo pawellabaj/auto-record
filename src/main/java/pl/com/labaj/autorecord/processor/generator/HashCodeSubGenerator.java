@@ -30,14 +30,15 @@ import static com.squareup.javapoet.TypeName.INT;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.context.SpecialMethod.HASH_CODE;
+import static pl.com.labaj.autorecord.processor.context.InternalMethod.HASH_CODE;
 import static pl.com.labaj.autorecord.processor.utils.Methods.returnsArray;
 
 class HashCodeSubGenerator {
+
     private static final String OBJECTS_HASH = "hash";
 
-    void generate(StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<ExecutableElement> requiredProperties) {
-        var methodName = (memoizedHashCode ? "_" : "") + HASH_CODE;
+    void generate(StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder, boolean isHashCodeMemoized, List<ExecutableElement> requiredProperties) {
+        var methodName = (isHashCodeMemoized ? "_" : "") + HASH_CODE;
         var format = requiredProperties.stream()
                 .map(this::methodStatementFormat)
                 .collect(joining(", ", "return " + OBJECTS_HASH + "(", ")"));
@@ -46,11 +47,11 @@ class HashCodeSubGenerator {
                 .toArray();
 
         var hashCodeMethodBuilder = MethodSpec.methodBuilder(methodName)
-                .addModifiers(memoizedHashCode ? PRIVATE : PUBLIC)
+                .addModifiers(isHashCodeMemoized ? PRIVATE : PUBLIC)
                 .returns(INT)
                 .addStatement(format, arguments);
 
-        if (!memoizedHashCode) {
+        if (!isHashCodeMemoized) {
             hashCodeMethodBuilder.addAnnotation(Override.class);
         }
 

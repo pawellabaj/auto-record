@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.special;
+package pl.com.labaj.autorecord.processor.tostring;
 
 /*-
  * Copyright © 2023 Auto Record

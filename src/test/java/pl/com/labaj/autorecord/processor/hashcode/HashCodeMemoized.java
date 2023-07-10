@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.special;
+package pl.com.labaj.autorecord.processor.hashcode;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -20,11 +20,7 @@ import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.test.Counters;
 
 @AutoRecord
-@AutoRecord.Options(memoizedToString = true)
-public interface ToStringMemoized {
-    String one();
-
-    int two();
-
-    Counters three();
+@AutoRecord.Options(memoizedHashCode = true)
+public interface HashCodeMemoized {
+    Counters one();
 }
