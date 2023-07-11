@@ -16,12 +16,26 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
+import org.apiguardian.api.API;
+
+import static org.apiguardian.api.API.Status.STABLE;
+
+/**
+ * Thrown when an exceptional condition has occurred during {@link pl.com.labaj.autorecord.AutoRecord}  processing.
+ */
+@API(status = STABLE)
 public class AutoRecordProcessorException extends RuntimeException {
+    /**
+     * {@inheritDoc}
+     */
     public AutoRecordProcessorException(String message) {
         super(message);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public AutoRecordProcessorException(String message, Throwable cause) {
-        super(message + " caused by " + cause.getLocalizedMessage());
+        super(message, cause);
     }
 }

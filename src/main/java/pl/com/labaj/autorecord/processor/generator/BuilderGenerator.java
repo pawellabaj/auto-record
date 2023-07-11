@@ -24,8 +24,8 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.context.StaticImports;
+import pl.com.labaj.autorecord.processor.context.InternalContext;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
 
 import javax.lang.model.element.Modifier;
@@ -45,7 +45,7 @@ class BuilderGenerator implements RecordGenerator {
     private static final AnnotationSpec BUILDER_ANNOTATION = AnnotationSpec.builder(RecordBuilder.class).build();
 
     @Override
-    public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
         if (!context.recordOptions().withBuilder()) {
             return;
         }
@@ -58,7 +58,7 @@ class BuilderGenerator implements RecordGenerator {
     }
 
     abstract static class MethodSubGenerator {
-        void generate(GenerationContext context, TypeSpec.Builder recordBuilder) {
+        void generate(InternalContext context, TypeSpec.Builder recordBuilder) {
             var recordBuilderName = recordBuilderName(context);
             var returnedClassName = ClassName.get(context.packageName(), recordBuilderName);
 
@@ -73,14 +73,14 @@ class BuilderGenerator implements RecordGenerator {
             statementArguments.add(recordBuilderName);
 
             context.generics().ifPresentOrElse(
-                    (variables, types) -> {
+                    (types, names) -> {
                         statementFormat.append("return $L.")
-                                .append(variablesStatement(variables))
+                                .append(variablesStatement(names))
                                 .append("$L(").append(methodArgument()).append(")");
 
                         statementArguments.addAll(types);
 
-                        genericVariableConsumer().accept(methodBuilder, variables);
+                        genericVariableConsumer().accept(methodBuilder, names);
                         methodBuilder.returns(ParameterizedTypeName.get(returnedClassName, types.toArray(TypeName[]::new)));
                     },
                     () -> {
@@ -108,17 +108,17 @@ class BuilderGenerator implements RecordGenerator {
 
         protected abstract String methodName();
 
-        protected abstract Modifier[] modifiers(GenerationContext context);
+        protected abstract Modifier[] modifiers(InternalContext context);
 
-        protected abstract Optional<List<AnnotationSpec>> annotations(GenerationContext context);
+        protected abstract Optional<List<AnnotationSpec>> annotations(InternalContext context);
 
         protected abstract String methodArgument();
 
-        private String recordBuilderName(GenerationContext context) {
+        private String recordBuilderName(InternalContext context) {
             return context.recordName() + context.builderOptions().suffix();
         }
 
-        protected abstract String methodToCallName(GenerationContext context);
+        protected abstract String methodToCallName(InternalContext context);
 
         protected abstract BiConsumer<MethodSpec.Builder, List<TypeVariableName>> genericVariableConsumer();
 

@@ -16,7 +16,7 @@
  */
 
 /**
- * Provides annotations used in process of generating record.
+ * Provides annotations used to annotate interfaces to generate a record for them.
  *
  * <p>{@link pl.com.labaj.autorecord.AutoRecord} annotation is used to mark interface for annotation processing.
  *
@@ -24,4 +24,9 @@
  *
  * @see <a href="https://github.com/pawellabaj/auto-record/wiki/">Wiki</a>
  */
+@API(status = STABLE)
 package pl.com.labaj.autorecord;
+
+import org.apiguardian.api.API;
+
+import static org.apiguardian.api.API.Status.STABLE;

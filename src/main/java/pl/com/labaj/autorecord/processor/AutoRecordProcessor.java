@@ -17,8 +17,8 @@ package pl.com.labaj.autorecord.processor;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
+import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.processor.utils.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
@@ -30,23 +30,37 @@ import javax.lang.model.element.TypeElement;
 import java.util.Set;
 
 import static javax.lang.model.element.ElementKind.INTERFACE;
+import static org.apiguardian.api.API.Status.STABLE;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 
+/**
+ * Annotation processor for generating record based on an interface. Processes annotations from {@code pl.com.labaj.autorecord} package
+ */
+@API(status = STABLE)
 @SupportedAnnotationTypes("pl.com.labaj.autorecord.*")
 public class AutoRecordProcessor extends AbstractProcessor {
 
     private static final String AUTO_RECORD_CLASS_NAME = AutoRecord.class.getName();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.latest();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         annotations.forEach(annotation -> processAnnotation(roundEnv, annotation));
@@ -82,8 +96,8 @@ public class AutoRecordProcessor extends AbstractProcessor {
     }
 
     private void processElement(TypeElement sourceInterface, AutoRecord.Options recordOptions, @Nullable RecordBuilder.Options builderOptions) {
-        var logger = new Logger(processingEnv.getMessager(), sourceInterface);
-        logger.debug("Generate record for %s".formatted(sourceInterface));
+        var logger = new MessagerLogger(processingEnv.getMessager(), sourceInterface);
+        logger.info("Generate record for %s".formatted(sourceInterface));
 
         try {
             var recordGenerator = new RecordJavaFileBuilder(sourceInterface, recordOptions, builderOptions, processingEnv, logger);

@@ -1,4 +1,3 @@
-package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,10 +15,10 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+//TODO: Add package description
+@API(status = STABLE, since = "3.0.0")
+package pl.com.labaj.autorecord.context;
 
-public interface RecordGenerator {
-    void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder);
-}
+import org.apiguardian.api.API;
+
+import static org.apiguardian.api.API.Status.STABLE;

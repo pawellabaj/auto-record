@@ -19,19 +19,21 @@ package pl.com.labaj.autorecord.processor;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
+import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.processor.context.ContextBuilder;
-import pl.com.labaj.autorecord.processor.utils.Logger;
-import pl.com.labaj.autorecord.processor.utils.StaticImports;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import java.util.Map;
 
+import static org.apiguardian.api.API.Status.INTERNAL;
 import static pl.com.labaj.autorecord.processor.generator.Generators.generators;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationIfNeeded;
 
+@API(status = INTERNAL)
 class RecordJavaFileBuilder {
     private static final Map<String, Object> BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
 
@@ -50,7 +52,7 @@ class RecordJavaFileBuilder {
 
     JavaFile buildJavaFile() {
         var context = contextBuilder.buildContext();
-        var staticImports = new StaticImports();
+        var staticImports = new StaticImportsCollectors();
         var recordBuilder = TypeSpec.recordBuilder(context.recordName());
 
         generators()
@@ -59,9 +61,9 @@ class RecordJavaFileBuilder {
         return buildJavaFile(context.packageName(), staticImports, recordBuilder.build());
     }
 
-    private JavaFile buildJavaFile(String packageName, StaticImports staticImports, TypeSpec recordSpec) {
+    private JavaFile buildJavaFile(String packageName, StaticImportsCollectors staticImports, TypeSpec recordSpec) {
         var javaFileBuilder = JavaFile.builder(packageName, recordSpec);
-        staticImports.items().forEach((className, names) -> javaFileBuilder.addStaticImport(className, names.toArray(new String[0])));
+        staticImports.forEach(javaFileBuilder::addStaticImport);
 
         return javaFileBuilder.build();
     }

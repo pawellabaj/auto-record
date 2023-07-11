@@ -18,42 +18,44 @@ package pl.com.labaj.autorecord.processor.generator;
 
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Ignored;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
-import pl.com.labaj.autorecord.processor.utils.Methods;
+import pl.com.labaj.autorecord.context.RecordComponent;
+import pl.com.labaj.autorecord.context.StaticImports;
+import pl.com.labaj.autorecord.processor.context.InternalContext;
 
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.HASH_CODE;
-import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
-import static pl.com.labaj.autorecord.processor.utils.Methods.isNotAnnotatedWith;
 
 class HashCodeEqualsGenerator implements RecordGenerator {
     private final HashCodeSubGenerator hashCodeSubGenerator = new HashCodeSubGenerator();
     private final EqualsSubGenerator equalsSubGenerator = new EqualsSubGenerator();
 
     @Override
-    public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
         var isHashCodeMemoized = context.recordOptions().memoizedHashCode() || context.memoization().isMemoized(HASH_CODE);
 
         if (!shouldGenerate(context, isHashCodeMemoized)) {
             return;
         }
 
-        var requiredProperties = context.propertyMethods().stream()
-                .filter(method -> isNotAnnotatedWith(method, Ignored.class))
+        var requiredComponents = context.components().stream()
+                .filter(recordComponent -> recordComponent.isNotAnnotatedWith(Ignored.class))
                 .toList();
 
-        hashCodeSubGenerator.generate(staticImports, recordBuilder, isHashCodeMemoized, requiredProperties);
-        equalsSubGenerator.generate(context, recordBuilder, isHashCodeMemoized, requiredProperties);
+        hashCodeSubGenerator.generate(staticImports, recordBuilder, isHashCodeMemoized, requiredComponents);
+        equalsSubGenerator.generate(context, recordBuilder, isHashCodeMemoized, requiredComponents);
     }
 
-    private boolean shouldGenerate(GenerationContext context, boolean isHashCodeMemoized) {
-        if (context.propertyMethods().stream()
-                .anyMatch(method -> isAnnotatedWith(method, Ignored.class))) {
+    private boolean shouldGenerate(InternalContext context, boolean isHashCodeMemoized) {
+        var atLeastOneIgnored = context.components().stream()
+                .anyMatch(recordComponent -> recordComponent.isAnnotatedWith(Ignored.class));
+
+        if (atLeastOneIgnored) {
             return true;
         }
 
-        if (context.propertyMethods().stream()
-                .anyMatch(Methods::returnsArray)) {
+        var atLeastOneArray = context.components().stream()
+                .anyMatch(RecordComponent::isArray);
+
+        if (atLeastOneArray) {
             return true;
         }
 

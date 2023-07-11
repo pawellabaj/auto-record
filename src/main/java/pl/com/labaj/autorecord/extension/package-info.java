@@ -1,4 +1,3 @@
-package pl.com.labaj.autorecord.processor;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,12 +15,10 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.ClassName;
+//TODO: Add package description
+@API(status = STABLE, since = "3.0.0")
+package pl.com.labaj.autorecord.extension;
 
-public interface StaticImportsCollector {
-    void add(Class<?> aClass, String name);
+import org.apiguardian.api.API;
 
-    void add(Enum<?> constant);
-
-    void add(ClassName className, String name);
-}
+import static org.apiguardian.api.API.Status.STABLE;

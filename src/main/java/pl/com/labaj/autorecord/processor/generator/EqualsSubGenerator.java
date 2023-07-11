@@ -18,9 +18,9 @@ package pl.com.labaj.autorecord.processor.generator;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.context.RecordComponent;
+import pl.com.labaj.autorecord.processor.context.InternalContext;
 
-import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +31,6 @@ import static com.squareup.javapoet.TypeName.BOOLEAN;
 import static com.squareup.javapoet.TypeName.OBJECT;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.utils.Methods.returnsArray;
 
 class EqualsSubGenerator {
     private static final String OTHER = "other";
@@ -39,7 +38,7 @@ class EqualsSubGenerator {
     private static final String RETURN_TRUE_STATEMENT = "return true";
     private static final String RETURN_FALSE_STATEMENT = "return false";
 
-    void generate(GenerationContext context, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<ExecutableElement> requiredProperties) {
+    void generate(InternalContext context, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<RecordComponent> components) {
         var recordName = context.recordName();
 
         var equalsMethodBuilder = MethodSpec.methodBuilder("equals")
@@ -68,10 +67,10 @@ class EqualsSubGenerator {
                 .addCode("\n")
                 .addStatement("var $L = ($L) $L", OTHER_RECORD, recordName, OTHER);
 
-        var format = IntStream.range(0, requiredProperties.size())
+        var format = IntStream.range(0, components.size())
                 .mapToObj(this::methodStatementFormat)
                 .collect(joining("\n&& ", "return ", ""));
-        var arguments = requiredProperties.stream()
+        var arguments = components.stream()
                 .flatMap(this::methodStatementArguments)
                 .toArray();
         var equalsMethod = equalsMethodBuilder
@@ -88,8 +87,8 @@ class EqualsSubGenerator {
         return classType + ".equals(" + name + ", " + OTHER_RECORD + "." + name + ")";
     }
 
-    private Stream<Object> methodStatementArguments(ExecutableElement method) {
-        var classToCall = returnsArray(method) ? Arrays.class : Objects.class;
-        return Stream.of(classToCall, method.getSimpleName());
+    private Stream<Object> methodStatementArguments(RecordComponent recordComponent) {
+        var classToCall = recordComponent.isArray() ? Arrays.class : Objects.class;
+        return Stream.of(classToCall, recordComponent.name());
     }
 }
