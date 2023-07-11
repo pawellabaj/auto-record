@@ -42,6 +42,17 @@ import static java.util.stream.Collectors.toSet;
 public final class Annotations {
     private Annotations() {}
 
+    public static List<AnnotationSpec> createAnnotationSpecs(List<AnnotationMirror> annotations) {
+        return annotations.stream()
+                .map(AnnotationMirror::getAnnotationType)
+                .map(DeclaredType::asElement)
+                .map(TypeElement.class::cast)
+                .map(ClassName::get)
+                .map(AnnotationSpec::builder)
+                .map(AnnotationSpec.Builder::build)
+                .toList();
+    }
+
     public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors, ElementType target) {
         return createAnnotationSpecs(annotationMirrors, target, emptyList(), emptyList());
     }
@@ -73,6 +84,7 @@ public final class Annotations {
     public static <A extends Annotation> Optional<A> getAnnotation(Element element, Class<A> annotationClass) {
         return Optional.ofNullable(element.getAnnotation(annotationClass));
     }
+
     public static <A extends Annotation> A createAnnotationIfNeeded(@Nullable A annotation, Class<A> annotationClass) {
         return createAnnotationIfNeeded(annotation, annotationClass, Map.of());
     }
@@ -93,11 +105,23 @@ public final class Annotations {
                 });
     }
 
-    private static boolean canAnnotateElementType(TypeElement annotation, ElementType targetType) {
+    public static List<AnnotationMirror> annotationsAllowedFor(List<? extends AnnotationMirror> annotationMirrors, ElementType target) {
+        return annotationMirrors.stream()
+                .map(AnnotationMirror.class::cast)
+                .filter(annotation -> {
+                    var annotationType = annotation.getAnnotationType();
+                    var annotationTypeElement = (TypeElement) annotationType.asElement();
+
+                    return canAnnotateElementType(annotationTypeElement, target);
+                })
+                .toList();
+    }
+
+    private static boolean canAnnotateElementType(TypeElement annotation, ElementType target) {
         return getAnnotation(annotation, Target.class)
                 .map(Target::value)
                 .map(Arrays::stream)
-                .map(elementTypes -> elementTypes.anyMatch(elementType -> elementType == targetType))
+                .map(elementTypes -> elementTypes.anyMatch(elementType -> elementType == target))
                 .orElse(true);
     }
 }

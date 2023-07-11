@@ -1,3 +1,4 @@
+@API(status = INTERNAL)
 package pl.com.labaj.autorecord.processor.generator;
 
 /*-
@@ -16,10 +17,6 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import org.apiguardian.api.API;
 
-public interface RecordGenerator {
-    void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder);
-}
+import static org.apiguardian.api.API.Status.INTERNAL;

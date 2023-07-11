@@ -19,9 +19,9 @@ package pl.com.labaj.autorecord.processor.generator;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.processor.context.InternalContext;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 
 class BuilderOptionsSubGenerator {
-    void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
+    void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
         var methods = RecordBuilder.Options.class.getDeclaredMethods();
         var optionsDifferentThanDefault = Arrays.stream(methods)
                 .map(method -> BuilderOption.fromMethod(context.builderOptions(), method))
@@ -49,7 +49,7 @@ class BuilderOptionsSubGenerator {
         recordBuilder.addAnnotation(optionsAnnotationBuilder.build());
     }
 
-    private void addMember(StaticImportsCollector staticImports, AnnotationSpec.Builder optionsAnnotationBuilder, BuilderOption option) {
+    private void addMember(StaticImports staticImports, AnnotationSpec.Builder optionsAnnotationBuilder, BuilderOption option) {
         var name = option.name;
         var actualValue = option.actualValue;
         var returnType = option.type;
@@ -67,13 +67,13 @@ class BuilderOptionsSubGenerator {
         }
     }
 
-    private String getArrayStatement(StaticImportsCollector staticImports, Object[] actualValue) {
+    private String getArrayStatement(StaticImports staticImports, Object[] actualValue) {
         return Arrays.stream(actualValue)
                 .map(value -> getItemStatement(staticImports, value))
                 .collect(joining(", ", "{", "}"));
     }
 
-    private String getItemStatement(StaticImportsCollector staticImports, Object value) {
+    private String getItemStatement(StaticImports staticImports, Object value) {
         var valueClass = value.getClass();
         if (valueClass.isPrimitive()) {
             return String.valueOf(value);

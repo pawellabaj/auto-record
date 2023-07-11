@@ -18,9 +18,9 @@ package pl.com.labaj.autorecord.processor.generator;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
+import pl.com.labaj.autorecord.context.RecordComponent;
+import pl.com.labaj.autorecord.context.StaticImports;
 
-import javax.lang.model.element.ExecutableElement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -31,18 +31,17 @@ import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.HASH_CODE;
-import static pl.com.labaj.autorecord.processor.utils.Methods.returnsArray;
 
 class HashCodeSubGenerator {
 
     private static final String OBJECTS_HASH = "hash";
 
-    void generate(StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder, boolean isHashCodeMemoized, List<ExecutableElement> requiredProperties) {
+    void generate(StaticImports staticImports, TypeSpec.Builder recordBuilder, boolean isHashCodeMemoized, List<RecordComponent> components) {
         var methodName = (isHashCodeMemoized ? "_" : "") + HASH_CODE;
-        var format = requiredProperties.stream()
+        var format = components.stream()
                 .map(this::methodStatementFormat)
                 .collect(joining(", ", "return " + OBJECTS_HASH + "(", ")"));
-        var arguments = requiredProperties.stream()
+        var arguments = components.stream()
                 .flatMap(this::methodStatementArguments)
                 .toArray();
 
@@ -61,11 +60,11 @@ class HashCodeSubGenerator {
         recordBuilder.addMethod(hashCodeMethod);
     }
 
-    private String methodStatementFormat(ExecutableElement method) {
-        return returnsArray(method) ? "$T.hashCode($N)" : "$N";
+    private String methodStatementFormat(RecordComponent recordComponent) {
+        return recordComponent.isArray() ? "$T.hashCode($N)" : "$N";
     }
 
-    private Stream<Object> methodStatementArguments(ExecutableElement method) {
-        return returnsArray(method) ? Stream.of(Arrays.class, method.getSimpleName()) : Stream.of(method.getSimpleName());
+    private Stream<Object> methodStatementArguments(RecordComponent recordComponent) {
+        return recordComponent.isArray() ? Stream.of(Arrays.class, recordComponent.name()) : Stream.of(recordComponent.name());
     }
 }

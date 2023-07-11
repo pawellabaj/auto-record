@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.utils;
+package pl.com.labaj.autorecord.processor;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,47 +16,60 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
+import pl.com.labaj.autorecord.context.Logger;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
+import static javax.tools.Diagnostic.Kind.MANDATORY_WARNING;
 import static javax.tools.Diagnostic.Kind.NOTE;
+import static javax.tools.Diagnostic.Kind.OTHER;
+import static javax.tools.Diagnostic.Kind.WARNING;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
-public class Logger {
+class MessagerLogger implements Logger {
 
     private final Messager messager;
     private final Element elementContext;
 
-    public Logger(Messager messager, Element elementContext) {
+    MessagerLogger(Messager messager, Element elementContext) {
         this.messager = messager;
         this.elementContext = elementContext;
     }
 
-    public void debug(String message) {
+    @Override
+    public void info(String message) {
         messager.printMessage(NOTE, message, elementContext);
     }
 
-    public void warn(String message) {
-        messager.printMessage(Diagnostic.Kind.WARNING, processorMessage(message), elementContext);
+    @Override
+    public void warning(String message) {
+        printMessage(WARNING, message);
     }
 
+    @Override
+    public void mandatoryWarning(String message) {
+        printMessage(MANDATORY_WARNING, message);
+    }
+
+    @Override
     public void error(String message) {
-        messager.printMessage(ERROR, processorMessage(message), elementContext);
+        printMessage(ERROR, message);
     }
 
+    @Override
     public void error(String message, Throwable throwable) {
-        if (throwable instanceof AutoRecordProcessorException) {
-            error(throwable.getLocalizedMessage());
-        } else {
-            messager.printMessage(ERROR, processorMessage(message) + ": " + getStackTrace(throwable), elementContext);
-        }
+        printMessage(ERROR, message + ": " + getStackTrace(throwable));
     }
 
-    private String processorMessage(String message) {
-        return "AutoRecordProcessor: " + message;
+    @Override
+    public void other(String message) {
+        printMessage(OTHER, message);
+    }
+
+    private void printMessage(Diagnostic.Kind kind, String message) {
+        messager.printMessage(kind, "AutoRecordProcessor: " + message, elementContext);
     }
 }

@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.utils;
+package pl.com.labaj.autorecord.processor;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -17,16 +17,20 @@ package pl.com.labaj.autorecord.processor.utils;
  */
 
 import com.squareup.javapoet.ClassName;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
+import org.apiguardian.api.API;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
-public class StaticImports implements StaticImportsCollector {
+import static org.apiguardian.api.API.Status.INTERNAL;
 
-    final Map<ClassName, Set<String>> items = new HashMap<>();
+@API(status = INTERNAL)
+class StaticImportsCollectors implements pl.com.labaj.autorecord.context.StaticImports {
+
+    final Map<ClassName, Set<String>> statements = new HashMap<>();
 
     @Override
     public void add(Class<?> aClass, String name) {
@@ -40,11 +44,11 @@ public class StaticImports implements StaticImportsCollector {
 
     @Override
     public void add(ClassName className, String name) {
-        items.computeIfAbsent(className, cName -> new HashSet<>())
+        statements.computeIfAbsent(className, cName -> new HashSet<>())
                 .add(name);
     }
 
-    public Map<ClassName, Set<String>> items() {
-        return items;
+    void forEach(BiConsumer<ClassName, String[]> importConsumer) {
+        statements.forEach((className, names) -> importConsumer.accept(className, names.toArray(String[]::new)));
     }
 }

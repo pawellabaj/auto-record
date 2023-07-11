@@ -18,18 +18,23 @@ package pl.com.labaj.autorecord.processor.context;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.context.Logger;
+import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
-import pl.com.labaj.autorecord.processor.utils.Generics;
-import pl.com.labaj.autorecord.processor.utils.Logger;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.util.Elements;
+import java.util.List;
 
+import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.annotationsAllowedFor;
 import static pl.com.labaj.autorecord.processor.utils.Methods.hasParameters;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isVoid;
 
@@ -54,20 +59,13 @@ public class ContextBuilder {
         this.logger = logger;
     }
 
-    public GenerationContext buildContext() {
+    public InternalContext buildContext() {
         var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
 
         boolean isPublic = sourceInterface.getModifiers().contains(PUBLIC);
-        var propertyMetods = elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(Methods::isMethod)
-                .map(ExecutableElement.class::cast)
-                .filter(Methods::isAbstract)
-                .filter(this::hasNoParameters)
-                .filter(this::doesNotReturnVoid)
-                .filter(InternalMethod::isNotInternal)
-                .filter(SpecialMethod::isNotSpecial)
-                .toList();
-        var specialMethods = elementUtils.getAllMembers(sourceInterface).stream()
+        var allMembers = elementUtils.getAllMembers(sourceInterface);
+        var typeParameters = getTypeParameters();
+        var specialMethods = allMembers.stream()
                 .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .filter(Methods::isAbstract)
@@ -76,19 +74,38 @@ public class ContextBuilder {
                 .filter(SpecialMethod::isSpecial)
                 .collect(toMap(SpecialMethod::fromMethod, identity()));
 
-        return new GenerationContext(
-                isPublic,
-                getInterfaceName(),
-                sourceInterface.asType(),
+        return new InternalContext(getPackageName(),
                 recordOptions,
                 builderOptions,
-                propertyMetods,
+                isPublic,
+                sourceInterface.asType(),
+                getInterfaceName(),
+                getComponents(allMembers),
+                typeParameters,
+                new Generics(typeParameters),
                 specialMethods,
-                new Generics(sourceInterface.getTypeParameters()),
                 memoization,
-                getPackageName(),
                 createRecordName(),
                 logger);
+    }
+
+    private List<RecordComponent> getComponents(List<? extends Element> allMembers) {
+        return allMembers.stream()
+                .filter(Methods::isMethod)
+                .map(ExecutableElement.class::cast)
+                .filter(Methods::isAbstract)
+                .filter(this::hasNoParameters)
+                .filter(this::doesNotReturnVoid)
+                .filter(InternalMethod::isNotInternal)
+                .filter(SpecialMethod::isNotSpecial)
+                .map(this::toRecordComponent)
+                .toList();
+    }
+
+    private List<TypeParameterElement> getTypeParameters() {
+        return sourceInterface.getTypeParameters().stream()
+                .map(TypeParameterElement.class::cast)
+                .toList();
     }
 
     private String getPackageName() {
@@ -125,5 +142,13 @@ public class ContextBuilder {
         }
 
         return true;
+    }
+
+    private RecordComponent toRecordComponent(ExecutableElement method) {
+        var type = method.getReturnType();
+        var name = method.getSimpleName().toString();
+        var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), TYPE_PARAMETER);
+
+        return new RecordComponent(type, name, annotations);
     }
 }

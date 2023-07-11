@@ -24,15 +24,15 @@ import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.context.RecordComponent;
+import pl.com.labaj.autorecord.context.StaticImports;
+import pl.com.labaj.autorecord.processor.context.InternalContext;
 import pl.com.labaj.autorecord.processor.context.Memoization;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
-import pl.com.labaj.autorecord.processor.utils.Methods;
+import pl.com.labaj.autorecord.processor.utils.Annotations;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 import java.util.Objects;
@@ -52,14 +52,14 @@ class BasicGenerator implements RecordGenerator {
     private static final String OBJECTS_REQUIRE_NON_NULL_ELSE_GET = "requireNonNullElseGet";
 
     @Override
-    public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
         recordBuilder
                 .addAnnotation(GENERATED_ANNOTATION)
                 .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
                 .addModifiers(getMainModifiers(context))
-                .addSuperinterface(context.superType());
+                .addSuperinterface(context.interfaceType());
 
-        var recordComponentParameters = context.propertyMethods().stream()
+        var recordComponentParameters = context.components().stream()
                 .map(this::toParameterSpec)
                 .toList();
 
@@ -69,7 +69,7 @@ class BasicGenerator implements RecordGenerator {
         createCompactConstructor(context, recordBuilder, staticImports);
     }
 
-    private void generateComponents(GenerationContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
+    private void generateComponents(InternalContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
         recordBuilder.addRecordComponents(recordComponentParameters);
 
         context.memoization()
@@ -78,12 +78,12 @@ class BasicGenerator implements RecordGenerator {
                         .forEach(recordBuilder::addRecordComponent));
     }
 
-    private void generateTypeVariables(GenerationContext context, TypeSpec.Builder recordBuilder) {
+    private void generateTypeVariables(InternalContext context, TypeSpec.Builder recordBuilder) {
         context.generics()
-                .ifPresent((variables, types) -> recordBuilder.addTypeVariables(variables));
+                .ifPresent(recordBuilder::addTypeVariables);
     }
 
-    private void createAdditionalConstructor(GenerationContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
+    private void createAdditionalConstructor(InternalContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
         context.memoization()
                 .ifPresent(items -> {
                     var constructorCallStatement = Stream.concat(
@@ -105,11 +105,11 @@ class BasicGenerator implements RecordGenerator {
                 });
     }
 
-    private void createCompactConstructor(GenerationContext context, TypeSpec.Builder recordBuilder, StaticImportsCollector staticImports) {
-        var nonNullNames = context.propertyMethods().stream()
-                .filter(Methods::doesNotReturnPrimitive)
-                .filter(method -> Methods.isNotAnnotatedWith(method, Nullable.class))
-                .map(ExecutableElement::getSimpleName)
+    private void createCompactConstructor(InternalContext context, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+        var nonNullNames = context.components().stream()
+                .filter(RecordComponent::isNotPrimitive)
+                .filter(rc -> rc.isNotAnnotatedWith(Nullable.class))
+                .map(RecordComponent::name)
                 .toList();
 
         var memoization = context.memoization();
@@ -144,13 +144,12 @@ class BasicGenerator implements RecordGenerator {
         recordBuilder.compactConstructor(compactConstructor);
     }
 
-    private ParameterSpec toParameterSpec(ExecutableElement method) {
-        var type = TypeName.get(method.getReturnType());
-        var name = method.getSimpleName().toString();
-        var methodAnnotation = createAnnotationSpecs(method.getAnnotationMirrors(), TYPE_PARAMETER);
+    private ParameterSpec toParameterSpec(RecordComponent recordComponent) {
+        var type = TypeName.get(recordComponent.type());
+        var annotations = Annotations.createAnnotationSpecs(recordComponent.annotations());
 
-        return ParameterSpec.builder(type, name)
-                .addAnnotations(methodAnnotation)
+        return ParameterSpec.builder(type, recordComponent.name())
+                .addAnnotations(annotations)
                 .build();
     }
 
@@ -168,7 +167,7 @@ class BasicGenerator implements RecordGenerator {
                 .build();
     }
 
-    private Modifier[] getMainModifiers(GenerationContext context) {
+    private Modifier[] getMainModifiers(InternalContext context) {
         return context.isRecordPublic() ? new Modifier[] {PUBLIC} : new Modifier[0];
     }
 }
