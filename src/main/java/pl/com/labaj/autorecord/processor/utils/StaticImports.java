@@ -16,22 +16,35 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ClassName;
+import pl.com.labaj.autorecord.processor.StaticImportsCollector;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class StaticImports {
+public class StaticImports implements StaticImportsCollector {
 
-    private final List<Item> items = new ArrayList<>();
+    final Map<ClassName, Set<String>> items = new HashMap<>();
 
-    public void addTo(JavaFile.Builder javaFileBuilder) {
-        items.forEach(staticImport -> javaFileBuilder.addStaticImport(staticImport.aClass(), staticImport.name()));
-    }
-
+    @Override
     public void add(Class<?> aClass, String name) {
-        items.add(new Item(aClass, name));
+        add(ClassName.get(aClass), name);
     }
 
-    private record Item(Class<?> aClass, String name) {}
+    @Override
+    public void add(Enum<?> constant) {
+        add(ClassName.get(constant.getDeclaringClass()), constant.name());
+    }
+
+    @Override
+    public void add(ClassName className, String name) {
+        items.computeIfAbsent(className, cName -> new HashSet<>())
+                .add(name);
+    }
+
+    public Map<ClassName, Set<String>> items() {
+        return items;
+    }
 }

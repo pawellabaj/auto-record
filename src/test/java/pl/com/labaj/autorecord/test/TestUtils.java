@@ -22,8 +22,6 @@ import org.assertj.core.api.Assertions;
 
 public final class TestUtils {
     private static final String TEST_PACKAGE = "pl.com.labaj.autorecord.testcase";
-    private static final String TEST_RESOURCE_PATH = TEST_PACKAGE.replaceAll("\\.", "/");
-
     private TestUtils() {}
 
     public static CompilationAssert assertThat(Compilation actual) {
@@ -35,14 +33,14 @@ public final class TestUtils {
     }
 
     public static String inputResourceName(String interfaceName) {
-        return "in/" + TEST_RESOURCE_PATH + "/" + interfaceName + ".java";
+        return "in/" + interfaceName + ".java";
     }
 
     public static String expectedResourceName(String interfaceName) {
-        return "out/" + TEST_RESOURCE_PATH + "/" + interfaceName + "Record.java";
+        return "out/" + interfaceName + "Record.java";
     }
 
-    public static String generatedRecordName(String interfaceName) {
+    public static String expectedGenearatedRecordName(String interfaceName) {
         return TEST_PACKAGE + "." + interfaceName + "Record";
     }
 

@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -17,17 +17,14 @@ package pl.com.labaj.autorecord.processor.memoization;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.Memoized;
 
 @AutoRecord
 @AutoRecord.Options(withBuilder = true)
-interface WithBuilderMemoizedMethod {
+public interface WithBuilder {
+    String one();
 
-    WithBuilderMemoizedMethodRecordBuilder toBuilder();
+    int two();
 
-    @Memoized
-    default String aMethod() {
-        return "A";
-    }
+    WithBuilderRecordBuilder toBuilder();
 }
 

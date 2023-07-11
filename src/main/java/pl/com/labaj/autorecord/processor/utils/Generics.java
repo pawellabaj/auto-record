@@ -21,18 +21,24 @@ import com.squareup.javapoet.TypeVariableName;
 
 import javax.lang.model.element.TypeParameterElement;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public final class Generics {
-    private Generics() {}
+    private final List<TypeVariableName> variableNames;
+    private final List<TypeVariableName> typeNames;
 
+    public Generics(List<? extends TypeParameterElement> typeParameters) {
+        variableNames = getGenericVariableNames(typeParameters);
+        typeNames = getGenericTypeNames(typeParameters);
+    }
 
-    public static List<TypeVariableName> getGenericVariableNames(List<? extends TypeParameterElement> typeParameters) {
+    private List<TypeVariableName> getGenericVariableNames(List<? extends TypeParameterElement> typeParameters) {
         return typeParameters.stream()
-                .map(Generics::toVariableName)
+                .map(this::toVariableName)
                 .toList();
     }
 
-    private static TypeVariableName toVariableName(TypeParameterElement typeParameterElement) {
+    private TypeVariableName toVariableName(TypeParameterElement typeParameterElement) {
         var name = typeParameterElement.asType().toString();
         var bounds = typeParameterElement.getBounds().stream()
                 .map(TypeName::get)
@@ -41,10 +47,24 @@ public final class Generics {
         return TypeVariableName.get(name, bounds);
     }
 
-    public static List<TypeVariableName> getGenericTypeNames(List<? extends TypeParameterElement> typeParameters) {
+    private List<TypeVariableName> getGenericTypeNames(List<? extends TypeParameterElement> typeParameters) {
         return typeParameters.stream()
                 .map(Object::toString)
                 .map(TypeVariableName::get)
                 .toList();
+    }
+
+    public void ifPresent(BiConsumer<List<TypeVariableName>, List<TypeVariableName>> typeConsumer) {
+        if (!(variableNames.isEmpty() || typeNames.isEmpty())) {
+            typeConsumer.accept(variableNames, typeNames);
+        }
+    }
+
+    public void ifPresentOrElse(BiConsumer<List<TypeVariableName>, List<TypeVariableName>> typeConsumer, Runnable emptyAction) {
+        if (!(variableNames.isEmpty() || typeNames.isEmpty())) {
+            typeConsumer.accept(variableNames, typeNames);
+        } else {
+            emptyAction.run();
+        }
     }
 }

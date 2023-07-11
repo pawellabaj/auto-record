@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor.tostring;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,16 +18,17 @@ package pl.com.labaj.autorecord.processor.memoization;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Memoized;
+import pl.com.labaj.autorecord.test.Counters;
 
 @AutoRecord
-@AutoRecord.Options(withBuilder = true)
-interface WithBuilderMemoizedMethod {
+public interface ToStringMemoizedByAnnotation {
+    String one();
 
-    WithBuilderMemoizedMethodRecordBuilder toBuilder();
+    int two();
+
+    Counters three();
 
     @Memoized
-    default String aMethod() {
-        return "A";
-    }
+    @Override
+    String toString();
 }
-

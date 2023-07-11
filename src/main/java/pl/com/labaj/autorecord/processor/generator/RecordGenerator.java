@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,18 +16,10 @@ package pl.com.labaj.autorecord.processor.memoization;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.Memoized;
+import com.squareup.javapoet.TypeSpec;
+import pl.com.labaj.autorecord.processor.StaticImportsCollector;
+import pl.com.labaj.autorecord.processor.context.GenerationContext;
 
-@AutoRecord
-@AutoRecord.Options(withBuilder = true)
-interface WithBuilderMemoizedMethod {
-
-    WithBuilderMemoizedMethodRecordBuilder toBuilder();
-
-    @Memoized
-    default String aMethod() {
-        return "A";
-    }
+public interface RecordGenerator {
+    void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder);
 }
-

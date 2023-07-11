@@ -20,4 +20,8 @@ public class AutoRecordProcessorException extends RuntimeException {
     public AutoRecordProcessorException(String message) {
         super(message);
     }
+
+    public AutoRecordProcessorException(String message, Throwable cause) {
+        super(message + " caused by " + cause.getLocalizedMessage());
+    }
 }

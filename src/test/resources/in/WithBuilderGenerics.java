@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -17,17 +17,15 @@ package pl.com.labaj.autorecord.processor.memoization;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.Memoized;
+import java.util.Map;
 
 @AutoRecord
 @AutoRecord.Options(withBuilder = true)
-interface WithBuilderMemoizedMethod {
+interface WithBuilderGenerics<K, V extends Number> {
+    String one();
 
-    WithBuilderMemoizedMethodRecordBuilder toBuilder();
+    Map<K, V> two();
 
-    @Memoized
-    default String aMethod() {
-        return "A";
-    }
+    WithBuilderGenericsRecordBuilder<K, V> toBuilder();
 }
 

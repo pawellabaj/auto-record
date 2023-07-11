@@ -73,16 +73,14 @@ public final class Annotations {
     public static <A extends Annotation> Optional<A> getAnnotation(Element element, Class<A> annotationClass) {
         return Optional.ofNullable(element.getAnnotation(annotationClass));
     }
-
-    public static <A extends Annotation> A getDefaultAnnotationIfNotPresent(Element element, Class<A> annotationClass) {
-        return getAnnotation(element, annotationClass)
-                .orElseGet(() -> getAnnotationWithDefaults(annotationClass));
+    public static <A extends Annotation> A createAnnotationIfNeeded(@Nullable A annotation, Class<A> annotationClass) {
+        return createAnnotationIfNeeded(annotation, annotationClass, Map.of());
     }
 
     @SuppressWarnings("unchecked")
-    public static <A extends Annotation> A getAnnotationWithEnforcedValues(@Nullable A annotation,
-                                                                           Class<A> annotationClass,
-                                                                           Map<String, Object> enforcedValues) {
+    public static <A extends Annotation> A createAnnotationIfNeeded(@Nullable A annotation,
+                                                                    Class<A> annotationClass,
+                                                                    Map<String, Object> enforcedValues) {
         return (A) Proxy.newProxyInstance(
                 annotationClass.getClassLoader(),
                 new Class[] {annotationClass},
@@ -93,14 +91,6 @@ public final class Annotations {
                     }
                     return isNull(annotation) ? method.getDefaultValue() : method.invoke(annotation);
                 });
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <A extends Annotation> A getAnnotationWithDefaults(Class<A> annotationClass) {
-        return (A) Proxy.newProxyInstance(
-                annotationClass.getClassLoader(),
-                new Class[] {annotationClass},
-                (proxy, method, args) -> method.getDefaultValue());
     }
 
     private static boolean canAnnotateElementType(TypeElement annotation, ElementType targetType) {

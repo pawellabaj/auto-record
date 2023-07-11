@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,18 +16,12 @@ package pl.com.labaj.autorecord.processor.memoization;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.Memoized;
+import com.squareup.javapoet.ClassName;
 
-@AutoRecord
-@AutoRecord.Options(withBuilder = true)
-interface WithBuilderMemoizedMethod {
+public interface StaticImportsCollector {
+    void add(Class<?> aClass, String name);
 
-    WithBuilderMemoizedMethodRecordBuilder toBuilder();
+    void add(Enum<?> constant);
 
-    @Memoized
-    default String aMethod() {
-        return "A";
-    }
+    void add(ClassName className, String name);
 }
-

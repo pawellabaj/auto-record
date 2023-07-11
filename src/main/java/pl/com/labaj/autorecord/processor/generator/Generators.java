@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.memoization;
+package pl.com.labaj.autorecord.processor.generator;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,18 +16,20 @@ package pl.com.labaj.autorecord.processor.memoization;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.Memoized;
+import java.util.List;
 
-@AutoRecord
-@AutoRecord.Options(withBuilder = true)
-interface WithBuilderMemoizedMethod {
+public final class Generators {
+    private static final List<RecordGenerator> GENERATOR_CONSTRUCTORS = List.of(
+            new BasicGenerator(),
+            new MemoizationGenerator(),
+            new HashCodeEqualsGenerator(),
+            new ToStringGenerator(),
+            new BuilderGenerator()
+    );
 
-    WithBuilderMemoizedMethodRecordBuilder toBuilder();
+    private Generators() {}
 
-    @Memoized
-    default String aMethod() {
-        return "A";
+    public static List<RecordGenerator> generators() {
+        return GENERATOR_CONSTRUCTORS;
     }
 }
-
