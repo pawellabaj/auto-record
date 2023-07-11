@@ -24,9 +24,10 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.context.StaticImports;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -34,38 +35,56 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static java.util.stream.Collectors.joining;
+import static pl.com.labaj.autorecord.processor.context.ProcessorContext.TO_BUILDER;
 
-class BuilderGenerator implements RecordGenerator {
-    BuilderOptionsSubGenerator builderOptionsSubGenerator = new BuilderOptionsSubGenerator();
-
-    BuilderMethodSubGenerator builderMethodSubGenerator = new BuilderMethodSubGenerator();
-    ToBuilderMethodSubGenerator toBuilderMethodSubGenerator = new ToBuilderMethodSubGenerator();
+class BuilderGenerator extends RecordGenerator {
+    BuilderOptionsSubGenerator builderOptionsSubGenerator;
+    BuilderMethodSubGenerator builderMethodSubGenerator;
+    ToBuilderMethodSubGenerator toBuilderMethodSubGenerator;
 
     private static final AnnotationSpec BUILDER_ANNOTATION = AnnotationSpec.builder(RecordBuilder.class).build();
 
+    BuilderGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        super(context, extensions);
+        builderOptionsSubGenerator = new BuilderOptionsSubGenerator(context);
+        builderMethodSubGenerator = new BuilderMethodSubGenerator(context);
+        toBuilderMethodSubGenerator = new ToBuilderMethodSubGenerator(context);
+    }
+
     @Override
-    public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
-        if (!context.recordOptions().withBuilder()) {
+    public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+        if (!shouldGenerate()) {
             return;
         }
 
         recordBuilder.addAnnotation(BUILDER_ANNOTATION);
 
-        builderOptionsSubGenerator.generate(context, staticImports, recordBuilder);
-        builderMethodSubGenerator.generate(context, recordBuilder);
-        toBuilderMethodSubGenerator.generate(context, recordBuilder);
+        builderOptionsSubGenerator.generate(recordBuilder, staticImports);
+        builderMethodSubGenerator.generate(recordBuilder);
+        toBuilderMethodSubGenerator.generate(recordBuilder);
+    }
+
+    private boolean shouldGenerate() {
+        return context.recordOptions().withBuilder() || context.getSpecialMethodAnnotations(TO_BUILDER).isPresent();
     }
 
     abstract static class MethodSubGenerator {
-        void generate(GenerationContext context, TypeSpec.Builder recordBuilder) {
-            var recordBuilderName = recordBuilderName(context);
+        protected final ProcessorContext context;
+
+        MethodSubGenerator(ProcessorContext context) {
+            this.context = context;
+        }
+
+        void generate(TypeSpec.Builder recordBuilder) {
+            var recordBuilderName = recordBuilderName();
             var returnedClassName = ClassName.get(context.packageName(), recordBuilderName);
 
-            var methodBuilder = MethodSpec.methodBuilder(methodName())
-                    .addModifiers(modifiers(context));
+            var methodBuilder = methodBuilder(methodName())
+                    .addModifiers(modifiers());
 
-            annotations(context).ifPresent(methodBuilder::addAnnotations);
+            annotations().ifPresent(methodBuilder::addAnnotations);
 
             var statementFormat = new StringBuilder();
             var statementArguments = new ArrayList<>();
@@ -73,14 +92,14 @@ class BuilderGenerator implements RecordGenerator {
             statementArguments.add(recordBuilderName);
 
             context.generics().ifPresentOrElse(
-                    (variables, types) -> {
+                    (types, names) -> {
                         statementFormat.append("return $L.")
-                                .append(variablesStatement(variables))
+                                .append(variablesStatement(names))
                                 .append("$L(").append(methodArgument()).append(")");
 
                         statementArguments.addAll(types);
 
-                        genericVariableConsumer().accept(methodBuilder, variables);
+                        genericVariableConsumer().accept(methodBuilder, names);
                         methodBuilder.returns(ParameterizedTypeName.get(returnedClassName, types.toArray(TypeName[]::new)));
                     },
                     () -> {
@@ -88,7 +107,7 @@ class BuilderGenerator implements RecordGenerator {
                         methodBuilder.returns(returnedClassName);
                     });
 
-            statementArguments.add(methodToCallName(context));
+            statementArguments.add(methodToCallName());
 
             context.memoization().ifPresent(
                     items -> items.forEach(item -> {
@@ -108,17 +127,17 @@ class BuilderGenerator implements RecordGenerator {
 
         protected abstract String methodName();
 
-        protected abstract Modifier[] modifiers(GenerationContext context);
+        protected abstract Modifier[] modifiers();
 
-        protected abstract Optional<List<AnnotationSpec>> annotations(GenerationContext context);
+        protected abstract Optional<List<AnnotationSpec>> annotations();
 
         protected abstract String methodArgument();
 
-        private String recordBuilderName(GenerationContext context) {
+        private String recordBuilderName() {
             return context.recordName() + context.builderOptions().suffix();
         }
 
-        protected abstract String methodToCallName(GenerationContext context);
+        protected abstract String methodToCallName();
 
         protected abstract BiConsumer<MethodSpec.Builder, List<TypeVariableName>> genericVariableConsumer();
 

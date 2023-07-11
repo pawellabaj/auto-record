@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,12 +16,16 @@ package pl.com.labaj.autorecord.processor;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.ClassName;
+import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.extension.compact.AlwaysCompactConstructorExtension;
+import pl.com.labaj.autorecord.extension.compact.WhenProcessorCompactConstructorExtension;
 
-public interface StaticImportsCollector {
-    void add(Class<?> aClass, String name);
+import javax.annotation.Nullable;
 
-    void add(Enum<?> constant);
-
-    void add(ClassName className, String name);
+@AutoRecord
+@AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = {"Alpha", "Bravo"})
+@AutoRecord.Extension(extensionClass = WhenProcessorCompactConstructorExtension.class)
+interface WithOnlyCompactConstructorExtension {
+    @Nullable
+    String property();
 }

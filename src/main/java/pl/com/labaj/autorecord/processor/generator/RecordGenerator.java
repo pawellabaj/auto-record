@@ -17,9 +17,21 @@ package pl.com.labaj.autorecord.processor.generator;
  */
 
 import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.context.StaticImports;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
-public interface RecordGenerator {
-    void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder);
+import java.util.List;
+
+public abstract class RecordGenerator {
+
+    protected final ProcessorContext context;
+    protected final List<AutoRecordExtension> extensions;
+
+    RecordGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        this.context = context;
+        this.extensions = extensions;
+    }
+
+    public abstract void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports);
 }

@@ -40,7 +40,8 @@ class GenerationWithBuilderTest {
             "WithBuilder",
             "WithBuilderOptions",
             "WithBuilderGenerics",
-            "WithBuilderMemoizedMethod"
+            "WithBuilderMemoizedMethod",
+            "WithBuilderBySpecialMethod"
     })
     void shouldGenerateRecordAndBuilder(String interfaceName) {
         //given

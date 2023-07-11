@@ -19,9 +19,9 @@ package pl.com.labaj.autorecord.processor.generator;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -31,10 +31,18 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 
 class BuilderOptionsSubGenerator {
-    void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
-        var methods = RecordBuilder.Options.class.getDeclaredMethods();
+    private static final Class<RecordBuilder.Options> RECORD_BUILDER_OPTIONS_CLASS = RecordBuilder.Options.class;
+    private final ProcessorContext context;
+
+    BuilderOptionsSubGenerator(ProcessorContext context) {
+        this.context = context;
+    }
+
+    void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+        var builderOptions = context.builderOptions();
+        var methods = RECORD_BUILDER_OPTIONS_CLASS.getDeclaredMethods();
         var optionsDifferentThanDefault = Arrays.stream(methods)
-                .map(method -> BuilderOption.fromMethod(context.builderOptions(), method))
+                .map(method -> BuilderOption.of(builderOptions, method))
                 .filter(BuilderOption::actualDifferentThanDefault)
                 .sorted(comparing(BuilderOption::name))
                 .toList();
@@ -43,37 +51,37 @@ class BuilderOptionsSubGenerator {
             return;
         }
 
-        var optionsAnnotationBuilder = AnnotationSpec.builder(RecordBuilder.Options.class);
+        var optionsAnnotationBuilder = AnnotationSpec.builder(RECORD_BUILDER_OPTIONS_CLASS);
         optionsDifferentThanDefault.forEach(option -> addMember(staticImports, optionsAnnotationBuilder, option));
 
         recordBuilder.addAnnotation(optionsAnnotationBuilder.build());
     }
 
-    private void addMember(StaticImportsCollector staticImports, AnnotationSpec.Builder optionsAnnotationBuilder, BuilderOption option) {
+    private void addMember(StaticImports staticImports, AnnotationSpec.Builder annotationBuilder, BuilderOption option) {
         var name = option.name;
         var actualValue = option.actualValue;
         var returnType = option.type;
 
         if (returnType.isPrimitive()) {
-            optionsAnnotationBuilder.addMember(name, "$L", actualValue);
+            annotationBuilder.addMember(name, "$L", actualValue);
         } else if (option.type().isEnum()) {
             var enumName = ((Enum<?>) actualValue).name();
             staticImports.add(returnType, enumName);
-            optionsAnnotationBuilder.addMember(name, "$L", enumName);
+            annotationBuilder.addMember(name, "$L", enumName);
         } else if (returnType.isArray()) {
-            optionsAnnotationBuilder.addMember(name, getArrayStatement(staticImports, (Object[]) actualValue));
+            annotationBuilder.addMember(name, getArrayStatement(staticImports, (Object[]) actualValue));
         } else {
-            optionsAnnotationBuilder.addMember(name, "$S", actualValue);
+            annotationBuilder.addMember(name, "$S", actualValue);
         }
     }
 
-    private String getArrayStatement(StaticImportsCollector staticImports, Object[] actualValue) {
+    private String getArrayStatement(StaticImports staticImports, Object[] actualValue) {
         return Arrays.stream(actualValue)
                 .map(value -> getItemStatement(staticImports, value))
                 .collect(joining(", ", "{", "}"));
     }
 
-    private String getItemStatement(StaticImportsCollector staticImports, Object value) {
+    private String getItemStatement(StaticImports staticImports, Object value) {
         var valueClass = value.getClass();
         if (valueClass.isPrimitive()) {
             return String.valueOf(value);
@@ -88,20 +96,9 @@ class BuilderOptionsSubGenerator {
         return "\"" + value + "\"";
     }
 
-    private static final class BuilderOption {
-        private final String name;
-        private final Class<?> type;
-        private final Object defaultValue;
-        private final Object actualValue;
+    private record BuilderOption(String name, Class<?> type, Object defaultValue, Object actualValue) {
 
-        BuilderOption(String name, Class<?> type, Object defaultValue, Object actualValue) {
-            this.name = name;
-            this.type = type;
-            this.defaultValue = defaultValue;
-            this.actualValue = actualValue;
-        }
-
-        static BuilderOption fromMethod(RecordBuilder.Options builderOptions, Method method) {
+        static BuilderOption of(RecordBuilder.Options builderOptions, Method method) {
             return new BuilderOption(method.getName(), method.getReturnType(), method.getDefaultValue(), getActualValue(builderOptions, method));
         }
 
@@ -109,7 +106,7 @@ class BuilderOptionsSubGenerator {
             try {
                 return method.invoke(builderOptions);
             } catch (Exception e) {
-                throw new AutoRecordProcessorException("Cannot get RecordBuilder.Options.%s value".formatted(method.getName()), e);
+                throw new AutoRecordProcessorException("Cannot get RecordBuilder.Options." + method.getName() + " value", e);
             }
         }
 
@@ -117,15 +114,8 @@ class BuilderOptionsSubGenerator {
             if (type.isArray()) {
                 return !Arrays.equals((Object[]) defaultValue, (Object[]) actualValue);
             }
+
             return !Objects.equals(defaultValue, actualValue);
-        }
-
-        private String name() {
-            return name;
-        }
-
-        public Class<?> type() {
-            return type;
         }
     }
 }

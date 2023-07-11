@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>Auto Record</name>
@@ -9,8 +10,12 @@
     <groupId>pl.com.labaj</groupId>
     <artifactId>auto-record</artifactId>
     <version>2.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
+
+    <modules>
+        <module>extensions/auto-record-test-extensions</module>
+    </modules>
 
     <properties>
         <java.version>17</java.version>
@@ -19,6 +24,7 @@
         <project.build.outputTimestamp>2023-07-03T11:23:03Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
@@ -40,6 +46,7 @@
         <assertj.version>3.24.2</assertj.version>
         <compile-testing.version>0.21.0</compile-testing.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
+        <apiguardian-api.version>1.1.2</apiguardian-api.version>
         <maven-surefire-plugin.argLine>
             --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
@@ -68,6 +75,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apiguardian</groupId>
+            <artifactId>apiguardian-api</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -131,6 +143,12 @@
                 <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apiguardian</groupId>
+                <artifactId>apiguardian-api</artifactId>
+                <version>${apiguardian-api.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit-jupiter.version}</version>
@@ -155,6 +173,26 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-resources</id>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>default-testResources</id>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                        <phase>process-test-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
@@ -204,11 +242,6 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <testExcludes>
-                                <exclude>**/pl/com/labaj/autorecord/testcase/**/*</exclude>
-                            </testExcludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -227,6 +260,41 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-testJar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <installAtEnd>true</installAtEnd>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
@@ -236,6 +304,11 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven-resources-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -322,6 +395,7 @@
                     --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
                     --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
                 </maven-surefire-plugin.argLine>
+                <sonar.coverage.exclusions>src/main/test-extensions/**/*</sonar.coverage.exclusions>
             </properties>
 
             <build>
@@ -391,15 +465,19 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
+                            <verbose>true</verbose>
+                            <detectJavaApiLink>true</detectJavaApiLink>
                             <subpackages>pl.com.labaj.autorecord</subpackages>
-                            <excludePackageNames>pl.com.labaj.autorecord.processor:pl.com.labaj.autorecord.processor.*</excludePackageNames>
+                            <excludePackageNames>pl.com.labaj.autorecord.processor.*</excludePackageNames>
                             <links>
-                                <link>https://docs.oracle.com/en/java/javase/${java.version}/docs/api/</link>
+                                <link>https://javadoc.io/doc/com.squareup/javapoet/latest</link>
                                 <link>https://javadoc.io/doc/io.soabase.record-builder/record-builder-core/${record-builder.version}</link>
+                                <link>https://javadoc.io/doc/org.apiguardian/apiguardian-api/${apiguardian-api.version}</link>
                             </links>
                             <notimestamp>true</notimestamp>
                             <failOnWarnings>false</failOnWarnings>
                             <failOnError>false</failOnError>
+                            <sourcepath>${project.build.sourceDirectory}</sourcepath>
                         </configuration>
                         <executions>
                             <execution>
@@ -433,6 +511,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <configuration>
+                            <prepareVerifyArgs>-Dmaven.test.skip=true</prepareVerifyArgs>
                             <scmCommentPrefix>[ci skip]</scmCommentPrefix>
                             <tagNameFormat>v@{project.version}</tagNameFormat>
                         </configuration>

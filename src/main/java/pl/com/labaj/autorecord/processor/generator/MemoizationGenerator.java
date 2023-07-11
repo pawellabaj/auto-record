@@ -21,36 +21,40 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.processor.StaticImportsCollector;
-import pl.com.labaj.autorecord.processor.context.GenerationContext;
+import pl.com.labaj.autorecord.context.StaticImports;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.Memoization;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
-import pl.com.labaj.autorecord.processor.utils.Annotations;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.List;
 
 import static java.lang.annotation.ElementType.METHOD;
-import static java.util.Collections.emptyList;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 
-class MemoizationGenerator implements RecordGenerator {
+class MemoizationGenerator extends RecordGenerator {
+
+    MemoizationGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        super(context, extensions);
+    }
 
     @Override
-    public void generate(GenerationContext context, StaticImportsCollector staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         context.memoization().ifPresent(items -> items.stream()
-                .map(item -> toMemoizedMethodSpec(context, item))
+                .map(this::toMemoizedMethodSpec)
                 .forEach(recordBuilder::addMethod));
     }
 
-    private MethodSpec toMemoizedMethodSpec(GenerationContext context, Memoization.Item item) {
+    private MethodSpec toMemoizedMethodSpec(Memoization.Item item) {
         var name = item.name();
-        var annotations = Annotations.createAnnotationSpecs(item.annotations(),
+        var annotations = createAnnotationSpecs(item.annotations(),
                 METHOD,
                 List.of(Memoized.class, Override.class),
-                emptyList());
+                List.of());
         var memoizerType = MemoizerType.from(item.type());
 
-        var statement = methodStatement(context, item, name, memoizerType);
+        var statement = methodStatement(item, name, memoizerType);
 
         return MethodSpec.methodBuilder(name)
                 .addModifiers(PUBLIC)
@@ -60,7 +64,7 @@ class MemoizationGenerator implements RecordGenerator {
                 .build();
     }
 
-    private CodeBlock methodStatement(GenerationContext context, Memoization.Item item, String name, MemoizerType memoizerType) {
+    private CodeBlock methodStatement(Memoization.Item item, String name, MemoizerType memoizerType) {
         var memoizerName = item.getMemoizerName();
         var computeMethod = memoizerType.computeMethod();
 

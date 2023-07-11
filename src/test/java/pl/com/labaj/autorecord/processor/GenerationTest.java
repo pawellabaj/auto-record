@@ -92,7 +92,8 @@ class GenerationTest {
         //then
         assertAll(
                 () -> assertThat(compilation).succeeded(),
-                () -> assertThat(compilation).generatedSourceFile(expectedGenearatedRecordName("NestedInterface_Intermediate_Internal")).hasSourceEquivalentTo(expectedRecord)
+                () -> assertThat(compilation).generatedSourceFile(expectedGenearatedRecordName("NestedInterface_Intermediate_Internal"))
+                        .hasSourceEquivalentTo(expectedRecord)
         );
     }
 }

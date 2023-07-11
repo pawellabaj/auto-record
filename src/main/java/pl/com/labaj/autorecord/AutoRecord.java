@@ -17,8 +17,11 @@ package pl.com.labaj.autorecord;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.extension.AutoRecordExtensions;
 
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -77,6 +80,19 @@ public @interface AutoRecord {
     }
 
     /**
+     * @since 2.1.0
+     */
+    @Retention(SOURCE)
+    @Target({ANNOTATION_TYPE, TYPE})
+    @Inherited
+    @Repeatable(AutoRecordExtensions.class)
+    @interface Extension {
+        Class<? extends AutoRecordExtension> extensionClass();
+
+        String[] parameters() default {};
+    }
+
+    /**
      * Provides a base to create custom annotation that can be used to mark interfaces for record generation.
      *
      * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization#creating-a-custom-annotation">Custom Annotation Wiki</a>
@@ -98,8 +114,14 @@ public @interface AutoRecord {
          * {@link Options#withBuilder() withBuilder()}.
          *
          * @return options for builder generation
-         *@see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
+         * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
          */
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
+
+        /**
+         * @return
+         * @since 2.1.0
+         */
+        AutoRecord.Extension[] extensions() default {};
     }
 }

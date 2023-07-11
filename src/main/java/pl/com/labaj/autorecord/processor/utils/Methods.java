@@ -22,7 +22,6 @@ import java.lang.annotation.Annotation;
 
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
-import static javax.lang.model.type.TypeKind.ARRAY;
 import static javax.lang.model.type.TypeKind.VOID;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 
@@ -33,43 +32,19 @@ public final class Methods {
         return element.getKind() == METHOD;
     }
 
-    public static boolean hasParameters(ExecutableElement method) {
-        return !hasNoParameters(method);
-    }
-
     public static boolean hasNoParameters(ExecutableElement method) {
         return method.getParameters().isEmpty();
     }
 
     public static boolean isNotVoid(ExecutableElement method) {
-        return !isVoid(method);
-    }
-
-    public static boolean isVoid(ExecutableElement method) {
-        return method.getReturnType().getKind() == VOID;
+        return method.getReturnType().getKind() != VOID;
     }
 
     public static boolean isAbstract(ExecutableElement method) {
         return method.getModifiers().contains(ABSTRACT);
     }
 
-    public static boolean doesNotReturnPrimitive(ExecutableElement method) {
-        return !returnsPrimitive(method);
-    }
-
-    public static boolean returnsPrimitive(ExecutableElement method) {
-        return method.getReturnType().getKind().isPrimitive();
-    }
-
-    public static boolean returnsArray(ExecutableElement method) {
-        return method.getReturnType().getKind() == ARRAY;
-    }
-
     public static boolean isAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {
         return getAnnotation(method, annotationClass).isPresent();
-    }
-
-    public static boolean isNotAnnotatedWith(ExecutableElement method, Class<? extends Annotation> annotationClass) {
-        return !isAnnotatedWith(method, annotationClass);
     }
 }

@@ -34,9 +34,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.UnknownTypeException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 public enum MemoizerType {
     BOOLEAN(TypeKind.BOOLEAN, BooleanMemoizer.class, "computeAsBooleanIfAbsent"),
@@ -51,7 +51,8 @@ public enum MemoizerType {
     DECLARED(TypeKind.DECLARED, Memoizer.class, Constants.COMPUTE_IF_ABSENT),
     TYPEVAR(TypeKind.TYPEVAR, Memoizer.class, Constants.COMPUTE_IF_ABSENT);
 
-    private static final Map<TypeKind, MemoizerType> MEMOIZERS_BY_KIND = Arrays.stream(values()).collect(Collectors.toMap(MemoizerType::kind, identity()));
+    private static final Map<TypeKind, MemoizerType> MEMOIZERS_BY_KIND = Arrays.stream(values())
+            .collect(toMap(MemoizerType::kind, identity()));
     private final TypeKind kind;
     private final Class<?> memoizerClass;
     private final String computeMethod;
@@ -103,7 +104,7 @@ public enum MemoizerType {
 
         @Override
         public String getMessage() {
-            return super.getMessage() + ": Can't get MemoizerType with %s kind".formatted(type.getKind());
+            return super.getMessage() + (": Can't get MemoizerType with " + type.getKind() + " kind");
         }
     }
 

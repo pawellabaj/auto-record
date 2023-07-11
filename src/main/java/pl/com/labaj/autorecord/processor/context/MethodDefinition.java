@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.test;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,19 +16,8 @@ package pl.com.labaj.autorecord.test;
  * limitations under the License.
  */
 
-import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.annotation.Testable;
+import java.util.List;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-@Target(METHOD)
-@Retention(value = RUNTIME)
-@Testable
-@Test
-public @interface TestFor {
-    Class<?> value();
+@SuppressWarnings("rawtypes")
+public record MethodDefinition(String methodName, List<Class> parameterClasses) {
 }

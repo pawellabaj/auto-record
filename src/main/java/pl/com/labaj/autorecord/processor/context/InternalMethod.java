@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -81,7 +80,7 @@ public enum InternalMethod {
 
     public static boolean isInternal(ExecutableElement method) {
         var methodName = method.getSimpleName().toString();
-        return METHOD_NAMES.contains(methodName);
+        return METHOD_NAMES.contains(methodName) && method.getParameters().isEmpty();
     }
 
     public static boolean isNotInternal(ExecutableElement method) {
@@ -113,7 +112,7 @@ public enum InternalMethod {
 
         @Override
         public List<? extends AnnotationMirror> getAnnotationMirrors() {
-            return emptyList();
+            return List.of();
         }
 
         @Override

@@ -16,20 +16,26 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+
 import java.util.List;
+import java.util.function.BiFunction;
 
 public final class Generators {
-    private static final List<RecordGenerator> GENERATOR_CONSTRUCTORS = List.of(
-            new BasicGenerator(),
-            new MemoizationGenerator(),
-            new HashCodeEqualsGenerator(),
-            new ToStringGenerator(),
-            new BuilderGenerator()
+    private static final List<BiFunction<ProcessorContext, List<AutoRecordExtension>, RecordGenerator>> GENERATOR_CONSTRUCTORS = List.of(
+            BasicGenerator::new,
+            MemoizationGenerator::new,
+            HashCodeEqualsGenerator::new,
+            ToStringGenerator::new,
+            BuilderGenerator::new
     );
 
     private Generators() {}
 
-    public static List<RecordGenerator> generators() {
-        return GENERATOR_CONSTRUCTORS;
+    public static List<RecordGenerator> generators(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        return GENERATOR_CONSTRUCTORS.stream()
+                .map(constructor -> constructor.apply(context, extensions))
+                .toList();
     }
 }

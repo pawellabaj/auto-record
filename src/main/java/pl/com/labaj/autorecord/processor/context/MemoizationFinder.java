@@ -22,46 +22,42 @@ import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
-import static javax.lang.model.element.Modifier.PUBLIC;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toMap;
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.allInternalMethods;
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.isInternal;
 import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
 
-public class MemoizationFinder {
-    private final Elements elementUtils;
-
-    public MemoizationFinder(Elements elementUtils) {
-        this.elementUtils = elementUtils;
-    }
-
-    public Memoization findMemoization(TypeElement sourceInterface, AutoRecord.Options recordOptions) {
+class MemoizationFinder {
+    List<Memoization.Item> findMemoizationItems(List<ExecutableElement> allMethods, AutoRecord.Options recordOptions, Predicate<ExecutableElement> isSpecial) {
         var itemsFromOptions = allInternalMethods()
                 .filter(internalMethod -> internalMethod.isMemoizedInOptions(recordOptions))
-                .map(internalMethod -> new Memoization.Item(internalMethod.type(), internalMethod.methodName(), emptyList(), Set.of(PUBLIC), true));
+                .map(internalMethod -> new Memoization.Item(internalMethod.type(), internalMethod.methodName(), List.of(), true));
 
-        var itemsFromAnnotation = elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(Methods::isMethod)
-                .map(ExecutableElement.class::cast)
+        var itemsFromAnnotation = allMethods.stream()
                 .filter(method -> isAnnotatedWith(method, Memoized.class))
-                .filter(Methods::hasNoParameters)
                 .filter(Methods::isNotVoid)
-                .filter(SpecialMethod::isNotSpecial)
-                .map(this::toMemoizedItem);
+                .map(method -> toMemoizedItem(method, isSpecial));
 
-        var items = Stream.concat(itemsFromOptions, itemsFromAnnotation)
-                .distinct()
-                .toList();
-
-        return new Memoization(items);
+        return Stream.concat(itemsFromOptions, itemsFromAnnotation)
+                .collect(collectingAndThen(
+                        toMap(
+                                Memoization.Item::name,
+                                identity(),
+                                Memoization.Item::mergeWith,
+                                LinkedHashMap::new
+                        ),
+                        map -> List.copyOf(map.values())
+                ));
     }
 
-    private Memoization.Item toMemoizedItem(ExecutableElement method) {
+    private Memoization.Item toMemoizedItem(ExecutableElement method, Predicate<ExecutableElement> isSpecial) {
         var annotations = method.getAnnotationMirrors().stream()
                 .map(AnnotationMirror.class::cast)
                 .toList();
@@ -69,7 +65,6 @@ public class MemoizationFinder {
         return new Memoization.Item(method.getReturnType(),
                 method.getSimpleName().toString(),
                 annotations,
-                method.getModifiers(),
-                isInternal(method));
+                isInternal(method) || isSpecial.test(method));
     }
 }
