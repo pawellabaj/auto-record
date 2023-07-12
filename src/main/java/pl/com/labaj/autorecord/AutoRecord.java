@@ -17,8 +17,11 @@ package pl.com.labaj.autorecord;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.extension.AutoRecordExtensions;
 
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -76,6 +79,16 @@ public @interface AutoRecord {
         boolean memoizedToString() default false;
     }
 
+    @Retention(SOURCE)
+    @Target({ANNOTATION_TYPE, TYPE})
+    @Inherited
+    @Repeatable(AutoRecordExtensions.class)
+    @interface ExtendWith {
+        Class<? extends AutoRecordExtension> extension();
+
+        String[] parameters() default {};
+    }
+
     /**
      * Provides a base to create custom annotation that can be used to mark interfaces for record generation.
      *
@@ -101,5 +114,7 @@ public @interface AutoRecord {
          *@see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
          */
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
+
+        AutoRecord.ExtendWith[] extendWith() default {};
     }
 }

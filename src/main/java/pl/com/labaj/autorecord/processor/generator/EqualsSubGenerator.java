@@ -19,7 +19,7 @@ package pl.com.labaj.autorecord.processor.generator;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.context.RecordComponent;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ class EqualsSubGenerator {
     private static final String RETURN_TRUE_STATEMENT = "return true";
     private static final String RETURN_FALSE_STATEMENT = "return false";
 
-    void generate(InternalContext context, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<RecordComponent> components) {
+    void generate(ProcessorContext context, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<RecordComponent> components) {
         var recordName = context.recordName();
 
         var equalsMethodBuilder = MethodSpec.methodBuilder("equals")

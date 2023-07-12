@@ -26,10 +26,11 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 import pl.com.labaj.autorecord.processor.context.Memoization;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
-import pl.com.labaj.autorecord.processor.utils.Annotations;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
@@ -40,6 +41,7 @@ import java.util.stream.Stream;
 
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 
@@ -52,7 +54,7 @@ class BasicGenerator implements RecordGenerator {
     private static final String OBJECTS_REQUIRE_NON_NULL_ELSE_GET = "requireNonNullElseGet";
 
     @Override
-    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         recordBuilder
                 .addAnnotation(GENERATED_ANNOTATION)
                 .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
@@ -66,10 +68,10 @@ class BasicGenerator implements RecordGenerator {
         generateTypeVariables(context, recordBuilder);
         generateComponents(context, recordBuilder, recordComponentParameters);
         createAdditionalConstructor(context, recordBuilder, recordComponentParameters);
-        createCompactConstructor(context, recordBuilder, staticImports);
+        createCompactConstructor(context, extensions, recordBuilder, staticImports);
     }
 
-    private void generateComponents(InternalContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
+    private void generateComponents(ProcessorContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
         recordBuilder.addRecordComponents(recordComponentParameters);
 
         context.memoization()
@@ -78,12 +80,12 @@ class BasicGenerator implements RecordGenerator {
                         .forEach(recordBuilder::addRecordComponent));
     }
 
-    private void generateTypeVariables(InternalContext context, TypeSpec.Builder recordBuilder) {
+    private void generateTypeVariables(ProcessorContext context, TypeSpec.Builder recordBuilder) {
         context.generics()
                 .ifPresent(recordBuilder::addTypeVariables);
     }
 
-    private void createAdditionalConstructor(InternalContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
+    private void createAdditionalConstructor(ProcessorContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
         context.memoization()
                 .ifPresent(items -> {
                     var constructorCallStatement = Stream.concat(
@@ -105,16 +107,52 @@ class BasicGenerator implements RecordGenerator {
                 });
     }
 
-    private void createCompactConstructor(InternalContext context, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+    private void createCompactConstructor(ProcessorContext context,
+                                          List<AutoRecordExtension> extensions,
+                                          TypeSpec.Builder recordBuilder,
+                                          StaticImports staticImports) {
         var nonNullNames = context.components().stream()
                 .filter(RecordComponent::isNotPrimitive)
                 .filter(rc -> rc.isNotAnnotatedWith(Nullable.class))
                 .map(RecordComponent::name)
                 .toList();
 
+//        var className = "pl.com.labaj.autorecord.extension.AlwaysCompactConstructorExtension";
+//        try {
+//
+//            ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+////                                                                var aClass = Class.forName(className, true, systemClassLoader);
+//            var aClass = Class.forName(className, true, systemClassLoader);
+//            var ext = aClass.getDeclaredConstructor().newInstance();
+//            var extension = (AutoRecordExtension) ext;
+////            extension.setParameters(params);
+//        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+//                 InvocationTargetException | NoSuchMethodException e) {
+//            throw new AutoRecordProcessorException("Cannot " + className, e);
+//        }
+
+
+
+
+
         var memoization = context.memoization();
 
-        if (nonNullNames.isEmpty() && memoization.isEmpty()) {
+        var compactConstructorExtensions = extensions.stream()
+                .filter(CompactConstructorExtension.class::isInstance)
+                .map(CompactConstructorExtension.class::cast)
+                .toList();
+
+        var generatedByProcessor = !nonNullNames.isEmpty() || !memoization.isEmpty();
+        var generatedByExtensions = compactConstructorExtensions.stream()
+                .collect(toMap(
+                        Object::hashCode,
+                        extension -> extension.shouldGenerate(generatedByProcessor, context)
+                ));
+        context.logger().info("Extensions: " + generatedByExtensions);
+        var generatedByAtLeastOneExtension = generatedByExtensions.values().stream()
+                .reduce(false, (g1, g2) -> g1 || g2);
+
+        if (!generatedByProcessor && !generatedByAtLeastOneExtension) {
             return;
         }
 
@@ -146,7 +184,7 @@ class BasicGenerator implements RecordGenerator {
 
     private ParameterSpec toParameterSpec(RecordComponent recordComponent) {
         var type = TypeName.get(recordComponent.type());
-        var annotations = Annotations.createAnnotationSpecs(recordComponent.annotations());
+        var annotations = createAnnotationSpecs(recordComponent.annotations());
 
         return ParameterSpec.builder(type, recordComponent.name())
                 .addAnnotations(annotations)
@@ -167,7 +205,7 @@ class BasicGenerator implements RecordGenerator {
                 .build();
     }
 
-    private Modifier[] getMainModifiers(InternalContext context) {
+    private Modifier[] getMainModifiers(ProcessorContext context) {
         return context.isRecordPublic() ? new Modifier[] {PUBLIC} : new Modifier[0];
     }
 }

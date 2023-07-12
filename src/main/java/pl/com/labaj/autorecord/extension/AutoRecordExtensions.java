@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.generator;
+package pl.com.labaj.autorecord.extension;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,13 +16,19 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.extension.AutoRecordExtension;
-import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+import pl.com.labaj.autorecord.AutoRecord;
 
-import java.util.List;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-public interface RecordGenerator {
-    void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports);
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
+@Retention(SOURCE)
+@Target({ANNOTATION_TYPE, TYPE})
+@Inherited
+public @interface AutoRecordExtensions {
+    AutoRecord.ExtendWith[] value();
 }

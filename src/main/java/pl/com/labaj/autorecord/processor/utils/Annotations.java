@@ -34,13 +34,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.isNull;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 
 public final class Annotations {
     private Annotations() {}
+
+    public static <A extends Annotation> Optional<A> getAnnotation(Element element, Class<A> annotationClass) {
+        return Optional.ofNullable(element.getAnnotation(annotationClass));
+    }
+
+    public static <A extends Annotation> List<A> getAnnotations(TypeElement element, Class<A> annotationClass) {
+        return List.of(element.getAnnotationsByType(annotationClass));
+    }
 
     public static List<AnnotationSpec> createAnnotationSpecs(List<AnnotationMirror> annotations) {
         return annotations.stream()
@@ -53,11 +60,7 @@ public final class Annotations {
                 .toList();
     }
 
-    public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors, ElementType target) {
-        return createAnnotationSpecs(annotationMirrors, target, emptyList(), emptyList());
-    }
-
-    public static List<AnnotationSpec> createAnnotationSpecs(List<? extends AnnotationMirror> annotationMirrors,
+    public static List<AnnotationSpec> createAnnotationSpecs(List<AnnotationMirror> annotationMirrors,
                                                              ElementType target,
                                                              List<Class<? extends Annotation>> annotationsToAdd,
                                                              List<Class<? extends Annotation>> annotationsToExclude) {
@@ -79,10 +82,6 @@ public final class Annotations {
                 .map(AnnotationSpec::builder)
                 .map(AnnotationSpec.Builder::build)
                 .toList();
-    }
-
-    public static <A extends Annotation> Optional<A> getAnnotation(Element element, Class<A> annotationClass) {
-        return Optional.ofNullable(element.getAnnotation(annotationClass));
     }
 
     public static <A extends Annotation> A createAnnotationIfNeeded(@Nullable A annotation, Class<A> annotationClass) {

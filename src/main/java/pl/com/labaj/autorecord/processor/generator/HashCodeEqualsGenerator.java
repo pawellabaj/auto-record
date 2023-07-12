@@ -20,7 +20,10 @@ import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Ignored;
 import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+
+import java.util.List;
 
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.HASH_CODE;
 
@@ -29,7 +32,7 @@ class HashCodeEqualsGenerator implements RecordGenerator {
     private final EqualsSubGenerator equalsSubGenerator = new EqualsSubGenerator();
 
     @Override
-    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         var isHashCodeMemoized = context.recordOptions().memoizedHashCode() || context.memoization().isMemoized(HASH_CODE);
 
         if (!shouldGenerate(context, isHashCodeMemoized)) {
@@ -44,7 +47,7 @@ class HashCodeEqualsGenerator implements RecordGenerator {
         equalsSubGenerator.generate(context, recordBuilder, isHashCodeMemoized, requiredComponents);
     }
 
-    private boolean shouldGenerate(InternalContext context, boolean isHashCodeMemoized) {
+    private boolean shouldGenerate(ProcessorContext context, boolean isHashCodeMemoized) {
         var atLeastOneIgnored = context.components().stream()
                 .anyMatch(recordComponent -> recordComponent.isAnnotatedWith(Ignored.class));
 

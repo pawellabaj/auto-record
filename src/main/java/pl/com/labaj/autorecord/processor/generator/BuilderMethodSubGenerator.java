@@ -19,7 +19,7 @@ package pl.com.labaj.autorecord.processor.generator;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeVariableName;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
@@ -37,12 +37,12 @@ class BuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected Modifier[] modifiers(InternalContext context) {
+    protected Modifier[] modifiers(ProcessorContext context) {
         return context.isRecordPublic() ? new Modifier[] {PUBLIC, STATIC} : new Modifier[] {STATIC};
     }
 
     @Override
-    protected Optional<List<AnnotationSpec>> annotations(InternalContext context) {
+    protected Optional<List<AnnotationSpec>> annotations(ProcessorContext context) {
         return Optional.empty();
     }
 
@@ -57,7 +57,7 @@ class BuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected String methodToCallName(InternalContext context) {
+    protected String methodToCallName(ProcessorContext context) {
         return context.builderOptions().builderMethodName();
     }
 }

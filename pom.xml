@@ -218,6 +218,7 @@
                             <goal>testCompile</goal>
                         </goals>
                         <configuration>
+                            <verbose>false</verbose>
                             <testExcludes>
                                 <exclude>**/pl/com/labaj/autorecord/testcase/**/*</exclude>
                             </testExcludes>
@@ -249,6 +250,11 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>${license-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -335,10 +341,29 @@
                     --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
                     --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
                 </maven-surefire-plugin.argLine>
+                <sonar.coverage.exclusions>src/main/test-extensions/**/*</sonar.coverage.exclusions>
             </properties>
 
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/main/test-extensions/</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
@@ -448,6 +473,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <configuration>
+                            <prepareVerifyArgs>-Dmaven.test.skip=true</prepareVerifyArgs>
                             <scmCommentPrefix>[ci skip]</scmCommentPrefix>
                             <tagNameFormat>v@{project.version}</tagNameFormat>
                         </configuration>

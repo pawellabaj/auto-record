@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.generator;
+package pl.com.labaj.autorecord.extension;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,13 +16,20 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeSpec;
+import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.extension.AutoRecordExtension;
-import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
-import java.util.List;
+import static pl.com.labaj.autorecord.extension.ContentOperation.ATTACH;
 
-public interface RecordGenerator {
-    void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports);
+public interface CompactConstructorExtension extends AutoRecordExtension {
+    default boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
+        return isGeneratedByProcessor;
+    }
+    default ContentOperation contentOperation() {
+        return ATTACH;
+    }
+
+    CodeBlock generateContent(Context context, TypeSpec.Builder recordBuilder, StaticImports staticImports);
 }

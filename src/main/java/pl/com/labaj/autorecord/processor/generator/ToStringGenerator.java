@@ -20,9 +20,11 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -34,7 +36,7 @@ import static pl.com.labaj.autorecord.processor.context.InternalMethod.TO_STRING
 public class ToStringGenerator implements RecordGenerator {
 
     @Override
-    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         var isToStringMemoized = context.recordOptions().memoizedToString() || context.memoization().isMemoized(TO_STRING);
 
         if (!shouldGenerate(context, isToStringMemoized)) {
@@ -61,7 +63,7 @@ public class ToStringGenerator implements RecordGenerator {
         recordBuilder.addMethod(toStringMethod);
     }
 
-    private boolean shouldGenerate(InternalContext context, boolean isToStringMemoized) {
+    private boolean shouldGenerate(ProcessorContext context, boolean isToStringMemoized) {
         var atLeastOneArray = context.components().stream()
                 .anyMatch(RecordComponent::isArray);
 

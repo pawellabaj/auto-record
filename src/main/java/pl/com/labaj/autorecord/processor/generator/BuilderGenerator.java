@@ -25,8 +25,9 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static java.util.stream.Collectors.joining;
+import static pl.com.labaj.autorecord.processor.context.ProcessorContext.TO_BUILDER;
 
 class BuilderGenerator implements RecordGenerator {
     BuilderOptionsSubGenerator builderOptionsSubGenerator = new BuilderOptionsSubGenerator();
@@ -45,8 +47,8 @@ class BuilderGenerator implements RecordGenerator {
     private static final AnnotationSpec BUILDER_ANNOTATION = AnnotationSpec.builder(RecordBuilder.class).build();
 
     @Override
-    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
-        if (!context.recordOptions().withBuilder()) {
+    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+        if (!shouldGenerate(context)) {
             return;
         }
 
@@ -57,8 +59,12 @@ class BuilderGenerator implements RecordGenerator {
         toBuilderMethodSubGenerator.generate(context, recordBuilder);
     }
 
+    private boolean shouldGenerate(ProcessorContext context) {
+        return context.recordOptions().withBuilder() || context.getSpecialMethodAnnotations(TO_BUILDER).isPresent();
+    }
+
     abstract static class MethodSubGenerator {
-        void generate(InternalContext context, TypeSpec.Builder recordBuilder) {
+        void generate(ProcessorContext context, TypeSpec.Builder recordBuilder) {
             var recordBuilderName = recordBuilderName(context);
             var returnedClassName = ClassName.get(context.packageName(), recordBuilderName);
 
@@ -108,17 +114,17 @@ class BuilderGenerator implements RecordGenerator {
 
         protected abstract String methodName();
 
-        protected abstract Modifier[] modifiers(InternalContext context);
+        protected abstract Modifier[] modifiers(ProcessorContext context);
 
-        protected abstract Optional<List<AnnotationSpec>> annotations(InternalContext context);
+        protected abstract Optional<List<AnnotationSpec>> annotations(ProcessorContext context);
 
         protected abstract String methodArgument();
 
-        private String recordBuilderName(InternalContext context) {
+        private String recordBuilderName(ProcessorContext context) {
             return context.recordName() + context.builderOptions().suffix();
         }
 
-        protected abstract String methodToCallName(InternalContext context);
+        protected abstract String methodToCallName(ProcessorContext context);
 
         protected abstract BiConsumer<MethodSpec.Builder, List<TypeVariableName>> genericVariableConsumer();
 

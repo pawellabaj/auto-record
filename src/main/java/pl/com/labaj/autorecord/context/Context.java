@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.generator;
+package pl.com.labaj.autorecord.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,13 +16,31 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.extension.AutoRecordExtension;
-import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+import io.soabase.recordbuilder.core.RecordBuilder;
+import pl.com.labaj.autorecord.AutoRecord;
 
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
-public interface RecordGenerator {
-    void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports);
+public interface Context {
+    String packageName();
+
+    AutoRecord.Options recordOptions();
+
+    RecordBuilder.Options builderOptions();
+
+    boolean isRecordPublic();
+
+    TypeMirror interfaceType();
+
+    String interfaceName();
+
+    List<RecordComponent> components();
+
+    List<TypeParameterElement> typeParameters();
+
+    String recordName();
+
+    Logger logger();
 }

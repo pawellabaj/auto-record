@@ -22,32 +22,32 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.Memoization;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 import pl.com.labaj.autorecord.processor.utils.Annotations;
 
 import java.util.List;
 
 import static java.lang.annotation.ElementType.METHOD;
-import static java.util.Collections.emptyList;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 class MemoizationGenerator implements RecordGenerator {
 
     @Override
-    public void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
+    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         context.memoization().ifPresent(items -> items.stream()
                 .map(item -> toMemoizedMethodSpec(context, item))
                 .forEach(recordBuilder::addMethod));
     }
 
-    private MethodSpec toMemoizedMethodSpec(InternalContext context, Memoization.Item item) {
+    private MethodSpec toMemoizedMethodSpec(ProcessorContext context, Memoization.Item item) {
         var name = item.name();
         var annotations = Annotations.createAnnotationSpecs(item.annotations(),
                 METHOD,
                 List.of(Memoized.class, Override.class),
-                emptyList());
+                List.of());
         var memoizerType = MemoizerType.from(item.type());
 
         var statement = methodStatement(context, item, name, memoizerType);
@@ -60,7 +60,7 @@ class MemoizationGenerator implements RecordGenerator {
                 .build();
     }
 
-    private CodeBlock methodStatement(InternalContext context, Memoization.Item item, String name, MemoizerType memoizerType) {
+    private CodeBlock methodStatement(ProcessorContext context, Memoization.Item item, String name, MemoizerType memoizerType) {
         var memoizerName = item.getMemoizerName();
         var computeMethod = memoizerType.computeMethod();
 

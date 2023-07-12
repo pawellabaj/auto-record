@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.generator;
+package pl.com.labaj.autorecord.extension;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,13 +16,6 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
-import com.squareup.javapoet.TypeSpec;
-import pl.com.labaj.autorecord.context.StaticImports;
-import pl.com.labaj.autorecord.extension.AutoRecordExtension;
-import pl.com.labaj.autorecord.processor.context.ProcessorContext;
-
-import java.util.List;
-
-public interface RecordGenerator {
-    void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports);
+public enum ContentOperation {
+    ATTACH, PRECEDE, REPLACE
 }

@@ -22,11 +22,13 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.context.Logger;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.ContextBuilder;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import java.util.List;
 import java.util.Map;
 
 import static org.apiguardian.api.API.Status.INTERNAL;
@@ -38,14 +40,17 @@ class RecordJavaFileBuilder {
     private static final Map<String, Object> BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
 
     private final ContextBuilder contextBuilder;
+    private final List<AutoRecordExtension> extensions;
 
     RecordJavaFileBuilder(TypeElement sourceInterface,
                           @Nullable AutoRecord.Options recordOptions,
                           @Nullable RecordBuilder.Options builderOptions,
+                          List<AutoRecordExtension> extensions,
                           ProcessingEnvironment processingEnv,
                           Logger logger) {
         var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
         var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, BUILDER_OPTIONS_ENFORCED_VALUES);
+        this.extensions = extensions;
 
         contextBuilder = new ContextBuilder(processingEnv.getElementUtils(), sourceInterface, nonNullRecordOptions, nonNullBuilderOptions, logger);
     }
@@ -56,7 +61,7 @@ class RecordJavaFileBuilder {
         var recordBuilder = TypeSpec.recordBuilder(context.recordName());
 
         generators()
-                .forEach(generator -> generator.generate(context, staticImports, recordBuilder));
+                .forEach(generator -> generator.generate(context, extensions, recordBuilder, staticImports));
 
         return buildJavaFile(context.packageName(), staticImports, recordBuilder.build());
     }

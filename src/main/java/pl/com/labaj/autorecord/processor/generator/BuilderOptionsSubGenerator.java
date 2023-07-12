@@ -21,7 +21,7 @@ import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 
 class BuilderOptionsSubGenerator {
-    void generate(InternalContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
+    void generate(ProcessorContext context, StaticImports staticImports, TypeSpec.Builder recordBuilder) {
         var methods = RecordBuilder.Options.class.getDeclaredMethods();
         var optionsDifferentThanDefault = Arrays.stream(methods)
                 .map(method -> BuilderOption.fromMethod(context.builderOptions(), method))

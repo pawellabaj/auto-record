@@ -19,39 +19,31 @@ package pl.com.labaj.autorecord.processor.context;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.context.Logger;
-import pl.com.labaj.autorecord.context.RecordComponent;
-import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.util.Elements;
 import java.util.List;
 
-import static java.lang.annotation.ElementType.TYPE_PARAMETER;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.utils.Annotations.annotationsAllowedFor;
-import static pl.com.labaj.autorecord.processor.utils.Methods.hasParameters;
-import static pl.com.labaj.autorecord.processor.utils.Methods.isVoid;
 
 public class ContextBuilder {
-    private final MemoizationFinder memoizationFinder;
     private final Elements elementUtils;
     private final TypeElement sourceInterface;
     private final AutoRecord.Options recordOptions;
     private final RecordBuilder.Options builderOptions;
     private final Logger logger;
+    private final MemoizationFinder memoizationFinder = new MemoizationFinder();
+    private final SpecialMethodsFinder specialMethodsFinder = new SpecialMethodsFinder();
+    private final ComponentsFinder componentsFinder = new ComponentsFinder();
 
     public ContextBuilder(Elements elementUtils,
                           TypeElement sourceInterface,
                           AutoRecord.Options recordOptions,
                           RecordBuilder.Options builderOptions,
                           Logger logger) {
-        memoizationFinder = new MemoizationFinder(elementUtils);
         this.elementUtils = elementUtils;
         this.sourceInterface = sourceInterface;
         this.recordOptions = recordOptions;
@@ -59,47 +51,32 @@ public class ContextBuilder {
         this.logger = logger;
     }
 
-    public InternalContext buildContext() {
-        var memoization = memoizationFinder.findMemoization(sourceInterface, recordOptions);
-
-        boolean isPublic = sourceInterface.getModifiers().contains(PUBLIC);
-        var allMembers = elementUtils.getAllMembers(sourceInterface);
-        var typeParameters = getTypeParameters();
-        var specialMethods = allMembers.stream()
+    public ProcessorContext buildContext() {
+        var allMethods = elementUtils.getAllMembers(sourceInterface).stream()
                 .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
-                .filter(Methods::isAbstract)
-                .filter(Methods::hasNoParameters)
-                .filter(Methods::isNotVoid)
-                .filter(SpecialMethod::isSpecial)
-                .collect(toMap(SpecialMethod::fromMethod, identity()));
+                .toList();
 
-        return new InternalContext(getPackageName(),
+        boolean isPublic = sourceInterface.getModifiers().contains(PUBLIC);
+        var typeParameters = getTypeParameters();
+
+        var specialMethodAnnotations = specialMethodsFinder.findSpecialMethods(allMethods);
+        var memoizationItems = memoizationFinder.findMemoizationItems(allMethods, recordOptions, specialMethodsFinder::isSpecial);
+        var components = componentsFinder.getComponents(allMethods, specialMethodsFinder::isNotSpecial);
+
+        return new ProcessorContext(getPackageName(),
                 recordOptions,
                 builderOptions,
                 isPublic,
                 sourceInterface.asType(),
                 getInterfaceName(),
-                getComponents(allMembers),
+                components,
                 typeParameters,
                 new Generics(typeParameters),
-                specialMethods,
-                memoization,
+                specialMethodAnnotations,
+                new Memoization(memoizationItems),
                 createRecordName(),
                 logger);
-    }
-
-    private List<RecordComponent> getComponents(List<? extends Element> allMembers) {
-        return allMembers.stream()
-                .filter(Methods::isMethod)
-                .map(ExecutableElement.class::cast)
-                .filter(Methods::isAbstract)
-                .filter(this::hasNoParameters)
-                .filter(this::doesNotReturnVoid)
-                .filter(InternalMethod::isNotInternal)
-                .filter(SpecialMethod::isNotSpecial)
-                .map(this::toRecordComponent)
-                .toList();
     }
 
     private List<TypeParameterElement> getTypeParameters() {
@@ -126,29 +103,5 @@ public class ContextBuilder {
 
     private String createRecordName() {
         return getInterfaceName().replace('.', '_') + "Record";
-    }
-
-    private boolean hasNoParameters(ExecutableElement method) {
-        if (hasParameters(method)) {
-            throw new AutoRecordProcessorException("The interface cannot have abstract method with parameters: %s".formatted(method.getSimpleName()));
-        }
-
-        return true;
-    }
-
-    private boolean doesNotReturnVoid(ExecutableElement method) {
-        if (isVoid(method)) {
-            throw new AutoRecordProcessorException("The interface cannot have abstract method returning void: %s".formatted(method.getSimpleName()));
-        }
-
-        return true;
-    }
-
-    private RecordComponent toRecordComponent(ExecutableElement method) {
-        var type = method.getReturnType();
-        var name = method.getSimpleName().toString();
-        var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), TYPE_PARAMETER);
-
-        return new RecordComponent(type, name, annotations);
     }
 }

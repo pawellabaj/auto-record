@@ -19,7 +19,7 @@ package pl.com.labaj.autorecord.processor.generator;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeVariableName;
-import pl.com.labaj.autorecord.processor.context.InternalContext;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
@@ -28,28 +28,25 @@ import java.util.function.BiConsumer;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static javax.lang.model.element.Modifier.PUBLIC;
-import static pl.com.labaj.autorecord.processor.context.SpecialMethod.TO_BUILDER;
+import static pl.com.labaj.autorecord.processor.context.ProcessorContext.TO_BUILDER;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 
 class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
+
     @Override
     protected String methodName() {
-        return "toBuilder";
+        return TO_BUILDER.methodName();
     }
 
     @Override
-    protected Modifier[] modifiers(InternalContext context) {
-        return context.specialMethods().containsKey(TO_BUILDER) || context.isRecordPublic() ? new Modifier[] {PUBLIC} : new Modifier[] {};
+    protected Modifier[] modifiers(ProcessorContext context) {
+        return context.getSpecialMethodAnnotations(TO_BUILDER).isPresent() || context.isRecordPublic() ? new Modifier[] {PUBLIC} : new Modifier[] {};
     }
 
     @Override
-    protected Optional<List<AnnotationSpec>> annotations(InternalContext context) {
-        if (context.specialMethods().containsKey(TO_BUILDER)) {
-            var parentMethod = context.specialMethods().get(TO_BUILDER);
-            return Optional.of(createAnnotationSpecs(parentMethod.getAnnotationMirrors(), METHOD, List.of(Override.class), List.of()));
-        }
-
-        return Optional.empty();
+    protected Optional<List<AnnotationSpec>> annotations(ProcessorContext context) {
+        return context.getSpecialMethodAnnotations(TO_BUILDER)
+                .map(annotations -> createAnnotationSpecs(annotations, METHOD, List.of(Override.class), List.of()));
     }
 
     @Override
@@ -58,7 +55,7 @@ class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected String methodToCallName(InternalContext context) {
+    protected String methodToCallName(ProcessorContext context) {
         return context.builderOptions().copyMethodName();
     }
 

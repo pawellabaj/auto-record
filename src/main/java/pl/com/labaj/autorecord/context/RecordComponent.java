@@ -21,10 +21,11 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
+import java.util.List;
 
 import static javax.lang.model.type.TypeKind.ARRAY;
 
-public record RecordComponent(TypeMirror type, String name, java.util.List<AnnotationMirror> annotations) {
+public record RecordComponent(TypeMirror type, String name, List<AnnotationMirror> annotations) {
 
     public boolean isNotPrimitive() {
         return !type.getKind().isPrimitive();
