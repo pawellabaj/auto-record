@@ -21,9 +21,9 @@ import com.squareup.javapoet.TypeSpec;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.ContextBuilder;
+import pl.com.labaj.autorecord.processor.context.MessagerLogger;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -47,7 +47,7 @@ class RecordJavaFileBuilder {
                           @Nullable RecordBuilder.Options builderOptions,
                           List<AutoRecordExtension> extensions,
                           ProcessingEnvironment processingEnv,
-                          Logger logger) {
+                          MessagerLogger logger) {
         var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
         var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, BUILDER_OPTIONS_ENFORCED_VALUES);
         this.extensions = extensions;

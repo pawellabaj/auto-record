@@ -83,8 +83,8 @@ public @interface AutoRecord {
     @Target({ANNOTATION_TYPE, TYPE})
     @Inherited
     @Repeatable(AutoRecordExtensions.class)
-    @interface ExtendWith {
-        Class<? extends AutoRecordExtension> extension();
+    @interface Extension {
+        Class<? extends AutoRecordExtension> extensionClass();
 
         String[] parameters() default {};
     }
@@ -115,6 +115,6 @@ public @interface AutoRecord {
          */
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
 
-        AutoRecord.ExtendWith[] extendWith() default {};
+        Extension[] extensions() default {};
     }
 }

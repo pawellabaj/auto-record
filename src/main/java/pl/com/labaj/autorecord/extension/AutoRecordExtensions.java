@@ -30,5 +30,5 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @Target({ANNOTATION_TYPE, TYPE})
 @Inherited
 public @interface AutoRecordExtensions {
-    AutoRecord.ExtendWith[] value();
+    AutoRecord.Extension[] value();
 }

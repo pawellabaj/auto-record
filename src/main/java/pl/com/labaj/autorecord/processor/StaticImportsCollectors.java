@@ -48,7 +48,7 @@ class StaticImportsCollectors implements pl.com.labaj.autorecord.context.StaticI
                 .add(name);
     }
 
-    void forEach(BiConsumer<ClassName, String[]> importConsumer) {
+    public void forEach(BiConsumer<ClassName, String[]> importConsumer) {
         statements.forEach((className, names) -> importConsumer.accept(className, names.toArray(String[]::new)));
     }
 }

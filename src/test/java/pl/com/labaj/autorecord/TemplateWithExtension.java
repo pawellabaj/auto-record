@@ -29,9 +29,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @Target(TYPE)
 @AutoRecord.Template(
         recordOptions = @AutoRecord.Options(memoizedHashCode = true),
-        extendWith = {
-                @AutoRecord.ExtendWith(extension = ReplaceCompactConstructorExtension.class),
-                @AutoRecord.ExtendWith(extension = AlwaysCompactConstructorExtension.class, parameters = "From template"),
+        extensions = {
+                @AutoRecord.Extension(extensionClass = ReplaceCompactConstructorExtension.class),
+                @AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = "From template"),
         }
 )
 public @interface TemplateWithExtension {

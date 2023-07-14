@@ -28,6 +28,15 @@ package pl.com.labaj.autorecord.context;
  * @see javax.tools.Diagnostic.Kind
  */
 public interface Logger {
+
+    /**
+     * Log a message at the {@link javax.tools.Diagnostic.Kind#NOTE} level
+     * only when system property <em>AutoRecordProcessor.debug.enabled</em> is set to {@code true}
+     *
+     * @param message the message to be logged
+     */
+    void debug(String message);
+
     /**
      * Log a message at the {@link javax.tools.Diagnostic.Kind#NOTE} level.
      *

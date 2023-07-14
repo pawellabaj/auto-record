@@ -22,8 +22,8 @@ import pl.com.labaj.autorecord.extension.compact.WhenProcessorCompactConstructor
 
 @AutoRecord
 @AutoRecord.Options(memoizedToString = true)
-@AutoRecord.ExtendWith(extension = AlwaysCompactConstructorExtension.class, parameters = "Alpha")
-@AutoRecord.ExtendWith(extension = WhenProcessorCompactConstructorExtension.class)
+@AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = "Alpha")
+@AutoRecord.Extension(extensionClass = WhenProcessorCompactConstructorExtension.class)
 interface WithCompactConstructorExtensions {
     String property();
 }

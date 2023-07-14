@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor;
+package pl.com.labaj.autorecord.processor.context;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -29,19 +29,29 @@ import static javax.tools.Diagnostic.Kind.OTHER;
 import static javax.tools.Diagnostic.Kind.WARNING;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
-class MessagerLogger implements Logger {
+public class MessagerLogger implements Logger {
 
+    private static final String AUTO_RECORD_PROCESSOR_DEBUG_ENABLED_PROPERTY = "AutoRecordProcessor.debug.enabled";
+    private static final boolean DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty(AUTO_RECORD_PROCESSOR_DEBUG_ENABLED_PROPERTY, "false"));
     private final Messager messager;
+
     private final Element elementContext;
 
-    MessagerLogger(Messager messager, Element elementContext) {
+    public MessagerLogger(Messager messager, Element elementContext) {
         this.messager = messager;
         this.elementContext = elementContext;
     }
 
     @Override
+    public void debug(String message) {
+        if (DEBUG_ENABLED) {
+            messager.printMessage(NOTE, "[DEBUG] " + message, elementContext);
+        }
+    }
+
+    @Override
     public void info(String message) {
-        messager.printMessage(NOTE, message, elementContext);
+        printMessage(NOTE, message);
     }
 
     @Override
@@ -70,6 +80,6 @@ class MessagerLogger implements Logger {
     }
 
     private void printMessage(Diagnostic.Kind kind, String message) {
-        messager.printMessage(kind, "AutoRecordProcessor: " + message, elementContext);
+        messager.printMessage(kind, message, elementContext);
     }
 }
