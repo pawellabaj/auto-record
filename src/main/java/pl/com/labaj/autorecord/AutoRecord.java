@@ -16,7 +16,6 @@ package pl.com.labaj.autorecord;
  * limitations under the License.
  */
 
-import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.extension.AutoRecordExtensions;
 
@@ -113,7 +112,7 @@ public @interface AutoRecord {
          * @return options for builder generation
          *@see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
          */
-        RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
+        io.soabase.recordbuilder.core.RecordBuilder.Options builderOptions() default @io.soabase.recordbuilder.core.RecordBuilder.Options();
 
         Extension[] extensions() default {};
     }
