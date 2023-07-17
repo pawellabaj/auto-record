@@ -31,18 +31,22 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 class BuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
 
+    BuilderMethodSubGenerator(ProcessorContext context) {
+        super(context);
+    }
+
     @Override
     protected String methodName() {
         return "builder";
     }
 
     @Override
-    protected Modifier[] modifiers(ProcessorContext context) {
+    protected Modifier[] modifiers() {
         return context.isRecordPublic() ? new Modifier[] {PUBLIC, STATIC} : new Modifier[] {STATIC};
     }
 
     @Override
-    protected Optional<List<AnnotationSpec>> annotations(ProcessorContext context) {
+    protected Optional<List<AnnotationSpec>> annotations() {
         return Optional.empty();
     }
 
@@ -57,7 +61,7 @@ class BuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected String methodToCallName(ProcessorContext context) {
+    protected String methodToCallName() {
         return context.builderOptions().builderMethodName();
     }
 }

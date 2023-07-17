@@ -18,50 +18,24 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import io.soabase.recordbuilder.core.RecordBuilder;
 import org.apiguardian.api.API;
-import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
-import pl.com.labaj.autorecord.processor.context.ContextBuilder;
-import pl.com.labaj.autorecord.processor.context.MessagerLogger;
+import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
-import javax.annotation.Nullable;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.TypeElement;
 import java.util.List;
-import java.util.Map;
 
 import static org.apiguardian.api.API.Status.INTERNAL;
 import static pl.com.labaj.autorecord.processor.generator.Generators.generators;
-import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationIfNeeded;
 
 @API(status = INTERNAL)
 class RecordJavaFileBuilder {
-    private static final Map<String, Object> BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
 
-    private final ContextBuilder contextBuilder;
-    private final List<AutoRecordExtension> extensions;
-
-    RecordJavaFileBuilder(TypeElement sourceInterface,
-                          @Nullable AutoRecord.Options recordOptions,
-                          @Nullable RecordBuilder.Options builderOptions,
-                          List<AutoRecordExtension> extensions,
-                          ProcessingEnvironment processingEnv,
-                          MessagerLogger logger) {
-        var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
-        var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, BUILDER_OPTIONS_ENFORCED_VALUES);
-        this.extensions = extensions;
-
-        contextBuilder = new ContextBuilder(processingEnv.getElementUtils(), sourceInterface, nonNullRecordOptions, nonNullBuilderOptions, logger);
-    }
-
-    JavaFile buildJavaFile() {
-        var context = contextBuilder.buildContext();
-        var staticImports = new StaticImportsCollectors();
+    JavaFile buildJavaFile(ProcessorContext context, List<AutoRecordExtension> extensions) {
         var recordBuilder = TypeSpec.recordBuilder(context.recordName());
+        var staticImports = new StaticImportsCollectors();
 
-        generators()
-                .forEach(generator -> generator.generate(context, extensions, recordBuilder, staticImports));
+        generators(context, extensions)
+                .forEach(generator -> generator.generate(recordBuilder, staticImports));
 
         return buildJavaFile(context.packageName(), staticImports, recordBuilder.build());
     }

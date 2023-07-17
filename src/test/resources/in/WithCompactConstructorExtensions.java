@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record

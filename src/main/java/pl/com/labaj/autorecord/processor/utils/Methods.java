@@ -37,11 +37,7 @@ public final class Methods {
     }
 
     public static boolean isNotVoid(ExecutableElement method) {
-        return !isVoid(method);
-    }
-
-    public static boolean isVoid(ExecutableElement method) {
-        return method.getReturnType().getKind() == VOID;
+        return method.getReturnType().getKind() != VOID;
     }
 
     public static boolean isAbstract(ExecutableElement method) {

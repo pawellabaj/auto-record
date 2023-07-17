@@ -17,15 +17,11 @@ package pl.com.labaj.autorecord.extension.compact;
  */
 
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
-import pl.com.labaj.autorecord.extension.ContentOperation;
 
 import java.util.Arrays;
-
-import static pl.com.labaj.autorecord.extension.ContentOperation.ATTACH;
 
 public class AlwaysCompactConstructorExtension implements CompactConstructorExtension {
     private String[] parameters;
@@ -41,12 +37,12 @@ public class AlwaysCompactConstructorExtension implements CompactConstructorExte
     }
 
     @Override
-    public ContentOperation contentOperation() {
-        return ATTACH;
-    }
+    public CodeBlock suffixCompactConstructorContent(Context context, StaticImports staticImports) {
+        staticImports.add(System.class, "out");
 
-    @Override
-    public CodeBlock generateContent(Context context, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
-        return CodeBlock.of("// parameters for extensions: " + Arrays.toString(parameters));
+        return CodeBlock.builder()
+                .addStatement("var params = $S", Arrays.toString(parameters))
+                .addStatement("out.println(params)")
+                .build();
     }
 }

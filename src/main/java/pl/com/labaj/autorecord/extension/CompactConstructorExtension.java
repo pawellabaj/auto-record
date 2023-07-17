@@ -17,19 +17,19 @@ package pl.com.labaj.autorecord.extension;
  */
 
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.StaticImports;
-
-import static pl.com.labaj.autorecord.extension.ContentOperation.ATTACH;
 
 public interface CompactConstructorExtension extends AutoRecordExtension {
     default boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
         return isGeneratedByProcessor;
     }
-    default ContentOperation contentOperation() {
-        return ATTACH;
+
+    default CodeBlock prefixCompactConstructorContent(Context context, StaticImports staticImports) {
+        return null;
     }
 
-    CodeBlock generateContent(Context context, TypeSpec.Builder recordBuilder, StaticImports staticImports);
+    default CodeBlock suffixCompactConstructorContent(Context context, StaticImports staticImports) {
+        return null;
+    }
 }

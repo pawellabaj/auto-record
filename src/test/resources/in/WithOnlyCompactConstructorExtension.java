@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,9 +16,16 @@ package pl.com.labaj.autorecord.extension;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.TemplateWithExtension;
+import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.extension.compact.AlwaysCompactConstructorExtension;
+import pl.com.labaj.autorecord.extension.compact.WhenProcessorCompactConstructorExtension;
 
-@TemplateWithExtension()
-interface WithCompactConstructorExtensionsFromTemplate {
+import javax.annotation.Nullable;
+
+@AutoRecord
+@AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = {"Alpha", "Bravo"})
+@AutoRecord.Extension(extensionClass = WhenProcessorCompactConstructorExtension.class)
+interface WithOnlyCompactConstructorExtension {
+    @Nullable
     String property();
 }

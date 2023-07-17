@@ -33,18 +33,22 @@ import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotati
 
 class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
 
+    ToBuilderMethodSubGenerator(ProcessorContext context) {
+        super(context);
+    }
+
     @Override
     protected String methodName() {
         return TO_BUILDER.methodName();
     }
 
     @Override
-    protected Modifier[] modifiers(ProcessorContext context) {
+    protected Modifier[] modifiers() {
         return context.getSpecialMethodAnnotations(TO_BUILDER).isPresent() || context.isRecordPublic() ? new Modifier[] {PUBLIC} : new Modifier[] {};
     }
 
     @Override
-    protected Optional<List<AnnotationSpec>> annotations(ProcessorContext context) {
+    protected Optional<List<AnnotationSpec>> annotations() {
         return context.getSpecialMethodAnnotations(TO_BUILDER)
                 .map(annotations -> createAnnotationSpecs(annotations, METHOD, List.of(Override.class), List.of()));
     }
@@ -55,7 +59,7 @@ class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     }
 
     @Override
-    protected String methodToCallName(ProcessorContext context) {
+    protected String methodToCallName() {
         return context.builderOptions().copyMethodName();
     }
 

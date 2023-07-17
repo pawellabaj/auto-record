@@ -17,7 +17,7 @@ package pl.com.labaj.autorecord;
  */
 
 import pl.com.labaj.autorecord.extension.compact.AlwaysCompactConstructorExtension;
-import pl.com.labaj.autorecord.extension.compact.ReplaceCompactConstructorExtension;
+import pl.com.labaj.autorecord.extension.compact.WhenProcessorCompactConstructorExtension;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -30,7 +30,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @AutoRecord.Template(
         recordOptions = @AutoRecord.Options(memoizedHashCode = true),
         extensions = {
-                @AutoRecord.Extension(extensionClass = ReplaceCompactConstructorExtension.class),
+                @AutoRecord.Extension(extensionClass = WhenProcessorCompactConstructorExtension.class),
                 @AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = "From template"),
         }
 )

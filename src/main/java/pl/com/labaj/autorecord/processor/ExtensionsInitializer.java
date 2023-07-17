@@ -20,62 +20,51 @@ import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 
-import javax.annotation.Nullable;
 import javax.lang.model.type.MirroredTypeException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Objects;
-
-import static java.util.Objects.nonNull;
 
 class ExtensionsInitializer {
 
     List<AutoRecordExtension> initExtensions(List<AutoRecord.Extension> extensionAnnotations, Logger logger) {
         return extensionAnnotations.stream()
                 .map(extendWith -> initExtension(extendWith, logger))
-                .filter(Objects::nonNull)
                 .toList();
     }
 
-    @Nullable
     private AutoRecordExtension initExtension(AutoRecord.Extension extensionAnnotation, Logger logger) {
-        var extension = createExtension(extensionAnnotation, logger);
-        if (nonNull(extension)) {
-            extension.setParameters(extensionAnnotation.parameters());
-        }
+        var extensionClass = loadExtensionClass(extensionAnnotation, logger);
+        var extension = instantiateExtension(extensionClass);
+        extension.setParameters(extensionAnnotation.parameters());
+
         return extension;
     }
 
     @SuppressWarnings("unchecked")
-    private AutoRecordExtension createExtension(AutoRecord.Extension extensionAnnotation, Logger logger) {
+    private Class<? extends AutoRecordExtension> loadExtensionClass(AutoRecord.Extension extensionAnnotation, Logger logger) {
+        Class<? extends AutoRecordExtension> extensionClass;
         try {
-            var extensionClass = extensionAnnotation.extensionClass();
+            extensionClass = extensionAnnotation.extensionClass();
             logger.debug("Class from annotation: " + extensionClass);
-
-            return instantiateExtension(extensionClass, logger);
         } catch (MirroredTypeException e) {
-            var typeMirror = e.getTypeMirror();
-            var extensionClassName = typeMirror.toString();
-            logger.debug("Class name from typeMirror: " + extensionClassName);
+            var className = e.getTypeMirror().toString();
+            logger.debug("Class name from typeMirror: " + className);
 
-            Class<? extends AutoRecordExtension> extensionClass = null;
             try {
-                extensionClass = (Class<? extends AutoRecordExtension>) Class.forName(extensionClassName);
+                extensionClass = (Class<? extends AutoRecordExtension>) Class.forName(className);
             } catch (ClassNotFoundException ex) {
-                logger.error("Cannot load class " + extensionClassName, ex);
-                return null;
+                throw new AutoRecordProcessorException("Cannot load class " + className, ex);
             }
-
-            return instantiateExtension(extensionClass, logger);
         }
+
+        return extensionClass;
     }
 
-    private AutoRecordExtension instantiateExtension(Class<? extends AutoRecordExtension> extensionClass, Logger logger) {
+    private AutoRecordExtension instantiateExtension(Class<? extends AutoRecordExtension> extensionClass) {
         try {
             return extensionClass.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            logger.debug("Can't instantiate extension because of " + e.getLocalizedMessage());
-            return null;
+            throw new AutoRecordProcessorException("Can't instantiate extension " + e.getLocalizedMessage());
         }
     }
 }

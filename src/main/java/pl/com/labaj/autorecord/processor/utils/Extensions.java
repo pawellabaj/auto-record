@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension;
+package pl.com.labaj.autorecord.processor.utils;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,6 +16,17 @@ package pl.com.labaj.autorecord.extension;
  * limitations under the License.
  */
 
-public enum ContentOperation {
-    ATTACH, PRECEDE, REPLACE
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+
+import java.util.List;
+
+public final class Extensions {
+    private Extensions() {}
+
+    public static <E extends AutoRecordExtension> List<E> typedExtensions(List<AutoRecordExtension> extensions, Class<E> extensionClass) {
+        return extensions.stream()
+                .filter(extensionClass::isInstance)
+                .map(extensionClass::cast)
+                .toList();
+    }
 }

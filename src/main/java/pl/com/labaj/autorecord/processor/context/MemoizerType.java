@@ -104,7 +104,7 @@ public enum MemoizerType {
 
         @Override
         public String getMessage() {
-            return super.getMessage() + ": Can't get MemoizerType with %s kind".formatted(type.getKind());
+            return super.getMessage() + (": Can't get MemoizerType with " + type.getKind() + " kind");
         }
     }
 

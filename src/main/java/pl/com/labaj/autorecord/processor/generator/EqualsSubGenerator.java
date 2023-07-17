@@ -37,8 +37,13 @@ class EqualsSubGenerator {
     private static final String OTHER_RECORD = "otherRecord";
     private static final String RETURN_TRUE_STATEMENT = "return true";
     private static final String RETURN_FALSE_STATEMENT = "return false";
+    private final ProcessorContext context;
 
-    void generate(ProcessorContext context, TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<RecordComponent> components) {
+    EqualsSubGenerator(ProcessorContext context) {
+        this.context = context;
+    }
+
+    void generate(TypeSpec.Builder recordBuilder, boolean memoizedHashCode, List<RecordComponent> components) {
         var recordName = context.recordName();
 
         var equalsMethodBuilder = MethodSpec.methodBuilder("equals")

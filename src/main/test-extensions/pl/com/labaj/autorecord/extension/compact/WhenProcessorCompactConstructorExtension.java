@@ -17,31 +17,28 @@ package pl.com.labaj.autorecord.extension.compact;
  */
 
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
-import pl.com.labaj.autorecord.extension.ContentOperation;
-
-import static pl.com.labaj.autorecord.extension.ContentOperation.PRECEDE;
 
 public class WhenProcessorCompactConstructorExtension implements CompactConstructorExtension {
 
-     @Override
-     public void setParameters(String[] parameters) {}
-
-     @Override
+    @Override
     public boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
         return isGeneratedByProcessor;
     }
 
     @Override
-    public ContentOperation contentOperation() {
-        return PRECEDE;
+    public CodeBlock prefixCompactConstructorContent(Context context, StaticImports staticImports) {
+        return CodeBlock.builder()
+                .addStatement("System.err.println($S)", "Text printed at the beginning")
+                .build();
     }
 
     @Override
-    public CodeBlock generateContent(Context context, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
-        return CodeBlock.of("//Comment added at the beginning");
+    public CodeBlock suffixCompactConstructorContent(Context context, StaticImports staticImports) {
+        return CodeBlock.builder()
+                .addStatement("System.err.println($S)", "Text printed at the end")
+                .build();
     }
 }

@@ -17,9 +17,9 @@ package pl.com.labaj.autorecord.processor;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.processor.context.ContextBuilder;
 import pl.com.labaj.autorecord.processor.context.MessagerLogger;
 
 import javax.annotation.Nullable;
@@ -52,7 +52,9 @@ public class AutoRecordProcessor extends AbstractProcessor {
 
     private static final String AUTO_RECORD_CLASS_NAME = AutoRecord.class.getName();
 
-    private final ExtensionsInitializer extensionsInitializer = new ExtensionsInitializer();
+    private ContextBuilder contextBuilder;
+    private ExtensionsInitializer extensionsInitializer;
+    private RecordJavaFileBuilder recordGenerator;
 
     /**
      * {@inheritDoc}
@@ -60,6 +62,10 @@ public class AutoRecordProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
+
+        extensionsInitializer = new ExtensionsInitializer();
+        contextBuilder = new ContextBuilder(processingEnv.getElementUtils());
+        recordGenerator = new RecordJavaFileBuilder();
     }
 
     /**
@@ -118,7 +124,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
             return propertyGetter.apply(annotation);
         } catch (AnnotationTypeMismatchException e) {
             //In some compiling environments, eg. some of GitHub workflow runners
-            processingEnv.getMessager().printMessage(WARNING, "Cannot get annotation property:\n" + ExceptionUtils.getStackTrace(e), element);
+            processingEnv.getMessager().printMessage(WARNING, "Cannot get annotation property: " + e.getLocalizedMessage(), element);
             return defaultValueSupplier.get();
         }
     }
@@ -128,12 +134,12 @@ public class AutoRecordProcessor extends AbstractProcessor {
                                 @Nullable RecordBuilder.Options builderOptions,
                                 List<AutoRecord.Extension> extensionAnnotations) {
         var logger = new MessagerLogger(processingEnv.getMessager(), sourceInterface);
-        logger.debug("Generate record for %s".formatted(sourceInterface));
 
         try {
+            var context = contextBuilder.buildContext(sourceInterface, recordOptions, builderOptions, logger);
             var extensions = extensionsInitializer.initExtensions(extensionAnnotations, logger);
-            var recordGenerator = new RecordJavaFileBuilder(sourceInterface, recordOptions, builderOptions, extensions, processingEnv, logger);
-            var javaFile = recordGenerator.buildJavaFile();
+            var javaFile = recordGenerator.buildJavaFile(context, extensions);
+
             javaFile.writeTo(processingEnv.getFiler());
         } catch (Exception e) {
             logger.error("Exception thrown during generation record", e);

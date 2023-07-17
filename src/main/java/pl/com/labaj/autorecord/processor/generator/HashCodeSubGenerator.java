@@ -36,7 +36,7 @@ class HashCodeSubGenerator {
 
     private static final String OBJECTS_HASH = "hash";
 
-    void generate(StaticImports staticImports, TypeSpec.Builder recordBuilder, boolean isHashCodeMemoized, List<RecordComponent> components) {
+    void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports, boolean isHashCodeMemoized, List<RecordComponent> components) {
         var methodName = (isHashCodeMemoized ? "_" : "") + HASH_CODE;
         var format = components.stream()
                 .map(this::methodStatementFormat)

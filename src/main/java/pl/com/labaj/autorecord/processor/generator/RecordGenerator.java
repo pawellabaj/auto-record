@@ -23,6 +23,15 @@ import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.List;
 
-public interface RecordGenerator {
-    void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports);
+public abstract class RecordGenerator {
+
+    protected final ProcessorContext context;
+    protected final List<AutoRecordExtension> extensions;
+
+    RecordGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        this.context = context;
+        this.extensions = extensions;
+    }
+
+    public abstract void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports);
 }

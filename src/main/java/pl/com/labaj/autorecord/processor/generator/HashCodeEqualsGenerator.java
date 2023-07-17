@@ -27,15 +27,21 @@ import java.util.List;
 
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.HASH_CODE;
 
-class HashCodeEqualsGenerator implements RecordGenerator {
-    private final HashCodeSubGenerator hashCodeSubGenerator = new HashCodeSubGenerator();
-    private final EqualsSubGenerator equalsSubGenerator = new EqualsSubGenerator();
+class HashCodeEqualsGenerator extends RecordGenerator {
+    private final HashCodeSubGenerator hashCodeSubGenerator;
+    private final EqualsSubGenerator equalsSubGenerator;
+
+    HashCodeEqualsGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        super(context, extensions);
+        hashCodeSubGenerator = new HashCodeSubGenerator();
+        equalsSubGenerator = new EqualsSubGenerator(context);
+    }
 
     @Override
-    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+    public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         var isHashCodeMemoized = context.recordOptions().memoizedHashCode() || context.memoization().isMemoized(HASH_CODE);
 
-        if (!shouldGenerate(context, isHashCodeMemoized)) {
+        if (!shouldGenerate(isHashCodeMemoized)) {
             return;
         }
 
@@ -43,11 +49,11 @@ class HashCodeEqualsGenerator implements RecordGenerator {
                 .filter(recordComponent -> recordComponent.isNotAnnotatedWith(Ignored.class))
                 .toList();
 
-        hashCodeSubGenerator.generate(staticImports, recordBuilder, isHashCodeMemoized, requiredComponents);
-        equalsSubGenerator.generate(context, recordBuilder, isHashCodeMemoized, requiredComponents);
+        hashCodeSubGenerator.generate(recordBuilder, staticImports, isHashCodeMemoized, requiredComponents);
+        equalsSubGenerator.generate(recordBuilder, isHashCodeMemoized, requiredComponents);
     }
 
-    private boolean shouldGenerate(ProcessorContext context, boolean isHashCodeMemoized) {
+    private boolean shouldGenerate(boolean isHashCodeMemoized) {
         var atLeastOneIgnored = context.components().stream()
                 .anyMatch(recordComponent -> recordComponent.isAnnotatedWith(Ignored.class));
 

@@ -35,43 +35,56 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static com.squareup.javapoet.MethodSpec.methodBuilder;
 import static java.util.stream.Collectors.joining;
 import static pl.com.labaj.autorecord.processor.context.ProcessorContext.TO_BUILDER;
 
-class BuilderGenerator implements RecordGenerator {
-    BuilderOptionsSubGenerator builderOptionsSubGenerator = new BuilderOptionsSubGenerator();
-
-    BuilderMethodSubGenerator builderMethodSubGenerator = new BuilderMethodSubGenerator();
-    ToBuilderMethodSubGenerator toBuilderMethodSubGenerator = new ToBuilderMethodSubGenerator();
+class BuilderGenerator extends RecordGenerator {
+    BuilderOptionsSubGenerator builderOptionsSubGenerator;
+    BuilderMethodSubGenerator builderMethodSubGenerator;
+    ToBuilderMethodSubGenerator toBuilderMethodSubGenerator;
 
     private static final AnnotationSpec BUILDER_ANNOTATION = AnnotationSpec.builder(RecordBuilder.class).build();
 
+    BuilderGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        super(context, extensions);
+        builderOptionsSubGenerator = new BuilderOptionsSubGenerator(context);
+        builderMethodSubGenerator = new BuilderMethodSubGenerator(context);
+        toBuilderMethodSubGenerator = new ToBuilderMethodSubGenerator(context);
+    }
+
     @Override
-    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
-        if (!shouldGenerate(context)) {
+    public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+        if (!shouldGenerate()) {
             return;
         }
 
         recordBuilder.addAnnotation(BUILDER_ANNOTATION);
 
-        builderOptionsSubGenerator.generate(context, staticImports, recordBuilder);
-        builderMethodSubGenerator.generate(context, recordBuilder);
-        toBuilderMethodSubGenerator.generate(context, recordBuilder);
+        builderOptionsSubGenerator.generate(recordBuilder, staticImports);
+        builderMethodSubGenerator.generate(recordBuilder);
+        toBuilderMethodSubGenerator.generate(recordBuilder);
     }
 
-    private boolean shouldGenerate(ProcessorContext context) {
+    private boolean shouldGenerate() {
         return context.recordOptions().withBuilder() || context.getSpecialMethodAnnotations(TO_BUILDER).isPresent();
     }
 
     abstract static class MethodSubGenerator {
-        void generate(ProcessorContext context, TypeSpec.Builder recordBuilder) {
-            var recordBuilderName = recordBuilderName(context);
+        protected final ProcessorContext context;
+
+        MethodSubGenerator(ProcessorContext context) {
+            this.context = context;
+        }
+
+        void generate(TypeSpec.Builder recordBuilder) {
+            var recordBuilderName = recordBuilderName();
             var returnedClassName = ClassName.get(context.packageName(), recordBuilderName);
 
-            var methodBuilder = MethodSpec.methodBuilder(methodName())
-                    .addModifiers(modifiers(context));
+            var methodBuilder = methodBuilder(methodName())
+                    .addModifiers(modifiers());
 
-            annotations(context).ifPresent(methodBuilder::addAnnotations);
+            annotations().ifPresent(methodBuilder::addAnnotations);
 
             var statementFormat = new StringBuilder();
             var statementArguments = new ArrayList<>();
@@ -94,7 +107,7 @@ class BuilderGenerator implements RecordGenerator {
                         methodBuilder.returns(returnedClassName);
                     });
 
-            statementArguments.add(methodToCallName(context));
+            statementArguments.add(methodToCallName());
 
             context.memoization().ifPresent(
                     items -> items.forEach(item -> {
@@ -114,17 +127,17 @@ class BuilderGenerator implements RecordGenerator {
 
         protected abstract String methodName();
 
-        protected abstract Modifier[] modifiers(ProcessorContext context);
+        protected abstract Modifier[] modifiers();
 
-        protected abstract Optional<List<AnnotationSpec>> annotations(ProcessorContext context);
+        protected abstract Optional<List<AnnotationSpec>> annotations();
 
         protected abstract String methodArgument();
 
-        private String recordBuilderName(ProcessorContext context) {
+        private String recordBuilderName() {
             return context.recordName() + context.builderOptions().suffix();
         }
 
-        protected abstract String methodToCallName(ProcessorContext context);
+        protected abstract String methodToCallName();
 
         protected abstract BiConsumer<MethodSpec.Builder, List<TypeVariableName>> genericVariableConsumer();
 

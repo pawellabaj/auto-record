@@ -48,7 +48,9 @@ class GenerationTest {
             "ToStringMemoized",
             "ToStringMemoizedByAnnotation",
             "HashCodeIgnoredFieldMemoized",
-            "WithCompactConstructorExtensionsFromTemplate"
+            "WithCompactConstructorExtensions",
+            "WithCompactConstructorExtensionsFromTemplate",
+            "WithOnlyCompactConstructorExtension"
     })
     void shouldGenerateRecord(String interfaceName) {
         //given
@@ -57,7 +59,6 @@ class GenerationTest {
 
         //when
         var compilation = compiler.compile(inputInterface);
-        compilation.diagnostics().stream().forEach(d -> System.out.println(d));
 
         //then
         assertAll(

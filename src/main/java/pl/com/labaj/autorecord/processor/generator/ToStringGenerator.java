@@ -33,10 +33,14 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.TO_STRING;
 
-public class ToStringGenerator implements RecordGenerator {
+public class ToStringGenerator extends RecordGenerator {
+
+    ToStringGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        super(context, extensions);
+    }
 
     @Override
-    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+    public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         var isToStringMemoized = context.recordOptions().memoizedToString() || context.memoization().isMemoized(TO_STRING);
 
         if (!shouldGenerate(context, isToStringMemoized)) {

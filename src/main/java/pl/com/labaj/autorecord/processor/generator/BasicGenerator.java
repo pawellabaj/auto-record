@@ -27,6 +27,7 @@ import pl.com.labaj.autorecord.Memoized;
 import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
+import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 import pl.com.labaj.autorecord.processor.context.Memoization;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
@@ -41,17 +42,23 @@ import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
+import static pl.com.labaj.autorecord.processor.utils.Extensions.typedExtensions;
 
-class BasicGenerator implements RecordGenerator {
+class BasicGenerator extends RecordGenerator {
     private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
             .addMember("value", "$S", AutoRecord.class.getName())
             .build();
     private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
 
-    CompactConstructorSubGenerator compactConstructorSubGenerator = new CompactConstructorSubGenerator();
+    private final CompactConstructorSubGenerator compactConstructorSubGenerator;
+
+    BasicGenerator(ProcessorContext context, List<AutoRecordExtension> extensions) {
+        super(context, extensions);
+        compactConstructorSubGenerator = new CompactConstructorSubGenerator(context, typedExtensions(extensions, CompactConstructorExtension.class));
+    }
 
     @Override
-    public void generate(ProcessorContext context, List<AutoRecordExtension> extensions, TypeSpec.Builder recordBuilder, StaticImports staticImports) {
+    public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         recordBuilder
                 .addAnnotation(GENERATED_ANNOTATION)
                 .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
@@ -62,13 +69,14 @@ class BasicGenerator implements RecordGenerator {
                 .map(this::toParameterSpec)
                 .toList();
 
-        generateTypeVariables(context, recordBuilder);
-        generateComponents(context, recordBuilder, recordComponentParameters);
-        createAdditionalConstructor(context, recordBuilder, recordComponentParameters);
-        compactConstructorSubGenerator.generate(context, extensions, recordBuilder, staticImports);
+        generateTypeVariables(recordBuilder);
+        generateComponents(recordBuilder, recordComponentParameters);
+        createAdditionalConstructor(recordBuilder, recordComponentParameters);
+
+        compactConstructorSubGenerator.generate(recordBuilder, staticImports);
     }
 
-    private void generateComponents(ProcessorContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
+    private void generateComponents(TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
         recordBuilder.addRecordComponents(recordComponentParameters);
 
         context.memoization()
@@ -77,12 +85,12 @@ class BasicGenerator implements RecordGenerator {
                         .forEach(recordBuilder::addRecordComponent));
     }
 
-    private void generateTypeVariables(ProcessorContext context, TypeSpec.Builder recordBuilder) {
+    private void generateTypeVariables(TypeSpec.Builder recordBuilder) {
         context.generics()
                 .ifPresent(recordBuilder::addTypeVariables);
     }
 
-    private void createAdditionalConstructor(ProcessorContext context, TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
+    private void createAdditionalConstructor(TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
         context.memoization()
                 .ifPresent(items -> {
                     var constructorCallStatement = Stream.concat(
