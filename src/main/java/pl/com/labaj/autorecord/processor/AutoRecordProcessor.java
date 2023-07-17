@@ -91,7 +91,8 @@ public class AutoRecordProcessor extends AbstractProcessor {
 
             processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
         } else {
-            getAnnotation(annotation, AutoRecord.Template.class)
+            var possibleTemplate = getAnnotation(annotation, AutoRecord.Template.class);
+            possibleTemplate
                     .ifPresent(template -> {
                         var recordOptions = template.recordOptions();
                         var builderOptions = template.builderOptions();
