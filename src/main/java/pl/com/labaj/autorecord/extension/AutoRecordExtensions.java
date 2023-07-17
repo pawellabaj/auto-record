@@ -26,6 +26,9 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+/**
+ * @since 2.1.0
+ */
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE, TYPE})
 @Inherited

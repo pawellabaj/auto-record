@@ -19,7 +19,9 @@ package pl.com.labaj.autorecord.context;
 import com.squareup.javapoet.ClassName;
 
 /**
- * Collects {@code static import} statements that will be added into generated {@code record} source
+ * Collects {@code static import} statements that will be added into generated {@code record}
+ *
+ * @since 2.1.0
  */
 public interface StaticImports {
     /**
@@ -27,21 +29,24 @@ public interface StaticImports {
      *
      * @param aClass class to be statically imported
      * @param name   name of a method or constant to be statically imported
+     * @return the same instance of {@link StaticImports}
      */
-    void add(Class<?> aClass, String name);
+    StaticImports add(Class<?> aClass, String name);
 
     /**
      * Adds {@code static import} statement
      *
      * @param className name of class to be statically imported
      * @param name      name of the method or constant be statically imported
+     * @return the same instance of {@link StaticImports}
      */
-    void add(ClassName className, String name);
+    StaticImports add(ClassName className, String name);
 
     /**
      * Adds {@code static import} statement
      *
      * @param constant enum constant to be statically imported
+     * @return the same instance of {@link StaticImports}
      */
-    void add(Enum<?> constant);
+    StaticImports add(Enum<?> constant);
 }

@@ -25,6 +25,12 @@ import java.util.List;
 
 import static javax.lang.model.type.TypeKind.ARRAY;
 
+/**
+ * @param type
+ * @param name
+ * @param annotations
+ * @since 2.1.0
+ */
 public record RecordComponent(TypeMirror type, String name, List<AnnotationMirror> annotations) {
 
     public boolean isNotPrimitive() {

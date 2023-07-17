@@ -26,6 +26,7 @@ package pl.com.labaj.autorecord.context;
  * messages in a window.
  *
  * @see javax.tools.Diagnostic.Kind
+ * @since 2.1.0
  */
 public interface Logger {
 

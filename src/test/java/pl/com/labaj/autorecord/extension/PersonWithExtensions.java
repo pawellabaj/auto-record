@@ -1,5 +1,4 @@
 package pl.com.labaj.autorecord.extension;
-
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -16,9 +15,20 @@ package pl.com.labaj.autorecord.extension;
  * limitations under the License.
  */
 
-/**
- * @since 2.1.0
- */
-public interface AutoRecordExtension {
-    default void setParameters(String[] parameters) {}
+import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension;
+import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
+
+import javax.annotation.Nullable;
+
+@AutoRecord
+@AutoRecord.Extension(extensionClass = IsPersonAdultVerifierExtension.class, parameters = "java.lang.IllegalStateException")
+@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
+interface PersonWithExtensions {
+    String name();
+
+    @Nullable
+    String surname();
+
+    int age();
 }

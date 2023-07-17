@@ -20,6 +20,9 @@ import com.squareup.javapoet.CodeBlock;
 import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.StaticImports;
 
+/**
+ * @since 2.1.0
+ */
 public interface CompactConstructorExtension extends AutoRecordExtension {
     default boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
         return isGeneratedByProcessor;

@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.ClassName;
 import org.apiguardian.api.API;
+import pl.com.labaj.autorecord.context.StaticImports;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,19 +34,21 @@ class StaticImportsCollectors implements pl.com.labaj.autorecord.context.StaticI
     final Map<ClassName, Set<String>> statements = new HashMap<>();
 
     @Override
-    public void add(Class<?> aClass, String name) {
-        add(ClassName.get(aClass), name);
+    public StaticImports add(Class<?> aClass, String name) {
+        return add(ClassName.get(aClass), name);
     }
 
     @Override
-    public void add(Enum<?> constant) {
-        add(ClassName.get(constant.getDeclaringClass()), constant.name());
+    public StaticImports add(Enum<?> constant) {
+        return add(ClassName.get(constant.getDeclaringClass()), constant.name());
     }
 
     @Override
-    public void add(ClassName className, String name) {
+    public StaticImports add(ClassName className, String name) {
         statements.computeIfAbsent(className, cName -> new HashSet<>())
                 .add(name);
+
+        return this;
     }
 
     public void forEach(BiConsumer<ClassName, String[]> importConsumer) {

@@ -16,7 +16,7 @@
  */
 
 //TODO: Add package description
-@API(status = STABLE, since = "3.0.0")
+@API(status = STABLE, since = "2.1.0")
 package pl.com.labaj.autorecord.extension;
 
 import org.apiguardian.api.API;

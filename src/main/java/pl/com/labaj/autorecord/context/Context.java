@@ -23,6 +23,9 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
+/**
+ * @since 2.1.0
+ */
 public interface Context {
     String packageName();
 

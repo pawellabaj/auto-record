@@ -79,6 +79,9 @@ public @interface AutoRecord {
         boolean memoizedToString() default false;
     }
 
+    /**
+     * @since 2.1.0
+     */
     @Retention(SOURCE)
     @Target({ANNOTATION_TYPE, TYPE})
     @Inherited
@@ -111,14 +114,14 @@ public @interface AutoRecord {
          * {@link Options#withBuilder() withBuilder()}.
          *
          * @return options for builder generation
-         *@see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
+         * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder#customizing-builder-generation">Builder Customization Wiki</a>
          */
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
 
         /**
-         *
          * @return
+         * @since 2.1.0
          */
-        Extension[] extensions() default {};
+        AutoRecord.Extension[] extensions() default {};
     }
 }
