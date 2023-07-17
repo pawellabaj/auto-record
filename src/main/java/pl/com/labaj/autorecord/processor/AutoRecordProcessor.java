@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import static javax.lang.model.element.ElementKind.INTERFACE;
+import static javax.tools.Diagnostic.Kind.NOTE;
 import static org.apiguardian.api.API.Status.STABLE;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotations;
@@ -85,18 +86,18 @@ public class AutoRecordProcessor extends AbstractProcessor {
         var annotationQualifiedName = annotation.getQualifiedName();
 
         if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
-            var recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
-            var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
-            var extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
+            AutoRecord.Options recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
+            RecordBuilder.Options builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
+            List<AutoRecord.Extension> extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
 
             processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
         } else {
-            var possibleTemplate = getAnnotation(annotation, AutoRecord.Template.class);
-            possibleTemplate
+            getAnnotation(annotation, AutoRecord.Template.class)
                     .ifPresent(template -> {
-                        var recordOptions = template.recordOptions();
-                        var builderOptions = template.builderOptions();
-                        var extensionAnnotations = List.of(template.extensions());
+                        AutoRecord.Options recordOptions = template.recordOptions();
+                        processingEnv.getMessager().printMessage(NOTE, "BO :" + template.builderOptions().getClass());
+                        RecordBuilder.Options builderOptions = template.builderOptions();
+                        List<AutoRecord.Extension> extensionAnnotations = List.of(template.extensions());
 
                         processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
                     });
