@@ -100,12 +100,6 @@ public @interface AutoRecord {
     @interface Template {
 
         /**
-         *
-         * @return
-         */
-        Extension[] extensions() default {};
-
-        /**
          * Specifies options for the {@link AutoRecord} annotation applied during record generation.
          *
          * @return options for record generation
@@ -121,6 +115,10 @@ public @interface AutoRecord {
          */
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
 
-
+        /**
+         *
+         * @return
+         */
+        Extension[] extensions() default {};
     }
 }
