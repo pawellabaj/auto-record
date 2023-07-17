@@ -103,7 +103,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
     }
 
     private void processElement(TypeElement sourceInterface,
-                                AutoRecord.Options recordOptions,
+                                @Nullable AutoRecord.Options recordOptions,
                                 @Nullable RecordBuilder.Options builderOptions,
                                 List<AutoRecord.Extension> extensionAnnotations) {
         var logger = new MessagerLogger(processingEnv.getMessager(), sourceInterface);
