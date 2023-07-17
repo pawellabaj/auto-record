@@ -31,7 +31,7 @@ public interface Logger {
 
     /**
      * Log a message at the {@link javax.tools.Diagnostic.Kind#NOTE} level
-     * only when system property <em>AutoRecordProcessor.debug.enabled</em> is set to {@code true}
+     * only when env variable {@code AUTO_RECORD_PROCESSOR_DEBUG} is set to {@code true}
      *
      * @param message the message to be logged
      */

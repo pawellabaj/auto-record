@@ -17,6 +17,7 @@ package pl.com.labaj.autorecord.processor;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.processor.context.MessagerLogger;
@@ -27,12 +28,17 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static javax.lang.model.element.ElementKind.INTERFACE;
-import static javax.tools.Diagnostic.Kind.NOTE;
+import static javax.tools.Diagnostic.Kind.WARNING;
 import static org.apiguardian.api.API.Status.STABLE;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotations;
@@ -86,21 +92,34 @@ public class AutoRecordProcessor extends AbstractProcessor {
         var annotationQualifiedName = annotation.getQualifiedName();
 
         if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
-            AutoRecord.Options recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
-            RecordBuilder.Options builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
-            List<AutoRecord.Extension> extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
+            var recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
+            var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
+            var extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
 
             processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
         } else {
             getAnnotation(annotation, AutoRecord.Template.class)
                     .ifPresent(template -> {
-                        AutoRecord.Options recordOptions = template.recordOptions();
-                        processingEnv.getMessager().printMessage(NOTE, "BO :" + template.builderOptions().getClass());
-                        RecordBuilder.Options builderOptions = template.builderOptions();
-                        List<AutoRecord.Extension> extensionAnnotations = List.of(template.extensions());
+                        var recordOptions = readAnnotationProperty(annotation, template, AutoRecord.Template::recordOptions, () -> null);
+                        var builderOptions = readAnnotationProperty(annotation, template, AutoRecord.Template::builderOptions, () -> null);
+                        var extensionAnnotations = readAnnotationProperty(annotation,
+                                template,
+                                tmp -> List.of(tmp.extensions()),
+                                List::<AutoRecord.Extension>of);
 
                         processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
                     });
+        }
+    }
+
+    @Nullable
+    private <T extends Annotation, V> V readAnnotationProperty(Element element, T annotation, Function<T, V> propertyGetter, Supplier<V> defaultValueSupplier) {
+        try {
+            return propertyGetter.apply(annotation);
+        } catch (AnnotationTypeMismatchException e) {
+            //In some compiling environments, eg. some of GitHub workflow runners
+            processingEnv.getMessager().printMessage(WARNING, "Cannot get annotation property:\n" + ExceptionUtils.getStackTrace(e), element);
+            return defaultValueSupplier.get();
         }
     }
 

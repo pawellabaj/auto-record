@@ -31,8 +31,8 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public class MessagerLogger implements Logger {
 
-    private static final String AUTO_RECORD_PROCESSOR_DEBUG_ENABLED_PROPERTY = "AutoRecordProcessor.debug.enabled";
-    private static final boolean DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty(AUTO_RECORD_PROCESSOR_DEBUG_ENABLED_PROPERTY, "false"));
+    private static final String AUTO_RECORD_PROCESSOR_DEBUG = "AUTO_RECORD_PROCESSOR_DEBUG";
+    private static final boolean DEBUG_ENABLED = Boolean.parseBoolean(System.getenv(AUTO_RECORD_PROCESSOR_DEBUG));
     private final Messager messager;
 
     private final Element elementContext;
