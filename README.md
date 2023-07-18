@@ -21,6 +21,12 @@ It provides an easy way to avoid writing repetitive boilerplate code. It generat
 * [memoization](https://en.wikipedia.org/wiki/Memoization)
 * ignoring specified fields in `hashCode` and `equals` methods
 
+AutoRecord allows users to customize generated records by:
+* using annotation templates
+* implementing custom extensions
+
+## Why AutoRecord was created
+
 Google [AutoValue](https://github.com/google/auto) has long been used as a way to work with _Value Classes_ in an easy way.
 However, when Java [records](https://docs.oracle.com/en/java/javase/17/language/records.html) were introduced, they lacked some features that AutoValue had, such as nullability checking, builders, and memoization.
 This is why AutoRecord was created.
