@@ -59,7 +59,6 @@
     <profiles>
         <profile>
             <id>verify</id>
-
             <build>
                 <plugins>
                     <plugin>
@@ -83,19 +82,14 @@
                                     <goal>report-aggregate</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.parent.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
-                                    <excludes>
-                                        <exclude>**/pl/com/labaj/autorecord/test/**/*.*</exclude>
-                                    </excludes>
+                                    <outputDirectory>${maven.multiModuleProjectDirectory}/target/site/jacoco-aggregate</outputDirectory>
                                     <formats>
                                         <format>XML</format>
-                                        <format>HTML</format>
                                     </formats>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>

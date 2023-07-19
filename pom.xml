@@ -48,7 +48,6 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <apiguardian-api.version>1.1.2</apiguardian-api.version>
 
-        <license-maven-plugin.header>${project.basedir}/.build/lic-header.txt</license-maven-plugin.header>
         <maven-surefire-plugin.argLine>
             --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
@@ -181,7 +180,8 @@
                 <configuration>
                     <licenseSets>
                         <licenseSet>
-                            <header>${license-maven-plugin.header}</header>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</header>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
@@ -404,6 +404,9 @@
                                     <goal>install-file</goal>
                                 </goals>
                                 <configuration>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
                                     <packaging>jar</packaging>
                                     <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
                                 </configuration>
@@ -420,7 +423,8 @@
             <properties>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.organization>pawellabaj</sonar.organization>
-                <sonar.projectKey>pl.com.labaj:auto-record-project</sonar.projectKey>
+                <!--suppress UnresolvedMavenProperty -->
+                <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
                 <!--suppress UnresolvedMavenProperty -->
                 <maven-surefire-plugin.argLine>
                     ${argLine}
@@ -450,6 +454,7 @@
                         <artifactId>sonar-maven-plugin</artifactId>
                         <executions>
                             <execution>
+                                <id>default-sonar</id>
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>sonar</goal>

@@ -13,7 +13,6 @@
     <artifactId>extension-tests</artifactId>
 
     <properties>
-        <license-maven-plugin.header>${project.parent.basedir}/.build/lic-header.txt</license-maven-plugin.header>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
@@ -47,4 +46,14 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>verify</id>
+
+            <properties>
+                <sonar.coverage.exclusions>src/main/java/**/*</sonar.coverage.exclusions>
+            </properties>
+        </profile>
+    </profiles>
 </project>
