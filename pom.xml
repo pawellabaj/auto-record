@@ -14,7 +14,8 @@
     <inceptionYear>2023</inceptionYear>
 
     <modules>
-        <module>extensions/auto-record-test-extensions</module>
+        <module>modules/extension-tests</module>
+        <module>modules/jacoco-aggregation</module>
     </modules>
 
     <properties>
@@ -38,7 +39,6 @@
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
-
         <fabric-javapoet.version>0.1.0</fabric-javapoet.version>
         <record-builder.version>37</record-builder.version>
         <jsr305.version>3.0.2</jsr305.version>
@@ -47,6 +47,8 @@
         <compile-testing.version>0.21.0</compile-testing.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <apiguardian-api.version>1.1.2</apiguardian-api.version>
+
+        <license-maven-plugin.header>${project.basedir}/.build/lic-header.txt</license-maven-plugin.header>
         <maven-surefire-plugin.argLine>
             --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
@@ -174,32 +176,12 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-resources</id>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                    <execution>
-                        <id>default-testResources</id>
-                        <goals>
-                            <goal>testResources</goal>
-                        </goals>
-                        <phase>process-test-resources</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
                     <licenseSets>
                         <licenseSet>
-                            <header>.build/lic-header.txt</header>
+                            <header>${license-maven-plugin.header}</header>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
@@ -211,10 +193,30 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>process-sources</phase>
                         <goals>
                             <goal>format</goal>
                         </goals>
-                        <phase>process-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-testResources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -242,6 +244,11 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-implicit:class</arg>
+                            </compilerArgs>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -256,45 +263,23 @@
                     </consoleOutputReporter>
                     <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-testJar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <installAtEnd>true</installAtEnd>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <phase>install</phase>
-                        <configuration>
-                            <packaging>jar</packaging>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
 
@@ -383,6 +368,53 @@
 
     <profiles>
         <profile>
+            <id>auto-record</id>
+
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <file>
+                    <exists>LICENSE</exists>
+                </file>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-jar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-jar</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                                <configuration>
+                                    <packaging>jar</packaging>
+                                    <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>verify</id>
 
             <properties>
@@ -390,12 +422,12 @@
                 <sonar.organization>pawellabaj</sonar.organization>
                 <sonar.projectKey>pl.com.labaj:auto-record-project</sonar.projectKey>
                 <!--suppress UnresolvedMavenProperty -->
-                <maven-surefire-plugin.argLine>${argLine}
+                <maven-surefire-plugin.argLine>
+                    ${argLine}
                     --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
                     --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
                     --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
                 </maven-surefire-plugin.argLine>
-                <sonar.coverage.exclusions>src/main/test-extensions/**/*</sonar.coverage.exclusions>
             </properties>
 
             <build>
@@ -409,18 +441,7 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                                <configuration>
-                                    <formats>
-                                        <format>XML</format>
-                                    </formats>
-                                </configuration>
+                                <phase>initialize</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -439,7 +460,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>release</id>
 

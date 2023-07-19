@@ -136,8 +136,8 @@ public class AutoRecordProcessor extends AbstractProcessor {
         var logger = new MessagerLogger(processingEnv.getMessager(), sourceInterface);
 
         try {
-            var context = contextBuilder.buildContext(sourceInterface, recordOptions, builderOptions, logger);
             var extensions = extensionsInitializer.initExtensions(extensionAnnotations, logger);
+            var context = contextBuilder.buildContext(sourceInterface, recordOptions, builderOptions, extensions, logger);
             var javaFile = recordGenerator.buildJavaFile(context, extensions);
 
             javaFile.writeTo(processingEnv.getFiler());

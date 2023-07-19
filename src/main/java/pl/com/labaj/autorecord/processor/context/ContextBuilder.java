@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.processor.context;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.annotation.Nullable;
@@ -32,7 +33,14 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationIfNeeded;
 
 public class ContextBuilder {
-    private static final Map<String, Object> BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
+    private static final String IMMUTABLE_COLLECTIONS_EXTENSION = "pl.com.labaj.autorecord.extension.compact.ImmutableCollectionsExtension";
+    private static final Map<String, Object> DEFAULT_BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
+    private static final Map<String, Object> WITH_IMMUTABLE_COLLECTIONS_BUILDER_OPTIONS_ENFORCED_VALUES = Map.of(
+            "addClassRetainedGenerated", true,
+            "useImmutableCollections", false,
+            "useUnmodifiableCollections", false
+    );
+
     private final Elements elementUtils;
     private final MemoizationFinder memoizationFinder = new MemoizationFinder();
     private final SpecialMethodsFinder specialMethodsFinder = new SpecialMethodsFinder();
@@ -45,9 +53,10 @@ public class ContextBuilder {
     public ProcessorContext buildContext(TypeElement sourceInterface,
                                          @Nullable AutoRecord.Options recordOptions,
                                          @Nullable RecordBuilder.Options builderOptions,
+                                         List<AutoRecordExtension> extensions,
                                          MessagerLogger logger) {
         var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
-        var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, BUILDER_OPTIONS_ENFORCED_VALUES);
+        var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, getBuilderOptionsEnforcedValues(extensions));
 
         var allMethods = elementUtils.getAllMembers(sourceInterface).stream()
                 .filter(Methods::isMethod)
@@ -74,6 +83,14 @@ public class ContextBuilder {
                 new Memoization(memoizationItems),
                 createRecordName(sourceInterface),
                 logger);
+    }
+
+    private Map<String, Object> getBuilderOptionsEnforcedValues(List<AutoRecordExtension> extensions) {
+        var possibleImmutableCollectionsExtension = extensions.stream()
+                .filter(extension -> IMMUTABLE_COLLECTIONS_EXTENSION.equals(extension.getClass().getName()))
+                .findAny();
+        return possibleImmutableCollectionsExtension.isPresent() ?
+                WITH_IMMUTABLE_COLLECTIONS_BUILDER_OPTIONS_ENFORCED_VALUES : DEFAULT_BUILDER_OPTIONS_ENFORCED_VALUES;
     }
 
     private List<TypeParameterElement> getTypeParameters(TypeElement sourceInterface) {
