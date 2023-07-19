@@ -8,12 +8,13 @@
     <url>https://github.com/pawellabaj/auto-record</url>
 
     <groupId>pl.com.labaj</groupId>
-    <artifactId>auto-record</artifactId>
+    <artifactId>auto-record-project</artifactId>
     <version>2.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
     <modules>
+        <module>modules/processor</module>
         <module>modules/extension-tests</module>
         <module>modules/jacoco-aggregation</module>
     </modules>
@@ -56,32 +57,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>net.fabricmc</groupId>
-            <artifactId>javapoet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.soabase.record-builder</groupId>
-            <artifactId>record-builder-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.soabase.record-builder</groupId>
-            <artifactId>record-builder-processor</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apiguardian</groupId>
-            <artifactId>apiguardian-api</artifactId>
-        </dependency>
-
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -202,26 +177,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>default-testResources</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>testResources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>${java.version}</source>
@@ -272,14 +227,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
             </plugin>
         </plugins>
 
@@ -367,63 +314,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>auto-record</id>
-
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <file>
-                    <exists>LICENSE</exists>
-                </file>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jar-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-jar</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>default-testJar</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>test-jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-install-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>install-jar</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>install-file</goal>
-                                </goals>
-                                <configuration>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                    <packaging>jar</packaging>
-                                    <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>verify</id>
 
