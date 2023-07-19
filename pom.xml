@@ -315,7 +315,7 @@
             <properties>
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.organization>pawellabaj</sonar.organization>
-                <sonar.projectKey>pawellabaj:auto-record</sonar.projectKey>
+                <sonar.projectKey>pl.com.labaj:auto-record</sonar.projectKey>
                 <!--suppress UnresolvedMavenProperty -->
                 <maven-surefire-plugin.argLine>${argLine}
                     --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
