@@ -390,6 +390,13 @@
                                     <goal>jar</goal>
                                 </goals>
                             </execution>
+                            <execution>
+                                <id>default-testJar</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>test-jar</goal>
+                                </goals>
+                            </execution>
                         </executions>
                     </plugin>
 
