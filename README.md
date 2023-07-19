@@ -4,12 +4,12 @@ Java record newContext generator
 
 [![Maven Central version](https://img.shields.io/maven-central/v/pl.com.labaj/auto-record)](https://mvnrepository.com/artifact/pl.com.labaj/auto-record)
 [![javadoc](https://javadoc.io/badge2/pl.com.labaj/auto-record/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj/auto-record)
-[![Reproducible Builds](https://img.shields.io/badge/Reproducible_Builds-ok-success?labelColor=1e5b96)](https://github.com/jvm-repo-rebuild/reproducible-central#pl.com.labaj:auto-record)
 
 
 [![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pawellabaj%3Aauto-record&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pawellabaj%3Aauto-record)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pl.com.labaj%3Aauto-record-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pl.com.labaj%3Aauto-record-project)
 [![Sonatype Lift Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
+[![Reproducible Builds](https://img.shields.io/badge/Reproducible_Builds-ok-success?labelColor=1e5b96)](https://github.com/jvm-repo-rebuild/reproducible-central#pl.com.labaj:auto-record)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
 
 ## What is AutoRecord
