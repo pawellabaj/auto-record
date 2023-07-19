@@ -17,3 +17,6 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
+import org.apiguardian.api.API;
+
+import static org.apiguardian.api.API.Status.INTERNAL;

@@ -18,8 +18,8 @@ package pl.com.labaj.autorecord.processor;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 class WithBuilderTest {
 
@@ -40,11 +40,11 @@ class WithBuilderTest {
 
         //then
         assertAll(
-                () -> assertNotSame(recordFromBuilder1, recordFromConstructor),
+                () -> assertThat(recordFromBuilder1).isNotSameAs(recordFromConstructor),
                 () -> assertThat(recordFromBuilder1).isEqualTo(recordFromConstructor),
-                () -> assertNotSame(recordFromBuilder2, recordFromConstructor),
+                () -> assertThat(recordFromBuilder2).isNotSameAs(recordFromConstructor),
                 () -> assertThat(recordFromBuilder2).isEqualTo(recordFromConstructor),
-                () -> assertNotSame(recordFromBuilder3, recordFromConstructor),
+                () -> assertThat(recordFromBuilder3).isNotSameAs(recordFromConstructor),
                 () -> assertThat(recordFromBuilder3).isEqualTo(recordFromConstructor)
         );
     }

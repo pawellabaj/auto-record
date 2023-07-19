@@ -24,3 +24,6 @@
 @API(status = STABLE)
 package pl.com.labaj.autorecord.memoizer;
 
+import org.apiguardian.api.API;
+
+import static org.apiguardian.api.API.Status.STABLE;
