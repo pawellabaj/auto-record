@@ -18,7 +18,7 @@ It provides an easy way to avoid writing repetitive boilerplate code. It generat
 * [nullability](https://github.com/pawellabaj/auto-record/wiki/Nullability) checking
 * [builders](https://github.com/pawellabaj/auto-record/wiki/Record-Builder) - incorporating [Randgalt/record-builder](https://github.com/Randgalt/record-builder) library
 * [memoization](https://github.com/pawellabaj/auto-record/wiki/Memoization)
-* [ignoring fields](https://github.com/pawellabaj/auto-record/wiki/Ignored-components) in `hashCode` and `equals` methods
+* [ignoring fields](https://github.com/pawellabaj/auto-record/wiki/Ignored-components) in `hashCode()` and `equals()` methods
 * generated _common_ methods if the record has an [array component](https://github.com/pawellabaj/auto-record/wiki/Array-components)
 * exclusion from [JaCoCo test coverage](https://github.com/pawellabaj/auto-record/wiki/JaCoCo-exclusion) analysis
 
