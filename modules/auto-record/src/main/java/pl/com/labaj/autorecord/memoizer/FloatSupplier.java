@@ -16,9 +16,11 @@ package pl.com.labaj.autorecord.memoizer;
  * limitations under the License.
  */
 
+import java.util.function.Supplier;
+
 /**
  * Represents a supplier of {@code float}-valued results.  This is the
- * {@code float}-producing primitive specialization of {@link java.util.function.Supplier}.
+ * {@code float}-producing primitive specialization of {@link Supplier}.
  *
  * <p>There is no requirement that a distinct result be returned each
  * time the supplier is invoked.
@@ -26,7 +28,7 @@ package pl.com.labaj.autorecord.memoizer;
  * <p>This is a {@link java.util.function functional interface}
  * whose functional method is {@link #getAsFloat()}.
  *
- * @see java.util.function.Supplier
+ * @see Supplier
  * @since 1.8
  */
 @FunctionalInterface

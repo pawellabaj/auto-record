@@ -16,29 +16,31 @@ package pl.com.labaj.autorecord.context;
  * limitations under the License.
  */
 
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.tools.Diagnostic.Kind;
 
 /**
- * A Logger object is used to log messages during annotation processing with specified {@linkplain javax.tools.Diagnostic.Kind levels}.
- * It uses {@link javax.annotation.processing.Messager} provided by {@link ProcessingEnvironment}
+ * A Logger object is used to log messages during annotation processing with specified {@linkplain Kind levels}.
+ * It uses {@link Messager} provided by {@link ProcessingEnvironment}
  *
- * @see javax.annotation.processing.Messager
- * @see javax.tools.Diagnostic.Kind
+ * @see Messager
+ * @see Kind
  * @since 2.1.0
  */
 public interface Logger {
 
     /**
-     * Is the logger instance enabled for the debugging?
+     * Check if the logger instance should log debug information.
      *
-     * @return {@code true} when env variable {@code AUTO_RECORD_PROCESSOR_DEBUG} is set to {@code "true"}
-     * {@code false} otherwise
+     * @return {@code true} when env variable {@code AUTO_RECORD_PROCESSOR_DEBUG} is set to {@code "true"}, {@code false} otherwise
      * @see #debug(String)
      */
     boolean isDebugEnabled();
 
     /**
-     * Log a message at the {@link javax.tools.Diagnostic.Kind#NOTE} level with {@code "[DEBUG] "} prefix
+     * Log a message at the {@link Kind#NOTE} level with {@code "[DEBUG] "} prefix
      * when {@link #isDebugEnabled()} returns {@code true}
      *
      * @param message the message to be logged
@@ -47,37 +49,37 @@ public interface Logger {
     void debug(String message);
 
     /**
-     * Log a message at the {@link javax.tools.Diagnostic.Kind#NOTE} level.
+     * Log a message at the {@link Kind#NOTE} level.
      *
      * @param message the message to be logged
      */
     void info(String message);
 
     /**
-     * Log a message at the {@link javax.tools.Diagnostic.Kind#WARNING} level.
+     * Log a message at the {@link Kind#WARNING} level.
      *
      * @param message the message to be logged
      */
     void warning(String message);
 
     /**
-     * Log a message at the {@link javax.tools.Diagnostic.Kind#MANDATORY_WARNING} level.
+     * Log a message at the {@link Kind#MANDATORY_WARNING} level.
      *
      * @param message the message to be logged
      */
     void mandatoryWarning(String message);
 
     /**
-     * Log a message at the {@link javax.tools.Diagnostic.Kind#ERROR} level.
-     * In addition, {@linkplain javax.annotation.processing.RoundEnvironment#errorRaised raises an error} in a processing round
+     * Log a message at the {@link Kind#ERROR} level.
+     * In addition, {@linkplain RoundEnvironment#errorRaised raises an error} in a processing round
      *
      * @param message the message to be logged
      */
     void error(String message);
 
     /**
-     * Log an exception (throwable) at the {@link javax.tools.Diagnostic.Kind#ERROR} level with an accompanying message.
-     * In addition, {@linkplain javax.annotation.processing.RoundEnvironment#errorRaised raises an error} in a processing round
+     * Log an exception (throwable) at the {@link Kind#ERROR} level with an accompanying message.
+     * In addition, {@linkplain RoundEnvironment#errorRaised raises an error} in a processing round
      *
      * @param message   the message to be logged
      * @param throwable the exception (throwable) to log
@@ -85,7 +87,7 @@ public interface Logger {
     void error(String message, Throwable throwable);
 
     /**
-     * Log a message at the {@link javax.tools.Diagnostic.Kind#OTHER} level.
+     * Log a message at the {@link Kind#OTHER} level.
      *
      * @param message the message to be logged
      */

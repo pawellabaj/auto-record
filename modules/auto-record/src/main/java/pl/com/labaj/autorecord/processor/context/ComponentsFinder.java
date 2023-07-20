@@ -43,6 +43,6 @@ class ComponentsFinder {
         var name = method.getSimpleName().toString();
         var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), TYPE_PARAMETER);
 
-        return new RecordComponent(type, name, annotations);
+        return new ProcessorRecordComponent(type, name, annotations);
     }
 }

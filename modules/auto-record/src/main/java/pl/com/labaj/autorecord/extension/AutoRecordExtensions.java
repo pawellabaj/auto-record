@@ -19,6 +19,7 @@ package pl.com.labaj.autorecord.extension;
 import pl.com.labaj.autorecord.AutoRecord;
 
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -27,11 +28,20 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
+ * An annotation used to mark the {@link AutoRecord.Extension} annotation as repeatable.
+ *
+ * @see AutoRecord.Extension
+ * @see Repeatable
  * @since 2.1.0
  */
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE, TYPE})
 @Inherited
 public @interface AutoRecordExtensions {
+    /**
+     * An array of {@link AutoRecord.Extension} annotations representing the extensions to be used during record generation.
+     *
+     * @return an array of {@link AutoRecord.Extension} annotations.
+     */
     AutoRecord.Extension[] value();
 }

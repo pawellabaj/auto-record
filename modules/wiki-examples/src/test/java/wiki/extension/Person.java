@@ -16,8 +16,8 @@ package wiki.extension;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.test.extension.compact.IsPersonAdultVerifierExtension;
-import pl.com.labaj.autorecord.test.extension.compact.LoggingExtension;
+import pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension;
+import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 import javax.annotation.Nullable;
 

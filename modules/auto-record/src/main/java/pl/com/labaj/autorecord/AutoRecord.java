@@ -19,6 +19,7 @@ package pl.com.labaj.autorecord;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.extension.AutoRecordExtensions;
+import pl.com.labaj.autorecord.processor.AutoRecordProcessor;
 
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
@@ -55,7 +56,7 @@ public @interface AutoRecord {
     @Inherited
     @interface Options {
         /**
-         * If {@code true}, {@link io.soabase.recordbuilder.core.RecordBuilder} annotation is added to generated record. This causes generating a builder.
+         * If {@code true}, {@link RecordBuilder} annotation is added to generated record. This causes generating a builder.
          *
          * @return a flag indicating if builder should be generated
          * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Record-Builder">Builder Wiki</a>
@@ -80,6 +81,11 @@ public @interface AutoRecord {
     }
 
     /**
+     * Used to specify an extension for the {@link AutoRecordProcessor} used during a record generation.
+     *
+     * @see AutoRecordExtension
+     * @see Template#extensions()
+     * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Extensions">Extensions Wiki</a>
      * @since 2.1.0
      */
     @Retention(SOURCE)
@@ -87,8 +93,19 @@ public @interface AutoRecord {
     @Inherited
     @Repeatable(AutoRecordExtensions.class)
     @interface Extension {
+        /**
+         * The class of the custom extension. It needs to implement the {@link AutoRecordExtension} interface.
+         *
+         * @return the class of the custom extension.
+         */
         Class<? extends AutoRecordExtension> extensionClass();
 
+        /**
+         * Additional parameters for the custom extension.
+         *
+         * @return an array of {@link String} objects representing the additional parameters for the custom extension.
+         * @see AutoRecordExtension#setParameters(String[])
+         */
         String[] parameters() default {};
     }
 
@@ -110,7 +127,7 @@ public @interface AutoRecord {
         AutoRecord.Options recordOptions() default @AutoRecord.Options();
 
         /**
-         * Specifies options for the {@link io.soabase.recordbuilder.core.RecordBuilder} used for builder generation if enabled by
+         * Specifies options for the {@link RecordBuilder} used for builder generation if enabled by
          * {@link Options#withBuilder() withBuilder()}.
          *
          * @return options for builder generation
@@ -119,7 +136,11 @@ public @interface AutoRecord {
         RecordBuilder.Options builderOptions() default @RecordBuilder.Options();
 
         /**
-         * @return
+         * Specifies the custom extensions to be used during record generation.
+         *
+         * @return an array of {@link AutoRecord.Extension} annotations representing the extensions to be used during record generation.
+         * @see AutoRecord.Extension
+         * @see AutoRecordExtension
          * @since 2.1.0
          */
         AutoRecord.Extension[] extensions() default {};

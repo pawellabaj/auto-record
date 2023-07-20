@@ -15,7 +15,12 @@
  * limitations under the License.
  */
 
-//TODO: Add package description
+/**
+ * Provides classes representing annotation process context used by {@linkplain  pl.com.labaj.autorecord.processor.AutoRecordProcessor AutoRecordProcessor} and
+ * {@linkplain pl.com.labaj.autorecord.extension.AutoRecordExtension AutoRecordExtension}
+ *
+ * @since 2.1.0
+ */
 @API(status = STABLE, since = "2.1.0")
 package pl.com.labaj.autorecord.context;
 

@@ -54,8 +54,8 @@ class CompactConstructorSubGenerator {
 
     void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         var nonNullNames = context.components().stream()
-                .filter(RecordComponent::isNotPrimitive)
-                .filter(rc -> rc.isNotAnnotatedWith(Nullable.class))
+                .filter(component -> !component.isPrimitive())
+                .filter(component -> !component.isAnnotatedWith(Nullable.class))
                 .map(RecordComponent::name)
                 .toList();
 

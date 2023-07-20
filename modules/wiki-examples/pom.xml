@@ -13,7 +13,6 @@
     <artifactId>wiki-examples</artifactId>
 
     <properties>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <sonar.skip>true</sonar.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
@@ -22,11 +21,6 @@
         <dependency>
             <groupId>pl.com.labaj</groupId>
             <artifactId>auto-record</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>pl.com.labaj</groupId>
-            <artifactId>auto-record-tests</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

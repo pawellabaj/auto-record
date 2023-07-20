@@ -12,6 +12,10 @@
 
     <artifactId>auto-record</artifactId>
 
+    <properties>
+        <maven.javadoc.skip>false</maven.javadoc.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.fabricmc</groupId>

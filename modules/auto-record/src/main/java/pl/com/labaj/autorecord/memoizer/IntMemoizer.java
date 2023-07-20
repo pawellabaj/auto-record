@@ -42,7 +42,7 @@ public final class IntMemoizer {
     /**
      * Computes and memoizes the value of the function supplied if it has not already been computed.
      *
-     * @param valueSupplier a {@link java.util.function.IntSupplier} representing the function that will generate the value to be memoized
+     * @param valueSupplier a {@link IntSupplier} representing the function that will generate the value to be memoized
      * @return the memoized value
      */
     public int computeAsIntIfAbsent(IntSupplier valueSupplier) {

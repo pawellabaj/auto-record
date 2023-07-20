@@ -144,10 +144,10 @@ public class AutoRecordProcessor extends AbstractProcessor {
             var javaFile = recordGenerator.buildJavaFile(context, extensions);
 
             javaFile.writeTo(processingEnv.getFiler());
+
+            logStartEnd("[ END ] ", sourceInterface, logger);
         } catch (Exception e) {
             logger.error("Exception thrown during generation record", e);
-        } finally {
-            logStartEnd("[ END ] ", sourceInterface, logger);
         }
     }
 

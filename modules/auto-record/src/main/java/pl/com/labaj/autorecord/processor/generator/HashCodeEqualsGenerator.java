@@ -46,7 +46,7 @@ class HashCodeEqualsGenerator extends RecordGenerator {
         }
 
         var requiredComponents = context.components().stream()
-                .filter(recordComponent -> recordComponent.isNotAnnotatedWith(Ignored.class))
+                .filter(recordComponent -> !recordComponent.isAnnotatedWith(Ignored.class))
                 .toList();
 
         hashCodeSubGenerator.generate(recordBuilder, staticImports, isHashCodeMemoized, requiredComponents);

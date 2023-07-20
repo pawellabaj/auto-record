@@ -42,7 +42,7 @@ public final class DoubleMemoizer {
     /**
      * Computes and memoizes the value of the function supplied if it has not already been computed.
      *
-     * @param valueSupplier a {@link java.util.function.DoubleSupplier} representing the function that will generate the value to be memoized
+     * @param valueSupplier a {@link DoubleSupplier} representing the function that will generate the value to be memoized
      * @return the memoized value
      */
     public double computeAsDoubleIfAbsent(DoubleSupplier valueSupplier) {

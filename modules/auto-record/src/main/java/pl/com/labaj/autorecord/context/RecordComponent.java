@@ -17,46 +17,60 @@ package pl.com.labaj.autorecord.context;
  */
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
-import static javax.lang.model.type.TypeKind.ARRAY;
-
 /**
- * @param type
- * @param name
- * @param annotations
+ * Represents a component of the generated record.
+ * <p>
+ * This interface provides methods to access information about the record component.
+ *
  * @since 2.1.0
  */
-public record RecordComponent(TypeMirror type, String name, List<AnnotationMirror> annotations) {
+public interface RecordComponent {
+    /**
+     * Gets the type of the record component.
+     *
+     * @return the type of the record component.
+     * @see TypeMirror
+     */
+    TypeMirror type();
 
-    public boolean isNotPrimitive() {
-        return !type.getKind().isPrimitive();
-    }
+    /**
+     * Gets the name of the record component.
+     *
+     * @return the name of the record component.
+     */
+    String name();
 
-    public boolean isArray() {
-        return type.getKind() == ARRAY;
-    }
+    /**
+     * Gets the list of {@link AnnotationMirror} instances representing the annotations applied to the record component.
+     *
+     * @return the list of {@link AnnotationMirror} instances representing the annotations applied to the record component.
+     * @see AnnotationMirror
+     */
+    List<AnnotationMirror> annotations();
 
-    public boolean isAnnotatedWith(Class<? extends Annotation> annotationClass) {
-        var annotationClassName = annotationClass.getName();
+    /**
+     * Checks if the component's type is a primitive type.
+     *
+     * @return {@code true} if the component's type is a primitive type, {@code false} otherwise.
+     */
+    boolean isPrimitive();
 
-        return annotations.stream()
-                .map(this::getQualifiedClassName)
-                .anyMatch(qualifiedName -> qualifiedName.contentEquals(annotationClassName));
-    }
+    /**
+     * Checks if the component's type is an array type.
+     *
+     * @return {@code true} if the component's type is an array type, {@code false} otherwise.
+     */
+    boolean isArray();
 
-    public boolean isNotAnnotatedWith(Class<? extends Annotation> annotationClass) {
-        return !isAnnotatedWith(annotationClass);
-    }
-
-    private Name getQualifiedClassName(AnnotationMirror annotation) {
-        var annotationType = annotation.getAnnotationType();
-        var typeElement = (TypeElement) annotationType.asElement();
-
-        return typeElement.getQualifiedName();
-    }
+    /**
+     * Checks if the component is annotated with a specific annotation class.
+     *
+     * @param annotationClass the {@link Class} object representing the annotation to check for.
+     * @return {@code true} if the component is annotated with the specified annotation class, {@code false} otherwise.
+     */
+    boolean isAnnotatedWith(Class<? extends Annotation> annotationClass);
 }

@@ -15,7 +15,15 @@
  * limitations under the License.
  */
 
-//TODO: Add package description
+/**
+ * Provides annotations and interfaces needed to process extensions.
+ *
+ * <p>{@link pl.com.labaj.autorecord.extension.AutoRecordExtension} interface has to be implemented by all extensions.
+ *
+ * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Extensions">Extensions Wiki</a>
+ * @since 2.1.0
+ */
+
 @API(status = STABLE, since = "2.1.0")
 package pl.com.labaj.autorecord.extension;
 

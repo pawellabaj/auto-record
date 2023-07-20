@@ -17,7 +17,6 @@
         <maven.resources.skip>true</maven.resources.skip>
         <maven.main.skip>true</maven.main.skip>
         <maven.test.skip>true</maven.test.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <sonar.skip>true</sonar.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>

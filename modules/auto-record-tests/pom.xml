@@ -13,7 +13,6 @@
     <artifactId>auto-record-tests</artifactId>
 
     <properties>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
 
