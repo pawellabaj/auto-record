@@ -1,4 +1,5 @@
-package wiki.extension;
+package wiki.customization.template;
+
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -15,18 +16,9 @@ package wiki.extension;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
+import pl.com.labaj.autorecord.CustomAutoRecord;
 
-import javax.annotation.Nullable;
-
-@AutoRecord
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
+@CustomAutoRecord
 interface Person {
     String name();
-
-    @Nullable
-    String surname();
-
-    int age();
 }

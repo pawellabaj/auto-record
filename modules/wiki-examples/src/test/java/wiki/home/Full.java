@@ -1,4 +1,4 @@
-package wiki;
+package wiki.home;
 /*-
  * Copyright © 2023 Auto Record
  *

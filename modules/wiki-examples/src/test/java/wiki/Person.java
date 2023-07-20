@@ -1,4 +1,5 @@
 package wiki;
+
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -15,18 +16,11 @@ package wiki;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.AutoRecordWithBuilder;
+import pl.com.labaj.autorecord.AutoRecord;
 
-//@AutoRecord
-//@AutoRecord.Options(withBuilder = true)
-@AutoRecordWithBuilder
+@AutoRecord
+@AutoRecord.Options(memoizedHashCode = true)
 interface Person {
     String name();
     int age();
-
-    static PersonRecordBuilder builder() {
-        return PersonRecord.builder();
-    }
-
-    PersonRecordBuilder toBuilder();
 }

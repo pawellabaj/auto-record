@@ -1,4 +1,5 @@
-package wiki.extension;
+package wiki.nullability;
+
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -16,17 +17,15 @@ package wiki.extension;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 import javax.annotation.Nullable;
 
 @AutoRecord
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
 interface Person {
     String name();
 
-    @Nullable
-    String surname();
-
     int age();
+
+    @Nullable
+    String email();
 }

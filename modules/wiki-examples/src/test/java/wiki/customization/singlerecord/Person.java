@@ -1,4 +1,5 @@
-package wiki.extension;
+package wiki.customization.singlerecord;
+
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -15,18 +16,17 @@ package wiki.extension;
  * limitations under the License.
  */
 
+import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension;
 import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
-import javax.annotation.Nullable;
-
 @AutoRecord
+@AutoRecord.Options(withBuilder = true, memoizedHashCode = true, memoizedToString = true)
+@RecordBuilder.Options(addConcreteSettersForOptional = true)
 @AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
+@AutoRecord.Extension(extensionClass = IsPersonAdultVerifierExtension.class)
 interface Person {
     String name();
-
-    @Nullable
-    String surname();
-
     int age();
 }

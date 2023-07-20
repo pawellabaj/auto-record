@@ -1,4 +1,5 @@
-package wiki.extension;
+package wiki.builder;
+
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -15,18 +16,14 @@ package wiki.extension;
  * limitations under the License.
  */
 
+import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
-
-import javax.annotation.Nullable;
 
 @AutoRecord
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
-interface Person {
+@AutoRecord.Options(withBuilder = true)
+@RecordBuilder.Options(suffix = "_Creator")
+interface PersonB {
     String name();
-
-    @Nullable
-    String surname();
 
     int age();
 }

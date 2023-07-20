@@ -1,4 +1,5 @@
-package wiki.extension;
+package wiki.memoization;
+
 /*-
  * Copyright © 2023 Auto Record
  *
@@ -16,17 +17,16 @@ package wiki.extension;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
-
-import javax.annotation.Nullable;
+import pl.com.labaj.autorecord.Memoized;
 
 @AutoRecord
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
-interface Person {
+interface PersonM {
     String name();
 
-    @Nullable
-    String surname();
-
     int age();
+
+    @Memoized
+    default long slowComputingMethod() {
+        return 0L;
+    }
 }
