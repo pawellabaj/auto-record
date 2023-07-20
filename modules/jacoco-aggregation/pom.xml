@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>pl.com.labaj</groupId>
-            <artifactId>extension-tests</artifactId>
+            <artifactId>auto-record-tests</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
