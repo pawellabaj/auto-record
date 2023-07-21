@@ -18,18 +18,22 @@ openDraftPR: true
 prSkipCI: true
 
 conventionalPrTitles: true
+conventionalStyle: semver
 
 conventionalLabels:
-  docs:
-    documentation: ':memo:'
   fix:
     bug: ':ambulance:'
+    fix: ':ambulance:'
+    dependencies: ':arrow_up:'
     performance: ':zap:'
+    doc: ':memo:'
+    documentation: ':memo:'
     security: ':lock:'
     build: ':construction_worker:'
   feature:
     enhancement: ':sparkles:'
-    dependencies: ':arrow_up:'
+    feat: ':sparkles:'
+    feature: ':sparkles:'
   breaking:
     breaking-change: ':boom:'
     breaking change: ':boom:'
