@@ -98,4 +98,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v${{ env.RELEASE_VERSION }} target/auto-record-${{ env.RELEASE_VERSION }}.jar --generate-notes --verify-tag
+          gh release create v${{ env.RELEASE_VERSION }} modules/auto-record/target/auto-record-${{ env.RELEASE_VERSION }}.jar --generate-notes --verify-tag
