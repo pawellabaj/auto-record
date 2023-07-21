@@ -17,8 +17,6 @@ package pl.com.labaj.autorecord;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -32,8 +30,8 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
         recordOptions = @AutoRecord.Options(withBuilder = true),
         builderOptions = @RecordBuilder.Options(useUnmodifiableCollections = true),
         extensions = {
-                @AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info"),
-                @AutoRecord.Extension(extensionClass = IsPersonAdultVerifierExtension.class)
+                @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.LoggingExtension", parameters = "info"),
+                @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension")
         }
 )
 public @interface AutoRecordWithExtensions {}

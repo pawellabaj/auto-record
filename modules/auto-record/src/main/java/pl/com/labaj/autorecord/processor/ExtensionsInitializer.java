@@ -20,58 +20,55 @@ import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 
-import javax.lang.model.type.MirroredTypeException;
+import javax.annotation.processing.ProcessingEnvironment;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeSet;
 
 class ExtensionsInitializer {
+    private final ProcessingEnvironment processingEnv;
+    private final Map<Integer, AutoRecordExtension> extensions = new HashMap<>();
+
+    ExtensionsInitializer(ProcessingEnvironment processingEnv) {
+        this.processingEnv = processingEnv;
+    }
 
     List<AutoRecordExtension> initExtensions(List<AutoRecord.Extension> extensionAnnotations, Logger logger) {
         return extensionAnnotations.stream()
-                .map(extendWith -> initExtension(extendWith, logger))
+                .map(extensionAnnotation -> initExtension(extensionAnnotation, logger))
                 .toList();
     }
 
     private AutoRecordExtension initExtension(AutoRecord.Extension extensionAnnotation, Logger logger) {
-        var extensionClass = loadExtensionClass(extensionAnnotation, logger);
-        var extension = instantiateExtension(extensionClass);
-        extension.setParameters(extensionAnnotation.parameters());
+        var className = extensionAnnotation.extensionClass();
+        var parameters = extensionAnnotation.parameters();
 
-        return extension;
+        logger.debug("Init " + className + " with " + Arrays.toString(parameters));
+
+        return extensions.computeIfAbsent(extensionKey(className, parameters), key -> {
+            var extension = instantiateExtension(className);
+            extension.init(processingEnv, parameters);
+
+            return extension;
+        });
     }
 
-    private Class<? extends AutoRecordExtension> loadExtensionClass(AutoRecord.Extension extensionAnnotation, Logger logger) {
-        Class<? extends AutoRecordExtension> extensionClass;
+    private int extensionKey(String className, String[] parameters) {
+        var sortedParameters = new TreeSet<>(Arrays.asList(parameters));
+        return Objects.hash(className, sortedParameters);
+    }
+
+    private AutoRecordExtension instantiateExtension(String className) {
         try {
-            extensionClass = extensionAnnotation.extensionClass();
-            logger.debug("Class from annotation: " + extensionClass);
-        } catch (MirroredTypeException e) {
-            var className = e.getTypeMirror().toString();
-            logger.debug("Class name from typeMirror: " + className);
+            var extensionClass = Class.forName(className);
+            var constructor = extensionClass.getDeclaredConstructor();
 
-            try {
-                var aClass = Class.forName(className);
-                extensionClass = getExtensionClass(aClass);
-            } catch (ClassNotFoundException ex) {
-                throw new AutoRecordProcessorException("Cannot load class " + className, ex);
-            }
-        }
-
-        return extensionClass;
-    }
-
-    @SuppressWarnings("unchecked")
-    private  Class<? extends AutoRecordExtension> getExtensionClass(Class<?> aClass) {
-        if (AutoRecordExtension.class.isAssignableFrom(aClass)) {
-            return (Class<? extends AutoRecordExtension>) aClass;
-        }
-        throw new AutoRecordProcessorException("Class " + aClass.getName() + " does not extend " + AutoRecordExtension.class.getName());
-    }
-
-    private AutoRecordExtension instantiateExtension(Class<? extends AutoRecordExtension> extensionClass) {
-        try {
-            return extensionClass.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            return (AutoRecordExtension) constructor.newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
             throw new AutoRecordProcessorException("Can't instantiate extension " + e.getLocalizedMessage());
         }
     }

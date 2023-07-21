@@ -29,6 +29,7 @@ import java.util.function.BiConsumer;
 import static org.apiguardian.api.API.Status.INTERNAL;
 
 @API(status = INTERNAL)
+public
 class StaticImportsCollectors implements pl.com.labaj.autorecord.context.StaticImports {
 
     final Map<ClassName, Set<String>> statements = new HashMap<>();

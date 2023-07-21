@@ -22,10 +22,10 @@ import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.annotation.Nullable;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.util.Elements;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +33,7 @@ import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationIfNeeded;
 
 public class ContextBuilder {
-    private static final String IMMUTABLE_COLLECTIONS_EXTENSION = "pl.com.labaj.autorecord.extension.compact.ImmutableCollectionsExtension";
+    private static final String IMMUTABLE_COLLECTIONS_EXTENSION = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension";
     private static final Map<String, Object> DEFAULT_BUILDER_OPTIONS_ENFORCED_VALUES = Map.of("addClassRetainedGenerated", true);
     private static final Map<String, Object> WITH_IMMUTABLE_COLLECTIONS_BUILDER_OPTIONS_ENFORCED_VALUES = Map.of(
             "addClassRetainedGenerated", true,
@@ -41,13 +41,13 @@ public class ContextBuilder {
             "useUnmodifiableCollections", false
     );
 
-    private final Elements elementUtils;
+    private final ProcessingEnvironment processingEnv;
     private final MemoizationFinder memoizationFinder = new MemoizationFinder();
     private final SpecialMethodsFinder specialMethodsFinder = new SpecialMethodsFinder();
     private final ComponentsFinder componentsFinder = new ComponentsFinder();
 
-    public ContextBuilder(Elements elementUtils) {
-        this.elementUtils = elementUtils;
+    public ContextBuilder(ProcessingEnvironment processingEnv) {
+        this.processingEnv = processingEnv;
     }
 
     public ProcessorContext buildContext(TypeElement sourceInterface,
@@ -58,7 +58,7 @@ public class ContextBuilder {
         var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
         var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, getBuilderOptionsEnforcedValues(extensions));
 
-        var allMethods = elementUtils.getAllMembers(sourceInterface).stream()
+        var allMethods = processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
                 .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .toList();
@@ -70,7 +70,8 @@ public class ContextBuilder {
         var memoizationItems = memoizationFinder.findMemoizationItems(allMethods, nonNullRecordOptions, specialMethodsFinder::isSpecial);
         var components = componentsFinder.getComponents(allMethods, specialMethodsFinder::isNotSpecial);
 
-        return new ProcessorContext(getPackageName(sourceInterface),
+        return new ProcessorContext(processingEnv,
+                getPackageName(sourceInterface),
                 nonNullRecordOptions,
                 nonNullBuilderOptions,
                 isPublic,
@@ -100,7 +101,7 @@ public class ContextBuilder {
     }
 
     private String getPackageName(TypeElement sourceInterface) {
-        return elementUtils.getPackageOf(sourceInterface).getQualifiedName().toString();
+        return processingEnv.getElementUtils().getPackageOf(sourceInterface).getQualifiedName().toString();
     }
 
     private String getInterfaceName(TypeElement sourceInterface) {

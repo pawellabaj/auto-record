@@ -17,14 +17,12 @@ package pl.com.labaj.autorecord.testcase;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.test.extension.compact.AlwaysCompactConstructorExtension;
-import pl.com.labaj.autorecord.test.extension.compact.WhenProcessorCompactConstructorExtension;
 
 import javax.annotation.Nullable;
 
 @AutoRecord
-@AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = {"Alpha", "Bravo"})
-@AutoRecord.Extension(extensionClass = WhenProcessorCompactConstructorExtension.class)
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.AlwaysCompactConstructorExtension", parameters = {"Alpha", "Bravo"})
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.WhenProcessorCompactConstructorExtension")
 interface WithOnlyCompactConstructorExtension {
     @Nullable
     String property();

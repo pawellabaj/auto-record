@@ -16,14 +16,13 @@ package pl.com.labaj.autorecord.test.extension;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.test.extension.compact.IsPersonAdultVerifierExtension;
-import pl.com.labaj.autorecord.test.extension.compact.LoggingExtension;
 
 import javax.annotation.Nullable;
 
 @AutoRecord
-@AutoRecord.Extension(extensionClass = IsPersonAdultVerifierExtension.class, parameters = "java.lang.IllegalStateException")
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.IsPersonAdultVerifierExtension",
+        parameters = "java.lang.IllegalStateException")
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.LoggingExtension", parameters = "info")
 interface PersonWithExtensions {
     String name();
 

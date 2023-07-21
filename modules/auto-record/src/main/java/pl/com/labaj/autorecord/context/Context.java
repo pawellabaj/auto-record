@@ -27,6 +27,7 @@ import java.util.List;
  * Represents the context of the {@link AutoRecord} annotation processing.
  *
  * <p>This interface provides access to various information and options needed during generation of a record class.
+ * <p><b>Compatibility Note:</b> Methods may be added to this interface in future releases of the library.
  *
  * @since 2.1.0
  */

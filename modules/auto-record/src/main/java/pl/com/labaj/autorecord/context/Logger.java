@@ -53,7 +53,7 @@ public interface Logger {
      *
      * @param message the message to be logged
      */
-    void info(String message);
+    void note(String message);
 
     /**
      * Log a message at the {@link Kind#WARNING} level.

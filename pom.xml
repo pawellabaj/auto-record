@@ -9,13 +9,15 @@
 
     <groupId>pl.com.labaj</groupId>
     <artifactId>auto-record-project</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
     <modules>
         <module>modules/auto-record</module>
         <module>modules/auto-record-tests</module>
+        <module>extensions/immutable-collections</module>
+        <module>extensions/immutable-collections-tests</module>
         <module>modules/doc-examples</module>
         <module>modules/mvn-aggregation</module>
     </modules>
@@ -24,7 +26,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-07-03T11:23:03Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-07-21T11:15:27Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -56,6 +58,8 @@
             --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <!--suppress UnresolvedMavenProperty -->
+        <license-maven-plugin.header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</license-maven-plugin.header>
     </properties>
 
     <dependencyManagement>
@@ -134,8 +138,7 @@
                 <configuration>
                     <licenseSets>
                         <licenseSet>
-                            <!--suppress UnresolvedMavenProperty -->
-                            <header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</header>
+                            <header>${license-maven-plugin.header}</header>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
@@ -170,9 +173,6 @@
                         </goals>
                         <configuration>
                             <proc>none</proc>
-                            <compilerArgs>
-                                <arg>-Xlint:unchecked</arg>
-                            </compilerArgs>
                         </configuration>
                     </execution>
                     <execution>

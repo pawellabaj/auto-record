@@ -19,6 +19,7 @@ package pl.com.labaj.autorecord.processor;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.processor.context.ContextBuilder;
 import pl.com.labaj.autorecord.processor.context.MessagerLogger;
 
@@ -64,8 +65,8 @@ public class AutoRecordProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
 
-        extensionsInitializer = new ExtensionsInitializer();
-        contextBuilder = new ContextBuilder(processingEnv.getElementUtils());
+        extensionsInitializer = new ExtensionsInitializer(processingEnv);
+        contextBuilder = new ContextBuilder(processingEnv);
         recordGenerator = new RecordJavaFileBuilder();
     }
 
@@ -151,10 +152,10 @@ public class AutoRecordProcessor extends AbstractProcessor {
         }
     }
 
-    private void logStartEnd(String prefix, TypeElement sourceInterface, MessagerLogger logger) {
+    private void logStartEnd(String prefix, TypeElement sourceInterface, Logger logger) {
         if (logger.isDebugEnabled()) {
             var message = rightPad(prefix + sourceInterface.getQualifiedName() + " ", 100, "-");
-            logger.info(message);
+            logger.note(message);
         }
     }
 }

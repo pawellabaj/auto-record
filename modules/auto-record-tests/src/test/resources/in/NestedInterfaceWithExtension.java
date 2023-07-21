@@ -18,14 +18,13 @@ package pl.com.labaj.autorecord.testcase;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.test.extension.compact.LoggingExtension;
 
 public class NestedInterfaceWithExtension {
 
     static class Intermediate {
         @AutoRecord
         @AutoRecord.Options(memoizedHashCode = true)
-        @AutoRecord.Extension(extensionClass = LoggingExtension.class)
+        @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.LoggingExtension")
         public interface Internal {
             String name();
 

@@ -48,6 +48,8 @@ public @interface AutoRecord {
 
     /**
      * Specifies options for the {@link AutoRecord} annotation.
+     * <p>
+     * <b>Compatibility Note:</b> Methods may be added to this annotation in future releases of the library.
      *
      * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Customization">Customization Wiki</a>
      */
@@ -82,11 +84,13 @@ public @interface AutoRecord {
 
     /**
      * Used to specify an extension for the {@link AutoRecordProcessor} used during a record generation.
+     * <p>
+     * Note: Class specified in {@link #extensionClass()} must be already present on classpath during the annotation processing.
      *
      * @see AutoRecordExtension
      * @see Template#extensions()
      * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Extensions">Extensions Wiki</a>
-     * @since 2.1.0
+     * @since 3.0.0
      */
     @Retention(SOURCE)
     @Target({ANNOTATION_TYPE, TYPE})
@@ -94,17 +98,17 @@ public @interface AutoRecord {
     @Repeatable(AutoRecordExtensions.class)
     @interface Extension {
         /**
-         * The class of the custom extension. It needs to implement the {@link AutoRecordExtension} interface.
+         * The FQCN of the custom extension. The class needs to implement the {@link AutoRecordExtension} interface.
          *
-         * @return the class of the custom extension.
+         * @return the class name of the custom extension.
          */
-        Class<? extends AutoRecordExtension> extensionClass();
+        String extensionClass();
 
         /**
          * Additional parameters for the custom extension.
          *
          * @return an array of {@link String} objects representing the additional parameters for the custom extension.
-         * @see AutoRecordExtension#setParameters(String[])
+         * @see AutoRecordExtension#init(javax.annotation.processing.ProcessingEnvironment, String[])
          */
         String[] parameters() default {};
     }

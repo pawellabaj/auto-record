@@ -19,6 +19,8 @@ package pl.com.labaj.autorecord.extension;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessor;
 
+import javax.annotation.processing.ProcessingEnvironment;
+
 /**
  * Represents an extension for the {@link AutoRecordProcessor} that can be used
  * to customize the record generation process.
@@ -29,6 +31,8 @@ import pl.com.labaj.autorecord.processor.AutoRecordProcessor;
  * <ul>
  * <li>{@link CompactConstructorExtension}</li>
  * </ul>
+ * <p>
+ * <b>Compatibility Note:</b> Methods may be added to this interface in future releases of the library.
  *
  * @see <a href="https://github.com/pawellabaj/auto-record/wiki/Extensions">Extensions Wiki</a>
  * @since 2.1.0
@@ -38,9 +42,13 @@ public interface AutoRecordExtension {
      * Sets the parameters for the extension.
      * <p>
      * This method can be overridden by the extension to receive any custom parameters that may be needed during record generation.
+     * <p>
+     * <b>Note:</b> The method is called before any other methods.
      *
-     * @param parameters array of {@link String} objects representing the additional parameters for the custom extension.
+     * @param processingEnv
+     * @param parameters    array of {@link String} objects representing the additional parameters for the custom extension.
      * @see AutoRecord.Extension#parameters()
+     * @since 3.0.0
      */
-    default void setParameters(String[] parameters) {}
+    default void init(ProcessingEnvironment processingEnv, String[] parameters) {}
 }

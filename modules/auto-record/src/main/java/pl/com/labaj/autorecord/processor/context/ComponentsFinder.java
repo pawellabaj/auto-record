@@ -17,9 +17,12 @@ package pl.com.labaj.autorecord.processor.context;
  */
 
 import pl.com.labaj.autorecord.context.RecordComponent;
+import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.type.ErrorType;
+import javax.lang.model.type.TypeKind;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -27,6 +30,9 @@ import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.annotationsAllowedFor;
 
 class ComponentsFinder {
+
+    public static final String ERROR_INDICATOR = "<any>";
+
     List<RecordComponent> getComponents(List<ExecutableElement> allMethods, Predicate<ExecutableElement> isNotSpecial) {
         return allMethods.stream()
                 .filter(Methods::isAbstract)
@@ -39,7 +45,16 @@ class ComponentsFinder {
     }
 
     private RecordComponent toRecordComponent(ExecutableElement method) {
-        var type = method.getReturnType();
+        var returnType = method.getReturnType();
+
+        if (returnType.getKind() == TypeKind.ERROR) {
+            var returnTypeElement = ((ErrorType) returnType).asElement();
+            if (ERROR_INDICATOR.equals(returnTypeElement.toString())) {
+                throw new AutoRecordProcessorException("Cannot infer type of " + method.getSimpleName() + "() method. Probably it is generic and not in classpath or sourcepath");
+            }
+        }
+
+        var type = returnType;
         var name = method.getSimpleName().toString();
         var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), TYPE_PARAMETER);
 
