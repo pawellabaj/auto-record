@@ -16,8 +16,8 @@
     <modules>
         <module>modules/auto-record</module>
         <module>modules/auto-record-tests</module>
-        <module>modules/jacoco-aggregation</module>
-        <module>modules/wiki-examples</module>
+        <module>modules/doc-examples</module>
+        <module>modules/mvn-aggregation</module>
     </modules>
 
     <properties>
@@ -423,6 +423,9 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
@@ -434,6 +437,15 @@
                             <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
