@@ -38,7 +38,7 @@ class ClassesCopier {
 
         if (logger.isDebugEnabled()) {
             var message = rightPad("Write " + className + " ", 100, "-");
-            logger.note(message);
+            logger.debug(message);
         }
 
         try {

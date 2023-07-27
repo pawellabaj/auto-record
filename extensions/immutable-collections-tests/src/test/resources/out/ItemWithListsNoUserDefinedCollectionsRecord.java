@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -26,6 +26,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.AutoRecordImmutableCollectionsUtilities;
+import pl.com.labaj.autorecord.extension.arice.Methods;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 @GeneratedWithAutoRecord
@@ -33,20 +36,26 @@ import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
 record ItemWithListsNoUserDefinedCollectionsRecord<E>(List<E> list,
                                                       LinkedList<E> linkedList,
                                                       ArrayList<E> arrayList,
+                                                      UserCollections.UserList<E> userList,
+                                                      UserCollections.UserListImpl<E> userListImpl,
                                                       ImmutableList<E> immutableList,
                                                       @Nullable List<E> nullableList,
                                                       @Nullable LinkedList<E> nullableLinkedList,
                                                       @Nullable ArrayList<E> nullableArrayList,
+                                                      @Nullable UserCollections.UserList<E> nullableUserList,
+                                                      @Nullable UserCollections.UserListImpl<E> nullableUserListImpl,
                                                       @Nullable ImmutableList<E> nullableImmutableList) implements ItemWithListsNoUserDefinedCollections<E> {
     ItemWithListsNoUserDefinedCollectionsRecord {
         // pl.com.labaj.autorecord.processor.AutoRecordProcessor
         requireNonNull(list, "list must not be null");
         requireNonNull(linkedList, "linkedList must not be null");
         requireNonNull(arrayList, "arrayList must not be null");
+        requireNonNull(userList, "userList must not be null");
+        requireNonNull(userListImpl, "userListImpl must not be null");
         requireNonNull(immutableList, "immutableList must not be null");
 
         // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
-        list = Methods.copyOfList(list);
-        nullableList = isNull(nullableList) ? null : Methods.copyOfList(nullableList);
+        list = Methods.immutable(list);
+        nullableList = isNull(nullableList) ? null : Methods.immutable(nullableList);
     }
 }

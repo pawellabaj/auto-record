@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase.user;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -33,25 +33,25 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-class UserCollections {
+public class UserCollections {
 
-    interface UserSet<E> extends Set<E> {}
+    public interface UserSet<E> extends Set<E> {}
 
-    interface UserNavigableSet<E> extends NavigableSet<E> {}
+    public interface UserNavigableSet<E> extends NavigableSet<E> {}
 
-    interface UserSortedSet<E> extends SortedSet<E> {}
-    interface UserList<E> extends List<E> {}
-    interface UserMap<K, V> extends Map<K, V> {}
+    public interface UserSortedSet<E> extends SortedSet<E> {}
+    public interface UserList<E> extends List<E> {}
+    public interface UserMap<K, V> extends Map<K, V> {}
     public interface UserSortedMap<K, V> extends SortedMap<K, V> {}
     public interface UserNavigableMap<K, V> extends NavigableMap<K, V> {}
-    interface UserQueue<E> extends Queue<E> {}
-    interface UserDeque<E> extends Deque<E> {}
+    public interface UserQueue<E> extends Queue<E> {}
+    public interface UserDeque<E> extends Deque<E> {}
 
-    static class UserSetImpl<E> extends AbstractSet<E> implements UserSet<E> {
+    public static class UserSetImpl<E> extends AbstractSet<E> implements UserSet<E> {
         @Override public Iterator<E> iterator() {return null;}
         @Override public int size() {return 0;}
     }
-    static class SortedSetImpl<E> extends AbstractSet<E> implements SortedSet<E> {
+    public static class SortedSetImpl<E> extends AbstractSet<E> implements SortedSet<E> {
         @Override public Iterator<E> iterator() {return null;}
         @Override public int size() {return 0;}
         @Override public Comparator<? super E> comparator() {return null;}
@@ -63,18 +63,18 @@ class UserCollections {
         @Override public E last() {return null;}
 
     }
-    static class UserSortedSetImpl<E> extends SortedSetImpl<E> implements UserSortedSet<E> {}
-    static class UserNavigableSetImpl<E> extends TreeSet<E> implements UserNavigableSet<E> {}
-    static class UserListImpl<E> extends AbstractList<E> implements UserList<E>{
+    public static class UserSortedSetImpl<E> extends SortedSetImpl<E> implements UserSortedSet<E> {}
+    public static class UserNavigableSetImpl<E> extends TreeSet<E> implements UserNavigableSet<E> {}
+    public static class UserListImpl<E> extends AbstractList<E> implements UserList<E>{
         @Override public E get(int index) {return null;}
         @Override public int size() {return 0;}
 
     }
-    static class UserMapImpl<K, V> extends AbstractMap<K, V> implements UserMap<K, V> {
+    public static class UserMapImpl<K, V> extends AbstractMap<K, V> implements UserMap<K, V> {
         @Override public Set<Entry<K, V>> entrySet() {return null;}
 
     }
-    static class UserSortedMapImpl<K, V> extends UserMapImpl<K, V> implements UserSortedMap<K, V> {
+    public static class UserSortedMapImpl<K, V> extends UserMapImpl<K, V> implements UserSortedMap<K, V> {
         @Override public Comparator<? super K> comparator() {return null;}
         @Override public SortedMap<K, V> subMap(K fromKey, K toKey) {return null;}
         @Override public SortedMap<K, V> headMap(K toKey) {return null;}
@@ -83,7 +83,7 @@ class UserCollections {
         @Override public K lastKey() {return null;}
 
     }
-    static class UserNavigableMapImpl<K, V> extends UserSortedMapImpl<K,V> implements UserNavigableMap<K,V> {
+    public static class UserNavigableMapImpl<K, V> extends UserSortedMapImpl<K,V> implements UserNavigableMap<K,V> {
         @Override public Entry<K, V> lowerEntry(K key) {return null;}
         @Override public K lowerKey(K key) {return null;}
         @Override public Entry<K, V> floorEntry(K key) {return null;}
@@ -104,7 +104,7 @@ class UserCollections {
         @Override public NavigableMap<K, V> tailMap(K fromKey, boolean inclusive) {return null;}
     }
 
-    static class UserQueueImpl<E> extends ArrayDeque<E> implements UserQueue<E> {}
+    public static class UserQueueImpl<E> extends ArrayDeque<E> implements UserQueue<E> {}
 
-    static class UserDequeImpl<E> extends ArrayDeque<E> implements UserDeque<E> {}
+    public static class UserDequeImpl<E> extends ArrayDeque<E> implements UserDeque<E> {}
 }

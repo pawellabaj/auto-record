@@ -80,7 +80,7 @@ public class AutoRecordImmutableCollectionsProcessor extends AbstractProcessor {
     }
 
     private void generateClasses(MessagerLogger logger) {
-        Stream.of("ImmutableCollection", "ImmutableDeque", "ImmutableIterator")
+        Stream.of("ImmutableCollection", "ImmutableDeque", "ImmutableIterator", "Collectors")
                 .forEach(className -> classesCopier.copyResourceToFiler(className, logger));
     }
 

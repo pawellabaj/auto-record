@@ -15,7 +15,7 @@
 
     <properties>
         <guava.version>32.1.1-jre</guava.version>
-
+        <maven.install.skip>true</maven.install.skip>
         <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
     </properties>
 

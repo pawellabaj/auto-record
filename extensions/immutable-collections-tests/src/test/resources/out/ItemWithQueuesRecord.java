@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -25,15 +25,18 @@ import java.util.Queue;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.AutoRecordImmutableCollectionsUtilities;
+import pl.com.labaj.autorecord.extension.arice.Methods_IBZPXELX;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 @GeneratedWithAutoRecord
 @AutoRecordImmutableCollectionsUtilities(
-    className = "pl.com.labaj.autorecord.extension.arice.Methods_GPLQYPW",
-    immutableTypes = {
-        "pl.com.labaj.autorecord.extension.arice.UserCollections.UserQueue",
-        "pl.com.labaj.autorecord.extension.arice.UserCollections.UserDeque"
-    }
+        className = "pl.com.labaj.autorecord.extension.arice.Methods_IBZPXELX",
+        immutableTypes = {
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserQueue",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserDeque"
+        }
 )
 record ItemWithQueuesRecord<E>(Queue<E> queue,
                                Deque<E> deque,
@@ -49,8 +52,7 @@ record ItemWithQueuesRecord<E>(Queue<E> queue,
                                @Nullable UserCollections.UserDeque<E> nullableUserDeque,
                                @Nullable UserCollections.UserQueueImpl<E> nullableUserQueueImpl,
                                @Nullable UserCollections.UserDequeImpl<E> nullableUserDequeImpl) implements ItemWithQueues<E> {
-    ItemWithQueuesRecord {
-        // pl.com.labaj.autorecord.processor.AutoRecordProcessor
+    ItemWithQueuesRecord {// pl.com.labaj.autorecord.processor.AutoRecordProcessor
         requireNonNull(queue, "queue must not be null");
         requireNonNull(deque, "deque must not be null");
         requireNonNull(arrayDeque, "arrayDeque must not be null");
@@ -60,9 +62,9 @@ record ItemWithQueuesRecord<E>(Queue<E> queue,
         requireNonNull(userDequeImpl, "userDequeImpl must not be null");
 
         // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
-        queue = Methods_GPLQYPW.copyOfQueue(queue);
-        deque = Methods_GPLQYPW.copyOfDeque(deque);
-        nullableQueue = isNull(nullableQueue) ? null : Methods_GPLQYPW.copyOfQueue(nullableQueue);
-        nullableDeque = isNull(nullableDeque) ? null : Methods_GPLQYPW.copyOfDeque(nullableDeque);
+        queue = Methods_IBZPXELX.immutable(queue);
+        deque = Methods_IBZPXELX.immutable(deque);
+        nullableQueue = isNull(nullableQueue) ? null : Methods_IBZPXELX.immutable(nullableQueue);
+        nullableDeque = isNull(nullableDeque) ? null : Methods_IBZPXELX.immutable(nullableDeque);
     }
 }

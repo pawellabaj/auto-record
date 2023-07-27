@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.google.common.collect.ImmutableSet;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -31,11 +32,12 @@ import java.util.TreeSet;
 @AutoRecord.Extension(
         extensionClass = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension",
         parameters = {
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserSet",
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserSortedSet",
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserNavigableSet"
-        })
-interface ItemWithSets<E> {
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserSet",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserSortedSet",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserNavigableSet"
+        }
+)
+interface ItemWithSets<E, M extends Enum<M>> {
     Set<E> set();
     HashSet<E> hashSet();
     LinkedHashSet<E> linkedHashSet();
@@ -62,6 +64,7 @@ interface ItemWithSets<E> {
     @Nullable UserCollections.UserSortedSet<E> nullableUserSortedSet();
     @Nullable UserCollections.UserSortedSetImpl<E> nullableUserSortedSetImpl();
     @Nullable UserCollections.UserNavigableSet<E> nullableUserNavigableSet();
-    @Nullable UserCollections.UserNavigableSetImpl<E> nullableUserNavigableSetImpl();
+    @Nullable
+    UserCollections.UserNavigableSetImpl<E> nullableUserNavigableSetImpl();
     @Nullable ImmutableSet<E> nullableImmutableSet();
 }

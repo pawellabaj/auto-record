@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import pl.com.labaj.autorecord.context.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -64,7 +65,7 @@ class ExtensionContext {
             return typeUtils.isSubtype(type, pTypeMirror);
         }
 
-        logger.mandatoryWarning("isSubtype fallback for :" + pType);
+        logger.warning("isSubtype fallback for :" + pType);
 
         return typeUtils.directSupertypes(type).stream()
                 .map(Object::toString)
@@ -81,7 +82,7 @@ class ExtensionContext {
             return typeUtils.isSameType(type, pTypeMirror);
         }
 
-        logger.mandatoryWarning("isSameType fallback for :" + pType);
+        logger.warning("isSameType fallback for :" + pType);
 
         return type.toString().equals(pType.className());
     }
@@ -90,8 +91,25 @@ class ExtensionContext {
         return typeUtils.isSameType(type1, type2);
     }
 
-    TypeMirror getType(ProcessedType pType) {
-        return processedTypes.get(pType);
+    @Nullable
+    TypeMirror getImmutableType(String name, Logger logger) {
+        var typeMirror = immutableTypes.computeIfAbsent(name, this::loadType);
+
+        if (isNull(typeMirror)) {
+            logger.debug("Cannot get type for " + name);
+        }
+
+        return typeMirror;
+    }
+
+    TypeMirror getProcessedType(ProcessedType pType, Logger logger) {
+        var typeMirror = processedTypes.computeIfAbsent(pType, this::loadType);
+
+        if (isNull(typeMirror)) {
+            logger.debug("Cannot get type for " + pType);
+        }
+
+        return typeMirror;
     }
 
     TypeElement getElement(ProcessedType pType) {

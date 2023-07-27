@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -30,6 +30,9 @@ import java.util.TreeSet;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.AutoRecordImmutableCollectionsUtilities;
+import pl.com.labaj.autorecord.extension.arice.Methods;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 @GeneratedWithAutoRecord
@@ -38,15 +41,29 @@ record ItemWithSetsNoUserDefinedCollectionsRecord<E, M extends Enum<M>>(Set<E> s
                                                                         HashSet<E> hashSet,
                                                                         LinkedHashSet<E> linkedHashSet,
                                                                         SortedSet<E> sortedSet,
+                                                                        UserCollections.SortedSetImpl<E> sortedSetImpl,
                                                                         NavigableSet<E> navigableSet,
                                                                         TreeSet<E> treeSet,
+                                                                        UserCollections.UserSet<E> userSet,
+                                                                        UserCollections.UserSetImpl<E> userSetImpl,
+                                                                        UserCollections.UserSortedSet<E> userSortedSet,
+                                                                        UserCollections.UserSortedSetImpl<E> userSortedSetImpl,
+                                                                        UserCollections.UserNavigableSet<E> userNavigableSet,
+                                                                        UserCollections.UserNavigableSetImpl<E> userNavigableSetImpl,
                                                                         ImmutableSet<E> immutableSet,
                                                                         @Nullable Set<E> nullableSet,
                                                                         @Nullable HashSet<E> nullableHashSet,
                                                                         @Nullable LinkedHashSet<E> nullableLinkedHashSet,
                                                                         @Nullable SortedSet<E> nullableSortedSet,
+                                                                        @Nullable UserCollections.SortedSetImpl<E> nullableSortedSetImpl,
                                                                         @Nullable NavigableSet<E> nullableNavigableSet,
                                                                         @Nullable TreeSet<E> nullableTreeSet,
+                                                                        @Nullable UserCollections.UserSet<E> nullableUserSet,
+                                                                        @Nullable UserCollections.UserSetImpl<E> nullableUserSetImpl,
+                                                                        @Nullable UserCollections.UserSortedSet<E> nullableUserSortedSet,
+                                                                        @Nullable UserCollections.UserSortedSetImpl<E> nullableUserSortedSetImpl,
+                                                                        @Nullable UserCollections.UserNavigableSet<E> nullableUserNavigableSet,
+                                                                        @Nullable UserCollections.UserNavigableSetImpl<E> nullableUserNavigableSetImpl,
                                                                         @Nullable ImmutableSet<E> nullableImmutableSet) implements ItemWithSetsNoUserDefinedCollections<E, M> {
     ItemWithSetsNoUserDefinedCollectionsRecord {
         // pl.com.labaj.autorecord.processor.AutoRecordProcessor
@@ -54,16 +71,23 @@ record ItemWithSetsNoUserDefinedCollectionsRecord<E, M extends Enum<M>>(Set<E> s
         requireNonNull(hashSet, "hashSet must not be null");
         requireNonNull(linkedHashSet, "linkedHashSet must not be null");
         requireNonNull(sortedSet, "sortedSet must not be null");
+        requireNonNull(sortedSetImpl, "sortedSetImpl must not be null");
         requireNonNull(navigableSet, "navigableSet must not be null");
         requireNonNull(treeSet, "treeSet must not be null");
+        requireNonNull(userSet, "userSet must not be null");
+        requireNonNull(userSetImpl, "userSetImpl must not be null");
+        requireNonNull(userSortedSet, "userSortedSet must not be null");
+        requireNonNull(userSortedSetImpl, "userSortedSetImpl must not be null");
+        requireNonNull(userNavigableSet, "userNavigableSet must not be null");
+        requireNonNull(userNavigableSetImpl, "userNavigableSetImpl must not be null");
         requireNonNull(immutableSet, "immutableSet must not be null");
 
         // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
-        set = Methods.copyOfSet(set);
-        sortedSet = Methods.copyOfSortedSet(sortedSet);
-        navigableSet = Methods.copyOfNavigableSet(navigableSet);
-        nullableSet = isNull(nullableSet) ? null : Methods.copyOfSet(nullableSet);
-        nullableSortedSet = isNull(nullableSortedSet) ? null : Methods.copyOfSortedSet(nullableSortedSet);
-        nullableNavigableSet = isNull(nullableNavigableSet) ? null : Methods.copyOfNavigableSet(nullableNavigableSet);
+        set = Methods.immutable(set);
+        sortedSet = Methods.immutable(sortedSet);
+        navigableSet = Methods.immutable(navigableSet);
+        nullableSet = isNull(nullableSet) ? null : Methods.immutable(nullableSet);
+        nullableSortedSet = isNull(nullableSortedSet) ? null : Methods.immutable(nullableSortedSet);
+        nullableNavigableSet = isNull(nullableNavigableSet) ? null : Methods.immutable(nullableNavigableSet);
     }
 }

@@ -16,6 +16,7 @@ package pl.com.labaj.autorecord.extension.arice;
  * limitations under the License.
  */
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
@@ -69,11 +70,11 @@ class CopyMethodsGenerator {
 
     private static MethodGenerator builderFor(ProcessedType pType) {
         return (extContext, structure, staticImports, logger) -> {
-            var methodBuilder = getMethodBuilder(extContext, pType);
+            var methodBuilder = getMethodBuilder(extContext, pType, logger);
 
             immutableTypesBlock(structure, pType)
                     .ifPresent(methodBuilder::addCode);
-            subTypesBlocks(extContext, pType, structure)
+            subTypesBlocks(extContext, pType, structure, logger)
                     .forEach(methodBuilder::addCode);
 
             var returnStatement = isNull(pType.factoryClassName())
@@ -85,42 +86,51 @@ class CopyMethodsGenerator {
         };
     }
 
-    private static MethodSpec.Builder getMethodBuilder(ExtensionContext extContext, ProcessedType pType) {
-        var typeVariableNames = pType.genericNames().stream()
-                .map(TypeVariableName::get)
-                .toList();
-        var typeName = getTypeName(extContext, pType, typeVariableNames);
+    private static MethodSpec.Builder getMethodBuilder(ExtensionContext extContext, ProcessedType pType, Logger logger) {
+        var builder = MethodSpec.methodBuilder("immutable")
+                .addModifiers(PUBLIC, STATIC);
+
+        var typeName = getTypeName(extContext, pType, builder, logger);
         var parameterSpec = ParameterSpec.builder(typeName, pType.argumentName()).build();
 
-        var builder = MethodSpec.methodBuilder(pType.methodName())
-                .addModifiers(PUBLIC, STATIC)
-                .returns(typeName)
+        builder.returns(typeName)
                 .addParameter(parameterSpec);
-
-        typeVariableNames.forEach(builder::addTypeVariable);
 
         return builder;
     }
 
-    private static TypeName getTypeName(ExtensionContext extContext, ProcessedType pType, List<TypeVariableName> typeVariableNames) {
-        if (typeVariableNames.isEmpty()) {
-            return TypeName.get(extContext.getType(pType));
+    private static TypeName getTypeName(ExtensionContext extContext, ProcessedType pType, MethodSpec.Builder builder, Logger logger) {
+        TypeName typeName;
+
+        if (pType.genericNames().isEmpty()) {
+            typeName = TypeName.get(extContext.getProcessedType(pType, logger));
+
+            var annotation = AnnotationSpec.builder(SuppressWarnings.class)
+                    .addMember("value", "$S", "unchecked")
+                    .build();
+            builder.addAnnotation(annotation);
+        } else {
+            var className = ClassName.get(extContext.getElement(pType));
+            var typeVariableNames = pType.genericNames().stream()
+                    .map(TypeVariableName::get)
+                    .toList();
+            typeName = ParameterizedTypeName.get(className, typeVariableNames.toArray(TypeVariableName[]::new));
+
+            typeVariableNames.forEach(builder::addTypeVariable);
         }
 
-        var className = ClassName.get(extContext.getElement(pType));
-
-        return ParameterizedTypeName.get(className, typeVariableNames.toArray(TypeVariableName[]::new));
+        return typeName;
     }
 
     private static Optional<CodeBlock> immutableTypesBlock(TypesStructure structure, ProcessedType pType) {
-        var immutableTypes = structure.getImmutableTypes(pType);
-        if (immutableTypes.isEmpty()) {
+        var immutableTypeNames = structure.getClassNames(pType);
+        if (immutableTypeNames.isEmpty()) {
             return Optional.empty();
         }
 
         var ifFormat = new StringBuilder("if (");
         var i = 0;
-        for (var iterator = immutableTypes.iterator(); iterator.hasNext(); i++) {
+        for (var iterator = immutableTypeNames.iterator(); iterator.hasNext(); i++) {
             iterator.next();
             String name = pType.argumentName();
 
@@ -137,9 +147,9 @@ class CopyMethodsGenerator {
         }
         ifFormat.append(")");
 
-        var size = immutableTypes.size();
+        var size = immutableTypeNames.size();
         var block = CodeBlock.builder()
-                .beginControlFlow(ifFormat.toString(), immutableTypes.toArray())
+                .beginControlFlow(ifFormat.toString(), immutableTypeNames.toArray())
                 .addStatement(size > 1 ? "$<$<return $L" : "return $L", pType.argumentName())
                 .endControlFlow()
                 .build();
@@ -147,15 +157,15 @@ class CopyMethodsGenerator {
         return Optional.of(block);
     }
 
-    private static List<CodeBlock> subTypesBlocks(ExtensionContext extContext, ProcessedType pType, TypesStructure structure) {
+    private static List<CodeBlock> subTypesBlocks(ExtensionContext extContext, ProcessedType pType, TypesStructure structure, Logger logger) {
         return pType.directSubTypes().stream()
                 .filter(structure::needsAdditionalMethod)
                 .sorted(reverseOrder())
-                .map(subPType -> subTypeBlock(extContext, subPType, pType, structure))
+                .map(subPType -> subTypeBlock(extContext, subPType, pType, structure, logger))
                 .toList();
     }
 
-    private static CodeBlock subTypeBlock(ExtensionContext extContext, ProcessedType pType, ProcessedType parent, TypesStructure structure) {
+    private static CodeBlock subTypeBlock(ExtensionContext extContext, ProcessedType pType, ProcessedType parent, TypesStructure structure, Logger logger) {
         var argumentName = pType.argumentName();
 
         var parentGenericNames = parent.genericNames();
@@ -163,11 +173,11 @@ class CopyMethodsGenerator {
                 ? ""
                 : parentGenericNames.stream().collect(joining(",", "<", ">"));
         var statement = structure.needsAdditionalMethod(pType)
-                ? CodeBlock.of("return $L($L)", pType.methodName(), argumentName)
+                ? CodeBlock.of("return $L($L)", "immutable", argumentName)
                 : CodeBlock.of("return $T.$L($L)", pType.factoryClassName(), pType.factoryMethodName(), argumentName);
 
         return CodeBlock.builder()
-                .beginControlFlow("if ($L instanceof $T$L $L)", parent.argumentName(), extContext.getType(pType), genericClause, argumentName)
+                .beginControlFlow("if ($L instanceof $T$L $L)", parent.argumentName(), extContext.getProcessedType(pType, logger), genericClause, argumentName)
                 .addStatement(statement)
                 .endControlFlow()
                 .build();

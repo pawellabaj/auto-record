@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.stream.Collector;
 
 public class ImmutableDeque<E> implements Deque<E> {
 
@@ -30,7 +31,11 @@ public class ImmutableDeque<E> implements Deque<E> {
         return new ImmutableDeque<>(queue);
     }
 
-    public ImmutableDeque(Queue<? extends E> deque) {
+    public static <E> Collector<E, ?, ImmutableDeque<E>> toImmutableDeque() {
+        return Collectors.toImmutableDeque();
+    }
+
+    ImmutableDeque(Queue<? extends E> deque) {
         delegate = new ArrayDeque<>(deque);
     }
 

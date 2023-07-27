@@ -21,12 +21,11 @@ import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.type.ErrorType;
-import javax.lang.model.type.TypeKind;
 import java.util.List;
 import java.util.function.Predicate;
 
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
+import static javax.lang.model.type.TypeKind.ERROR;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.annotationsAllowedFor;
 
 class ComponentsFinder {
@@ -47,11 +46,10 @@ class ComponentsFinder {
     private RecordComponent toRecordComponent(ExecutableElement method) {
         var returnType = method.getReturnType();
 
-        if (returnType.getKind() == TypeKind.ERROR) {
-            var returnTypeElement = ((ErrorType) returnType).asElement();
-            if (ERROR_INDICATOR.equals(returnTypeElement.toString())) {
-                throw new AutoRecordProcessorException("Cannot infer type of " + method.getSimpleName() + "() method. Probably it is generic and not in classpath or sourcepath");
-            }
+        if (returnType.getKind() == ERROR && returnType.toString().equals(ERROR_INDICATOR)) {
+            throw new AutoRecordProcessorException("Cannot infer type of " + method.getSimpleName() + "() method. " +
+                    "Probably it is generic and not in classpath or sourcepath yet. " +
+                    "Try to move the type class into classpath or remove generic clause from " + method.getSimpleName() + "() method.");
         }
 
         var type = returnType;

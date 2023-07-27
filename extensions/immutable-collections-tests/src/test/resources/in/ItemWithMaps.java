@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.google.common.collect.ImmutableMap;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -30,10 +31,11 @@ import java.util.TreeMap;
 @AutoRecord.Extension(
         extensionClass = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension",
         parameters = {
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserMap",
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserSortedMap",
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserNavigableMap"
-        })
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserMap",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserSortedMap",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserNavigableMap"
+        }
+)
 interface ItemWithMaps<K, V> {
     Map<K, V> set();
     HashMap<K, V> hashMap();

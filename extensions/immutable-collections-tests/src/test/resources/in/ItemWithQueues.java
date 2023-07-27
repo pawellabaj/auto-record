@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -17,6 +17,7 @@ package pl.com.labaj.autorecord.extension.arice;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
@@ -27,16 +28,16 @@ import java.util.Queue;
 @AutoRecord.Extension(
         extensionClass = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension",
         parameters = {
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserQueue",
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserDeque"
-        })
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserQueue",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserDeque"
+        }
+)
 interface ItemWithQueues<E> {
     Queue<E> queue();
     Deque<E> deque();
     ArrayDeque<E> arrayDeque();
     UserCollections.UserQueue<E> userQueue();
     UserCollections.UserDeque<E> userDeque();
-
     UserCollections.UserQueueImpl<E> userQueueImpl();
     UserCollections.UserDequeImpl<E> userDequeImpl();
     @Nullable Queue<E>nullableQueue();

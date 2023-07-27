@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -28,16 +28,19 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.AutoRecordImmutableCollectionsUtilities;
+import pl.com.labaj.autorecord.extension.arice.Methods_LIBZVBZLV;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 @GeneratedWithAutoRecord
 @AutoRecordImmutableCollectionsUtilities(
-    className = "pl.com.labaj.autorecord.extension.arice.Methods_JFXMGOQWQ",
-    immutableTypes = {
-        "pl.com.labaj.autorecord.extension.arice.UserCollections.UserNavigableMap",
-        "pl.com.labaj.autorecord.extension.arice.UserCollections.UserSortedMap",
-        "pl.com.labaj.autorecord.extension.arice.UserCollections.UserMap"
-    }
+        className = "pl.com.labaj.autorecord.extension.arice.Methods_LIBZVBZLV",
+        immutableTypes = {
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserMap",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserNavigableMap",
+                "pl.com.labaj.autorecord.testcase.user.UserCollections.UserSortedMap"
+        }
 )
 record ItemWithMapsRecord<K, V>(Map<K, V> set,
                                 HashMap<K, V> hashMap,
@@ -79,11 +82,11 @@ record ItemWithMapsRecord<K, V>(Map<K, V> set,
         requireNonNull(immutableMap, "immutableMap must not be null");
 
         // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
-        set = Methods_JFXMGOQWQ.copyOfMap(set);
-        sortedMap = Methods_JFXMGOQWQ.copyOfSortedMap(sortedMap);
-        navigableMap = Methods_JFXMGOQWQ.copyOfNavigableMap(navigableMap);
-        nullableSet = isNull(nullableSet) ? null : Methods_JFXMGOQWQ.copyOfMap(nullableSet);
-        nullableSortedMap = isNull(nullableSortedMap) ? null : Methods_JFXMGOQWQ.copyOfSortedMap(nullableSortedMap);
-        nullableNavigableMap = isNull(nullableNavigableMap) ? null : Methods_JFXMGOQWQ.copyOfNavigableMap(nullableNavigableMap);
+        set = Methods_LIBZVBZLV.immutable(set);
+        sortedMap = Methods_LIBZVBZLV.immutable(sortedMap);
+        navigableMap = Methods_LIBZVBZLV.immutable(navigableMap);
+        nullableSet = isNull(nullableSet) ? null : Methods_LIBZVBZLV.immutable(nullableSet);
+        nullableSortedMap = isNull(nullableSortedMap) ? null : Methods_LIBZVBZLV.immutable(nullableSortedMap);
+        nullableNavigableMap = isNull(nullableNavigableMap) ? null : Methods_LIBZVBZLV.immutable(nullableNavigableMap);
     }
 }

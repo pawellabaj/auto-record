@@ -19,7 +19,11 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.squareup.javapoet.ClassName;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
 
 final class Names {
     static final String ARICE_PACKAGE = "pl.com.labaj.autorecord.extension.arice";
@@ -41,7 +45,7 @@ final class Names {
     static final ClassName ARICE_IMMUTABLE_COLLECTION_CLASS_NAME = ClassName.get(ARICE_PACKAGE, IMMUTABLE_COLLECTION);
     static final ClassName ARICE_IMMUTABLE_DEQUE_CLASS_NAME = ClassName.get(ARICE_PACKAGE, IMMUTABLE_DEQUE);
 
-    static final Set<String> PREDEFINED_IMMUTABLE_NAMES = Set.of(
+    private static final Set<String> PREDEFINED_IMMUTABLE_NAMES = Set.of(
             GUAVA_PACKAGE + "." + IMMUTABLE_SET,
             GUAVA_PACKAGE + "." + IMMUTABLE_SORTED_SET,
             GUAVA_PACKAGE + "." + IMMUTABLE_LIST,
@@ -52,4 +56,17 @@ final class Names {
     );
 
     private Names() {}
+
+    static Set<String> notPredefinedNames(String[] parameters) {
+        return Arrays.stream(parameters)
+                .filter(name -> !PREDEFINED_IMMUTABLE_NAMES.contains(name))
+                .collect(toSet());
+    }
+
+    static Set<String> allImmutableNames(String[] parameters) {
+        return Stream.concat(
+                PREDEFINED_IMMUTABLE_NAMES.stream(),
+                Arrays.stream(parameters)
+        ).collect(toSet());
+    }
 }

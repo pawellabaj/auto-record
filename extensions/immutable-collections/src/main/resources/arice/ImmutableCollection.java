@@ -22,17 +22,40 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collector;
 
 public class ImmutableCollection<E> implements Collection<E> {
 
     private final com.google.common.collect.ImmutableCollection<E> delegate;
 
-    public static <E> ImmutableCollection<E> copyOfCollection(Collection<? extends E> collection) {
-        return new ImmutableCollection<>(collection);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <E> Collection<E> copyOfCollection(Collection<? extends E> collection) {
+        if (collection instanceof ImmutableCollection immutableCollection) {
+            return immutableCollection;
+        }
+
+        return copyOfCollection(collection, collection instanceof Set);
     }
 
-    public ImmutableCollection(Collection<? extends E> collection) {
-        delegate = (collection instanceof Set) ? ImmutableSet.copyOf(collection) : ImmutableList.copyOf(collection);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <E> Collection<E> copyOfCollection(Collection<? extends E> collection, boolean allowForDuplicates) {
+        if (collection instanceof ImmutableCollection immutableCollection) {
+            if (!allowForDuplicates && !(immutableCollection.delegate instanceof ImmutableSet)) {
+                return new ImmutableCollection<>(ImmutableSet.copyOf(collection), false);
+            }
+
+            return immutableCollection;
+        }
+
+        return new ImmutableCollection<>(collection, allowForDuplicates);
+    }
+
+    public static <E> Collector<E, ?, ImmutableCollection<E>> toImmutableCollection(boolean allowForDuplicates) {
+        return Collectors.toImmutableCollection(allowForDuplicates);
+    }
+
+    ImmutableCollection(Collection<? extends E> collection, boolean allowForDuplicates) {
+        delegate = allowForDuplicates ? ImmutableList.copyOf(collection) : ImmutableSet.copyOf(collection);
     }
 
     @Override

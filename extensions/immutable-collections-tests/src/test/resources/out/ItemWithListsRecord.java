@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -26,12 +26,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.AutoRecordImmutableCollectionsUtilities;
+import pl.com.labaj.autorecord.extension.arice.Methods_JKSTKMJ;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 @GeneratedWithAutoRecord
 @AutoRecordImmutableCollectionsUtilities(
-    className = "pl.com.labaj.autorecord.extension.arice.Methods_FNFWRPA",
-    immutableTypes = "pl.com.labaj.autorecord.extension.arice.UserCollections.UserList"
+        className = "pl.com.labaj.autorecord.extension.arice.Methods_JKSTKMJ",
+        immutableTypes = "pl.com.labaj.autorecord.testcase.user.UserCollections.UserList"
 )
 record ItemWithListsRecord<E>(List<E> list,
                               LinkedList<E> linkedList,
@@ -55,7 +58,7 @@ record ItemWithListsRecord<E>(List<E> list,
         requireNonNull(immutableList, "immutableList must not be null");
 
         // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
-        list = Methods_FNFWRPA.copyOfList(list);
-        nullableList = isNull(nullableList) ? null : Methods_FNFWRPA.copyOfList(nullableList);
+        list = Methods_JKSTKMJ.immutable(list);
+        nullableList = isNull(nullableList) ? null : Methods_JKSTKMJ.immutable(nullableList);
     }
 }

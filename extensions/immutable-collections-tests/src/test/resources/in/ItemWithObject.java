@@ -1,5 +1,4 @@
-
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,6 +15,7 @@ package pl.com.labaj.autorecord.extension.arice;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import pl.com.labaj.autorecord.AutoRecord;
 
 import javax.annotation.Nullable;

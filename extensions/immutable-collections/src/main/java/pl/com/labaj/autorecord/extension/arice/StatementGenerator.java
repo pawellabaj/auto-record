@@ -57,6 +57,7 @@ final class StatementGenerator {
 
     CodeBlock generateStatement(RecordComponent recordComponent) {
         var pType = recordComponent.pType();
+
         return RECORD_STATEMENT_GENERATORS.get(pType)
                 .generateStatement(recordComponent, extContext, structure, methodsClassName, staticImports, logger);
     }
@@ -72,7 +73,7 @@ final class StatementGenerator {
 
             if (structure.needsAdditionalMethod(pType)) {
                 var className = ClassName.get(ARICE_PACKAGE, substringAfterLast(methodsClassName, "."));
-                return CodeBlock.of(format, component.name(), className, pType.methodName());
+                return CodeBlock.of(format, component.name(), className, "immutable");
             }
 
             return CodeBlock.of(format, component.name(), pType.factoryClassName(), pType.factoryMethodName());

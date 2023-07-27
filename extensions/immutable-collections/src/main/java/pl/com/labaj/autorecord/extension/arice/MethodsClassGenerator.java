@@ -32,21 +32,19 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.Generated;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
-import static java.util.stream.Collectors.toSet;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 import static pl.com.labaj.autorecord.extension.arice.Names.ARICE_PACKAGE;
-import static pl.com.labaj.autorecord.extension.arice.Names.PREDEFINED_IMMUTABLE_NAMES;
+import static pl.com.labaj.autorecord.extension.arice.Names.allImmutableNames;
 
 class MethodsClassGenerator {
     private static final AnnotationSpec GENERATED_WITH_EXTENSION_ANNOTATION = AnnotationSpec.builder(Generated.class)
             .addMember("value", "$S", AutoRecordImmutableCollectionsProcessor.class.getName())
-            .addMember("comments", "\"caused by $L\"", ImmutableCollectionsExtension.class.getName())
+            .addMember("comments", "\"because of $L\"", ImmutableCollectionsExtension.class.getName())
             .build();
     private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
     private static final List<AnnotationSpec> ANNOTATIONS = List.of(
@@ -93,15 +91,7 @@ class MethodsClassGenerator {
     }
 
     private TypesStructure fillStructure(String[] names, Logger logger) {
-        var immutableTypeNames = Arrays.stream(names).collect(toSet());
-
-        var immutableNames = new HashSet<String>();
-        immutableNames.addAll(PREDEFINED_IMMUTABLE_NAMES);
-        immutableNames.addAll(immutableTypeNames);
-
-        var immutableTypes = extContext.getTypes(immutableNames);
-
-        var structreBuilder = new TypesStructure.Builder(extContext, immutableTypes);
+        var structreBuilder = new TypesStructure.Builder(extContext, allImmutableNames(names));
         var structure = structreBuilder.buildStructure(logger);
 
         if (logger.isDebugEnabled()) {

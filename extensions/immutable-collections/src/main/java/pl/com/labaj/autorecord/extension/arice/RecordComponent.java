@@ -26,8 +26,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.lang.Boolean.FALSE;
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.type.TypeKind.ERROR;
+import static pl.com.labaj.autorecord.extension.arice.ProcessedType.OBJECT;
 import static pl.com.labaj.autorecord.extension.arice.ProcessedType.allProcessedTypes;
 import static pl.com.labaj.autorecord.extension.arice.ProcessedType.pTypeOf;
 
@@ -67,11 +69,11 @@ record RecordComponent(String name, boolean isNullable, TypeMirror declaredType,
                 return null;
             }
 
-            var pType = pTypeOf(declaredType.toString())
-                    .orElseGet(() -> {
-                        logger.mandatoryWarning("Unrecognized type for processing " + declaredType);
-                        return null;
-                    });
+            var pType = pTypeOf(declaredType.toString());
+            if (isNull(pType) || declaredType.getKind() == ERROR) {
+                logger.warning("Unrecognized type for processing " + declaredType);
+                pType = OBJECT;
+            }
 
             return new RecordComponent(component.name(), isNullable, declaredType, pType);
         }

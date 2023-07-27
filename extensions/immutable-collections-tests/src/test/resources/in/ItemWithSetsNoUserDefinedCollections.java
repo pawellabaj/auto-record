@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.google.common.collect.ImmutableSet;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -31,17 +32,72 @@ import java.util.TreeSet;
 @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension")
 interface ItemWithSetsNoUserDefinedCollections<E, M extends Enum<M>> {
     Set<E> set();
+
     HashSet<E> hashSet();
+
     LinkedHashSet<E> linkedHashSet();
+
     SortedSet<E> sortedSet();
+
+    UserCollections.SortedSetImpl<E> sortedSetImpl();
+
     NavigableSet<E> navigableSet();
+
     TreeSet<E> treeSet();
+
+    UserCollections.UserSet<E> userSet();
+
+    UserCollections.UserSetImpl<E> userSetImpl();
+
+    UserCollections.UserSortedSet<E> userSortedSet();
+
+    UserCollections.UserSortedSetImpl<E> userSortedSetImpl();
+
+    UserCollections.UserNavigableSet<E> userNavigableSet();
+
+    UserCollections.UserNavigableSetImpl<E> userNavigableSetImpl();
+
     ImmutableSet<E> immutableSet();
-    @Nullable Set<E> nullableSet();
-    @Nullable HashSet<E> nullableHashSet();
-    @Nullable LinkedHashSet<E> nullableLinkedHashSet();
-    @Nullable SortedSet<E> nullableSortedSet();
-    @Nullable NavigableSet<E> nullableNavigableSet();
-    @Nullable TreeSet<E> nullableTreeSet();
-    @Nullable ImmutableSet<E> nullableImmutableSet();
+
+    @Nullable
+    Set<E> nullableSet();
+
+    @Nullable
+    HashSet<E> nullableHashSet();
+
+    @Nullable
+    LinkedHashSet<E> nullableLinkedHashSet();
+
+    @Nullable
+    SortedSet<E> nullableSortedSet();
+
+    @Nullable
+    UserCollections.SortedSetImpl<E> nullableSortedSetImpl();
+
+    @Nullable
+    NavigableSet<E> nullableNavigableSet();
+
+    @Nullable
+    TreeSet<E> nullableTreeSet();
+
+    @Nullable
+    UserCollections.UserSet<E> nullableUserSet();
+
+    @Nullable
+    UserCollections.UserSetImpl<E> nullableUserSetImpl();
+
+    @Nullable
+    UserCollections.UserSortedSet<E> nullableUserSortedSet();
+
+    @Nullable
+    UserCollections.UserSortedSetImpl<E> nullableUserSortedSetImpl();
+
+    @Nullable
+    UserCollections.UserNavigableSet<E> nullableUserNavigableSet();
+
+    @Nullable
+    UserCollections.UserNavigableSetImpl<E> nullableUserNavigableSetImpl();
+
+    @Nullable
+    ImmutableSet<E> nullableImmutableSet();
 }

@@ -25,18 +25,16 @@ import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.TypeMirror;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.Math.abs;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
 import static javax.lang.model.type.TypeKind.ARRAY;
 import static org.apiguardian.api.API.Status.STABLE;
-import static pl.com.labaj.autorecord.extension.arice.Names.PREDEFINED_IMMUTABLE_NAMES;
+import static pl.com.labaj.autorecord.extension.arice.Names.allImmutableNames;
+import static pl.com.labaj.autorecord.extension.arice.Names.notPredefinedNames;
 import static pl.com.labaj.autorecord.extension.arice.RecordComponent.debugInfo;
 
 @API(status = STABLE)
@@ -48,6 +46,7 @@ public class ImmutableCollectionsExtension implements CompactConstructorExtensio
 
     private Set<String> immutableTypeNames;
     private Set<TypeMirror> immutableTypes;
+    private Set<String> immutableNames;
     private List<RecordComponent> componentsToProcess;
     private String methodsClassName;
 
@@ -55,14 +54,9 @@ public class ImmutableCollectionsExtension implements CompactConstructorExtensio
     public void init(ProcessingEnvironment processingEnv, String[] parameters) {
         extContext.init(processingEnv);
 
-        immutableTypeNames = Arrays.stream(parameters).collect(toSet());
-
-        var immutableNames = new HashSet<String>();
-        immutableNames.addAll(PREDEFINED_IMMUTABLE_NAMES);
-        immutableNames.addAll(immutableTypeNames);
-
+        immutableTypeNames = notPredefinedNames(parameters);
+        immutableNames = allImmutableNames(parameters);
         immutableTypes = extContext.getTypes(immutableNames);
-
         methodsClassName = methodsClassName();
     }
 
@@ -92,7 +86,7 @@ public class ImmutableCollectionsExtension implements CompactConstructorExtensio
     public CodeBlock suffixCompactConstructorContent(Context context, StaticImports staticImports) {
         var logger = context.logger();
 
-        var structreBuilder = new TypesStructure.Builder(extContext, immutableTypes);
+        var structreBuilder = new TypesStructure.Builder(extContext, immutableNames);
         var structure = structreBuilder.buildStructure(logger);
 
         if (logger.isDebugEnabled()) {
@@ -129,7 +123,7 @@ public class ImmutableCollectionsExtension implements CompactConstructorExtensio
         var longHashCode = parameters.stream()
                 .sorted()
                 .mapToLong(String::hashCode)
-                .reduce(31, (h1, h2) -> (31 * h1 + h2));
+                .reduce(0, (h1, h2) -> (31 * h1 + h2));
         var alphaString = Long.toUnsignedString(abs(longHashCode), 26);
 
         return alphaString.chars()

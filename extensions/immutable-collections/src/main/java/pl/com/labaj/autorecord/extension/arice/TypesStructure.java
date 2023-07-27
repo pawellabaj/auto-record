@@ -16,18 +16,20 @@ package pl.com.labaj.autorecord.extension.arice;
  * limitations under the License.
  */
 
+import com.squareup.javapoet.ClassName;
 import pl.com.labaj.autorecord.context.Logger;
 
-import javax.lang.model.type.TypeMirror;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static java.util.Comparator.comparing;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
@@ -39,21 +41,20 @@ import static pl.com.labaj.autorecord.extension.arice.ProcessedType.OBJECT;
 import static pl.com.labaj.autorecord.extension.arice.ProcessedType.allProcessedTypes;
 
 final class TypesStructure {
-    private final Map<ProcessedType, TreeSet<TypeMirror>> processedTypes;
+    private final EnumMap<ProcessedType, Set<ClassName>> classNames;
     private final Map<ProcessedType, Boolean> additionalMethodNeeded;
 
-    private TypesStructure(EnumMap<ProcessedType, TreeSet<TypeMirror>> processedTypes, Map<ProcessedType, Boolean> additionalMethodNeeded) {
-        this.processedTypes = processedTypes;
+    private TypesStructure(EnumMap<ProcessedType, Set<ClassName>> classNames, Map<ProcessedType, Boolean> additionalMethodNeeded) {
+        this.classNames = classNames;
         this.additionalMethodNeeded = additionalMethodNeeded;
     }
 
     String debugInfo() {
-        return processedTypes.entrySet().stream()
+        return classNames.entrySet().stream()
                 .map(item -> {
                     var types = item.getValue()
                             .stream()
-                            .map(TypeMirror::toString)
-                            .map(name -> substringAfterLast(name, "."))
+                            .map(ClassName::simpleName)
                             .collect(joining(", ", "(", ")"));
                     var className = substringAfterLast(item.getKey().className(), ".");
                     var needsAdditionalMethod = additionalMethodNeeded.get(item.getKey());
@@ -67,27 +68,24 @@ final class TypesStructure {
         return additionalMethodNeeded.containsKey(processedType) && additionalMethodNeeded.get(processedType);
     }
 
-    Set<TypeMirror> getImmutableTypes(ProcessedType pType) {
-        return processedTypes.get(pType);
+    Set<ClassName> getClassNames(ProcessedType pType) {
+        return classNames.get(pType);
     }
 
     static class Builder {
         private final ExtensionContext extContext;
-        private final Set<TypeMirror> immutableTypes;
+        private final Set<String> immutableNames;
 
-        Builder(ExtensionContext extContext, Set<TypeMirror> immutableTypes) {
+        Builder(ExtensionContext extContext, Set<String> immutableNames) {
             this.extContext = extContext;
-            this.immutableTypes = immutableTypes;
+            this.immutableNames = immutableNames;
         }
 
         TypesStructure buildStructure(Logger logger) {
-            var structure = allProcessedTypes().stream()
+            var classNames = allProcessedTypes().stream()
                     .collect(toMap(
                             identity(),
-                            pType -> immutableTypes
-                                    .stream()
-                                    .filter(immutableType -> extContext.isSubtype(immutableType, pType, logger))
-                                    .collect(toCollection(() -> new TreeSet<>(comparing(TypeMirror::toString)))),
+                            pType -> collectClassNames(pType, logger),
                             (s1, s2) -> {
                                 s1.addAll(s2);
                                 return s1;
@@ -95,37 +93,58 @@ final class TypesStructure {
                             () -> new EnumMap<>(ProcessedType.class)
                     ));
 
-            optimizeStructure(OBJECT, structure);
+            optimizeStructure(OBJECT, classNames);
 
             var additionalMethodNeeded = new EnumMap<ProcessedType, Boolean>(ProcessedType.class);
-            collectNeedsInfo(null, OBJECT, structure, additionalMethodNeeded);
+            collectNeedsInfo(null, OBJECT, classNames, additionalMethodNeeded);
 
-            return new TypesStructure(structure, additionalMethodNeeded);
+            return new TypesStructure(classNames, additionalMethodNeeded);
         }
 
-        private Set<TypeMirror> optimizeStructure(ProcessedType pType, EnumMap<ProcessedType, TreeSet<TypeMirror>> structure) {
-            var typeMirrors = structure.get(pType);
+        private Set<ClassName> collectClassNames(ProcessedType pType, Logger logger) {
+            var classNames = immutableNames
+                    .stream()
+                    .map(immutableName -> extContext.getImmutableType(immutableName, logger))
+                    .filter(Objects::nonNull)
+                    .filter(type -> extContext.isSubtype(type, pType, logger))
+                    .map(ClassName::get)
+                    .map(ClassName.class::cast)
+                    .collect(toCollection(() -> new TreeSet<>(comparing(ClassName::canonicalName))));
+
+            if (pType == OBJECT) {
+                immutableNames.stream()
+                        .filter(immutableName -> isNull(extContext.getImmutableType(immutableName, logger)))
+                        .map(ClassName::bestGuess)
+                        .peek(className -> logger.debug("Cannot get TypeMirror for " + className + " so added to Object"))
+                        .forEach(classNames::add);
+            }
+
+            return classNames;
+        }
+
+        private Set<ClassName> optimizeStructure(ProcessedType pType, EnumMap<ProcessedType, Set<ClassName>> classNames) {
+            var typeClassNames = classNames.get(pType);
 
             if (pType.directSubTypes().isEmpty()) {
-                return typeMirrors;
+                return typeClassNames;
             }
 
             var toRemove = pType.directSubTypes().stream()
-                    .map(subType -> optimizeStructure(subType, structure))
+                    .map(subType -> optimizeStructure(subType, classNames))
                     .flatMap(Collection::stream)
                     .collect(toSet());
 
-            structure.get(pType).removeAll(toRemove);
+            classNames.get(pType).removeAll(toRemove);
 
-            return Stream.concat(toRemove.stream(), typeMirrors.stream()).collect(toSet());
+            return Stream.concat(toRemove.stream(), typeClassNames.stream()).collect(toSet());
         }
 
         private boolean collectNeedsInfo(ProcessedType parent, ProcessedType pType,
-                                         EnumMap<ProcessedType, TreeSet<TypeMirror>> structure,
+                                         EnumMap<ProcessedType, Set<ClassName>> classNames,
                                          EnumMap<ProcessedType, Boolean> additionalMethodNeeded) {
 
             if (pType.directSubTypes().isEmpty()) {
-                var result = !structure.get(pType).isEmpty();
+                var result = !classNames.get(pType).isEmpty();
                 additionalMethodNeeded.put(pType, result);
                 return result;
             }
@@ -134,7 +153,7 @@ final class TypesStructure {
             var subNeededInfo = pType.directSubTypes().stream()
                     .collect(toMap(
                             identity(),
-                            subType -> collectNeedsInfo(pType, subType, structure, additionalMethodNeeded)
+                            subType -> collectNeedsInfo(pType, subType, classNames, additionalMethodNeeded)
                     ));
 
             var someSubNeeds = subNeededInfo.values().stream()

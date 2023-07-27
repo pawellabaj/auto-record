@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -23,6 +23,8 @@ import java.lang.Object;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.AutoRecordImmutableCollectionsUtilities;
+import pl.com.labaj.autorecord.extension.arice.Methods;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
 @GeneratedWithAutoRecord
@@ -33,7 +35,7 @@ record ItemWithObjectRecord(Object object, @Nullable Object nullableObject) impl
         requireNonNull(object, "object must not be null");
 
         // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
-        object = Methods.copyOfObject(object);
-        nullableObject = isNull(nullableObject) ? null : Methods.copyOfObject(nullableObject);
+        object = Methods.immutable(object);
+        nullableObject = isNull(nullableObject) ? null : Methods.immutable(nullableObject);
     }
 }

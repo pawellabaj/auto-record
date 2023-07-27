@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.google.common.collect.ImmutableList;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -30,9 +31,13 @@ interface ItemWithListsNoUserDefinedCollections<E> {
     List<E> list();
     LinkedList<E> linkedList();
     ArrayList<E> arrayList();
+    UserCollections.UserList<E> userList();
+    UserCollections.UserListImpl<E> userListImpl();
     ImmutableList<E> immutableList();
     @Nullable List<E> nullableList();
     @Nullable LinkedList<E> nullableLinkedList();
     @Nullable ArrayList<E> nullableArrayList();
+    @Nullable UserCollections.UserList<E> nullableUserList();
+    @Nullable UserCollections.UserListImpl<E> nullableUserListImpl();
     @Nullable ImmutableList<E> nullableImmutableList();
 }

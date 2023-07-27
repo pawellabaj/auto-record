@@ -55,7 +55,7 @@ class ImmutableCollectionsExtensionTest {
             "ItemWithMaps",
             "ItemWithQueues",
     };
-    private static final String GENERATED_PATH = "pl/com/labaj/autorecord/extension/arice/";
+    private static final String GENERATED_PATH = "pl/com/labaj/autorecord/testcase/";
 
     static Stream<String> names() {
         return Arrays.stream(NAMES);
@@ -65,7 +65,8 @@ class ImmutableCollectionsExtensionTest {
 
     @BeforeEach
     void setUp() {
-        compiler = javac().withClasspath(prepareClasspath()).withOptions("-proc:only");
+        compiler = javac()
+                .withOptions("-proc:only", "-Xprefer:source");
     }
 
     @ParameterizedTest(name = "{0}.java")
@@ -74,7 +75,7 @@ class ImmutableCollectionsExtensionTest {
         //given
         var inputs = List.of(
                 forResource("in/" + name + ".java"),
-                forResource("UserCollections.java")
+                forResource("in/UserCollections.java")
         );
 
         var expectedOutput = forResource("out/" + name + "Record.java");
@@ -99,7 +100,7 @@ class ImmutableCollectionsExtensionTest {
                 .map(name -> forResource("in/" + name + ".java"))
                 .collect(toCollection(ArrayList::new));
 
-        inputs.add(forResource("UserCollections.java"));
+        inputs.add(forResource("in/UserCollections.java"));
 
         var expectedOutputs = Arrays.stream(NAMES)
                 .collect(toMap(

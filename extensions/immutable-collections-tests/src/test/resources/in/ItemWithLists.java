@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.extension.arice;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.google.common.collect.ImmutableList;
 import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -27,9 +28,8 @@ import java.util.List;
 @AutoRecord
 @AutoRecord.Extension(
         extensionClass = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension",
-        parameters = {
-                "pl.com.labaj.autorecord.extension.arice.UserCollections.UserList"
-        })
+        parameters = {"pl.com.labaj.autorecord.testcase.user.UserCollections.UserList"}
+)
 interface ItemWithLists<E> {
     List<E> list();
     LinkedList<E> linkedList();

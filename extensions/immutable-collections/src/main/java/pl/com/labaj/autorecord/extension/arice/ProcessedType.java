@@ -18,10 +18,10 @@ package pl.com.labaj.autorecord.extension.arice;
 
 import com.squareup.javapoet.ClassName;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.util.function.Function.identity;
@@ -37,13 +37,13 @@ import static pl.com.labaj.autorecord.extension.arice.Names.GUAVA_IMMUTABLE_SORT
 
 @SuppressWarnings("java:S1192")
 enum ProcessedType {
-    NAVIGABLE_MAP("java.util.NavigableMap", Set.of(), GUAVA_IMMUTABLE_SORTED_MAP_CLASS_NAME, "copyOfSorted"){
+    NAVIGABLE_MAP("java.util.NavigableMap", Set.of(), GUAVA_IMMUTABLE_SORTED_MAP_CLASS_NAME, "copyOfSorted") {
         @Override List<String> genericNames() {return List.of("K", "V");}
     },
-    SORTED_MAP("java.util.SortedMap", Set.of(NAVIGABLE_MAP), GUAVA_IMMUTABLE_SORTED_MAP_CLASS_NAME, "copyOfSorted"){
+    SORTED_MAP("java.util.SortedMap", Set.of(NAVIGABLE_MAP), GUAVA_IMMUTABLE_SORTED_MAP_CLASS_NAME, "copyOfSorted") {
         @Override List<String> genericNames() {return List.of("K", "V");}
     },
-    MAP("java.util.Map", Set.of(SORTED_MAP), GUAVA_IMMUTABLE_MAP_CLASS_NAME, "copyOf"){
+    MAP("java.util.Map", Set.of(SORTED_MAP), GUAVA_IMMUTABLE_MAP_CLASS_NAME, "copyOf") {
         @Override List<String> genericNames() {return List.of("K", "V");}
     },
     DEQUE("java.util.Deque", Set.of(), ARICE_IMMUTABLE_DEQUE_CLASS_NAME, "copyOfQueue"),
@@ -66,7 +66,6 @@ enum ProcessedType {
     private final ClassName factoryClassName;
     private final String factoryMethodName;
     private final String argumentName;
-    private final String methodName;
 
     ProcessedType(String className,
                   Set<ProcessedType> directSubTypes,
@@ -78,27 +77,19 @@ enum ProcessedType {
         this.factoryMethodName = factoryMethodName;
 
         argumentName = nameToCamelCase();
-        methodName = nameToMethodName();
     }
 
     static Set<ProcessedType> allProcessedTypes() {
         return ALL_TYPES;
     }
 
-    static Optional<ProcessedType> pTypeOf(String className) {
-        return Optional.ofNullable(NAME_TO_TYPES.get(className));
-    }
-
-    static boolean sameFactory(ProcessedType pType, ProcessedType subPType) {
-        return subPType.factoryClassName().equals(pType.factoryClassName()) && subPType.factoryMethodName().equals(pType.factoryMethodName());
+    @Nullable
+    static ProcessedType pTypeOf(String className) {
+        return NAME_TO_TYPES.get(className);
     }
 
     String className() {
         return className;
-    }
-
-    String methodName() {
-        return methodName;
     }
 
     String argumentName() {
@@ -136,17 +127,6 @@ enum ProcessedType {
 
         for (int i = 1; i < parts.length; i++) {
             camelCase.append(capitalize(parts[i].toLowerCase()));
-        }
-
-        return camelCase.toString();
-    }
-
-    private String nameToMethodName() {
-        var parts = name().split("_");
-        var camelCase = new StringBuilder("copyOf");
-
-        for (String part : parts) {
-            camelCase.append(capitalize(part.toLowerCase()));
         }
 
         return camelCase.toString();
