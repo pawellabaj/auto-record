@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>pl.com.labaj</groupId>
+        <artifactId>auto-record-project</artifactId>
+        <version>2.1.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <groupId>pl.com.labaj.autorecord</groupId>
+    <artifactId>arice-project</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <guava.version>32.1.1-jre</guava.version>
+        <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
+    </properties>
+
+    <modules>
+        <module>../api</module>
+        <module>../utils</module>
+        <module>../extension</module>
+        <module>../tests</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>pl.com.labaj</groupId>
+                <artifactId>auto-record</artifactId>
+                <version>2.1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.com.labaj.autorecord</groupId>
+                <artifactId>arice-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.com.labaj.autorecord</groupId>
+                <artifactId>arice-utils</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.com.labaj.autorecord</groupId>
+                <artifactId>arice-extension</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>verify</id>
+
+            <properties>
+                <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <links>
+                                <link>https://javadoc.io/doc/com.google.guava/guava/${guava.version}</link>
+                                <link>https://javadoc.io/doc/pl.com.labaj/auo-record-api/latest</link>
+                                <link>https://javadoc.io/doc/pl.com.labaj/auo-record/latest</link>
+                                <link>https://javadoc.io/doc/pl.com.labaj.autorecord/arice-api/latest</link>
+                                <link>https://javadoc.io/doc/pl.com.labaj.autorecord/arice-utils/latest</link>
+                            </links>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.honton.chas</groupId>
+                        <artifactId>git-tag-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>false</skip>
+                            <tagName>v-arice${project.version}</tagName>
+                            <skipPush>true</skipPush>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

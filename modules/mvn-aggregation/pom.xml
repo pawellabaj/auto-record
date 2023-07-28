@@ -19,33 +19,57 @@
         <maven.test.skip>true</maven.test.skip>
         <sonar.skip>true</sonar.skip>
         <maven.install.skip>true</maven.install.skip>
-
-        <auto-record-immutable-collections.version>1.0.0-SNAPSHOT</auto-record-immutable-collections.version>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>pl.com.labaj</groupId>
+            <artifactId>auto-record-api</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj</groupId>
+            <artifactId>auto-record-utils</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj</groupId>
             <artifactId>auto-record</artifactId>
-            <version>${project.parent.version}</version>
+            <version>2.1.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj</groupId>
             <artifactId>auto-record-tests</artifactId>
-            <version>${project.parent.version}</version>
+            <version>2.1.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>pl.com.labaj</groupId>
-            <artifactId>auto-record-immutable-collections</artifactId>
-            <version>${auto-record-immutable-collections.version}</version>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>pl.com.labaj</groupId>
-            <artifactId>auto-record-immutable-collections-tests</artifactId>
-            <version>${auto-record-immutable-collections.version}</version>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-utils</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-extension</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-tests</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

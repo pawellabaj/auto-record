@@ -16,10 +16,14 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
+import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 
 import java.util.List;
 
+import static org.apiguardian.api.API.Status.INTERNAL;
+
+@API(status = INTERNAL)
 public final class Extensions {
     private Extensions() {}
 

@@ -16,6 +16,8 @@ package pl.com.labaj.autorecord.processor.utils;
  * limitations under the License.
  */
 
+import org.apiguardian.api.API;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
@@ -23,8 +25,10 @@ import java.lang.annotation.Annotation;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.type.TypeKind.VOID;
+import static org.apiguardian.api.API.Status.INTERNAL;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 
+@API(status = INTERNAL)
 public final class Methods {
     private Methods() {}
 

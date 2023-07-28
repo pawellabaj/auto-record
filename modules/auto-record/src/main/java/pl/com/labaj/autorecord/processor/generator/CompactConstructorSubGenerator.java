@@ -26,6 +26,7 @@ import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessor;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+import pl.com.labaj.autorecord.processor.utils.Annotations;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
@@ -84,6 +85,15 @@ class CompactConstructorSubGenerator {
 
         filteredExtensions.stream()
                 .map(extension -> extension.annotationsToSupportCompactConstructor(context, staticImports))
+                .map(annotations -> {
+                    if (recordBuilder.annotations.isEmpty()) {
+                        return annotations;
+                    }
+
+                    var currentAnnotations = List.copyOf(recordBuilder.annotations);
+                    recordBuilder.annotations.clear();
+                    return Annotations.merge(currentAnnotations, annotations);
+                })
                 .flatMap(Collection::stream)
                 .forEach(recordBuilder::addAnnotation);
     }
@@ -92,6 +102,7 @@ class CompactConstructorSubGenerator {
         var annotation = AnnotationSpec.builder(Generated.class)
                 .addMember("value", "$S", extension.getClass().getName())
                 .build();
+
         var additionalMethods = extension.additionalMethodsToSupportCompactConstructor(context, staticImports);
 
         return additionalMethods.stream()

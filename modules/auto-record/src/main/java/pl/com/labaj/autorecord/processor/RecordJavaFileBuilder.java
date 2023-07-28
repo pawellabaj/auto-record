@@ -18,16 +18,14 @@ package pl.com.labaj.autorecord.processor;
 
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+import pl.com.labaj.autorecord.processor.context.StaticImportsCollectors;
 
 import java.util.List;
 
-import static org.apiguardian.api.API.Status.INTERNAL;
 import static pl.com.labaj.autorecord.processor.generator.Generators.generators;
 
-@API(status = INTERNAL)
 class RecordJavaFileBuilder {
 
     JavaFile buildJavaFile(ProcessorContext context, List<AutoRecordExtension> extensions) {

@@ -10,13 +10,25 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <name>Auto Record</name>
     <artifactId>auto-record</artifactId>
+    <url>https://github.com/pawellabaj/auto-record</url>
 
     <properties>
         <maven.javadoc.skip>false</maven.javadoc.skip>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>pl.com.labaj</groupId>
+            <artifactId>auto-record-api</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj</groupId>
+            <artifactId>auto-record-utils</artifactId>
+            <version>2.1.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>net.fabricmc</groupId>
             <artifactId>javapoet</artifactId>
@@ -26,20 +38,12 @@
             <artifactId>record-builder-processor</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.soabase.record-builder</groupId>
-            <artifactId>record-builder-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apiguardian</groupId>
-            <artifactId>apiguardian-api</artifactId>
         </dependency>
     </dependencies>
 </project>
