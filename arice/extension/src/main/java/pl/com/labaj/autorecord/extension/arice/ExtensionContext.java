@@ -102,7 +102,7 @@ class ExtensionContext {
         return typeMirror;
     }
 
-    TypeMirror getInterfaceMirrorType(InterfaceType iType, Logger logger) {
+    TypeMirror getInterfaceMirrorType(InterfaceType iType) {
         var typeMirror = interfaceTypes.computeIfAbsent(iType, this::loadType);
 
         if (isNull(typeMirror)) {

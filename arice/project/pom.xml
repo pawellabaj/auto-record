@@ -16,7 +16,6 @@
     <packaging>pom</packaging>
 
     <properties>
-        <guava.version>32.1.1-jre</guava.version>
         <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
     </properties>
 
@@ -49,12 +48,6 @@
                 <artifactId>arice-extension</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -71,19 +64,6 @@
 
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration>
-                            <links>
-                                <link>https://javadoc.io/doc/com.google.guava/guava/${guava.version}</link>
-                                <link>https://javadoc.io/doc/pl.com.labaj/auo-record-api/latest</link>
-                                <link>https://javadoc.io/doc/pl.com.labaj/auo-record/latest</link>
-                                <link>https://javadoc.io/doc/pl.com.labaj.autorecord/arice-api/latest</link>
-                                <link>https://javadoc.io/doc/pl.com.labaj.autorecord/arice-utils/latest</link>
-                            </links>
-                        </configuration>
-                    </plugin>
                     <plugin>
                         <groupId>org.honton.chas</groupId>
                         <artifactId>git-tag-maven-plugin</artifactId>

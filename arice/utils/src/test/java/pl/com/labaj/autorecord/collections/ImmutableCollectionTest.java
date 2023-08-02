@@ -21,7 +21,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -45,26 +44,13 @@ class ImmutableCollectionTest {
                         ImmutableCollection::copyOfCollection),
                 new TestArgument<>(
                         () -> List.of("A", "B", "A", "B"),
-                        collection -> ImmutableCollection.copyOfCollection(collection, true)),
-                new TestArgument<>(
-                        () -> List.of("A", "B", "A", "B"),
-                        collection -> ImmutableCollection.copyOfCollection(collection, false)),
-                new TestArgument<>(
-                        () -> List.of("A", "B", "A", "B"),
-                        collection -> collection.stream().collect(toImmutableCollection(true))),
-                new TestArgument<>(
-                        () -> List.of("A", "B", "A", "B"),
-                        list -> list.stream().collect(toImmutableCollection(false))),
-                new TestArgument<>(
-                        () -> ImmutableCollection.copyOfCollection(List.of("A", "B", "A", "B"), true),
                         ImmutableCollection::copyOfCollection),
                 new TestArgument<>(
-                        () -> ImmutableCollection.copyOfCollection(List.of("A", "B", "A", "B"), true),
-                        collection -> ImmutableCollection.copyOfCollection(collection, true)),
+                        () -> List.of("A", "B", "A", "B"),
+                        collection -> collection.stream().collect(toImmutableCollection())),
                 new TestArgument<>(
-                        () -> ImmutableCollection.copyOfCollection(List.of("A", "B", "A", "B"), true),
-                        collection -> ImmutableCollection.copyOfCollection(collection, false))
-
+                        () -> List.of("A", "B", "A", "B"),
+                        list -> list.stream().collect(toImmutableCollection()))
         );
     }
 
@@ -80,7 +66,7 @@ class ImmutableCollectionTest {
 
         //then
         assertAll(
-                () -> assertThat(immutableCollection).hasSameElementsAs(immutableCollection.allowsForDuplicates() ? collection : uniqueOf(collection)),
+                () -> assertThat(immutableCollection).hasSameElementsAs(collection),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.add("A")),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.remove("A")),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.addAll(List.of("A", "B"))),
@@ -89,10 +75,6 @@ class ImmutableCollectionTest {
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.clear()),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.iterator().remove())
         );
-    }
-
-    private <E> Iterable<? extends E> uniqueOf(Collection<E> collection) {
-        return new HashSet<>(collection);
     }
 
     record TestArgument<E>(Supplier<Collection<E>> collectionSupplier, Function<Collection<E>, ImmutableCollection<E>> icFunction) implements Arguments {

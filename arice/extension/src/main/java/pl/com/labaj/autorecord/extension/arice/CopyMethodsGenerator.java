@@ -98,8 +98,8 @@ class CopyMethodsGenerator {
             builder.addAnnotation(annotation);
         }
 
-        getTypeName(extContext, iType, logger, builder, true);
-        var trimmedTypeName = getTypeName(extContext, iType, logger, builder, false);
+        getTypeName(extContext, iType, builder, true);
+        var trimmedTypeName = getTypeName(extContext, iType, builder, false);
 
         var parameterSpec = ParameterSpec.builder(trimmedTypeName, iType.argumentName()).build();
 
@@ -109,9 +109,9 @@ class CopyMethodsGenerator {
         return builder;
     }
 
-    private static TypeName getTypeName(ExtensionContext extContext, InterfaceType iType, Logger logger, MethodSpec.Builder methodBuilder, boolean full) {
+    private static TypeName getTypeName(ExtensionContext extContext, InterfaceType iType, MethodSpec.Builder methodBuilder, boolean full) {
 
-        var mirrorType = extContext.getInterfaceMirrorType(iType, logger);
+        var mirrorType = extContext.getInterfaceMirrorType(iType);
 
         if (iType.genericNames().isEmpty()) {
             return TypeName.get(mirrorType);
@@ -169,11 +169,11 @@ class CopyMethodsGenerator {
         return iType.directSubTypes().stream()
                 .filter(structure::needsAdditionalMethod)
                 .sorted(reverseOrder())
-                .map(subPType -> subTypeBlock(extContext, subPType, iType, structure, logger))
+                .map(subPType -> subTypeBlock(extContext, subPType, iType, structure))
                 .toList();
     }
 
-    private static CodeBlock subTypeBlock(ExtensionContext extContext, InterfaceType iType, InterfaceType parent, TypesStructure structure, Logger logger) {
+    private static CodeBlock subTypeBlock(ExtensionContext extContext, InterfaceType iType, InterfaceType parent, TypesStructure structure) {
         var argumentName = iType.argumentName();
 
         var parentGenericNames = parent.genericNames();
@@ -185,7 +185,7 @@ class CopyMethodsGenerator {
                 : CodeBlock.of("return $T.$L($L)", iType.factoryClassName(), iType.factoryMethodName(), argumentName);
 
         return CodeBlock.builder()
-                .beginControlFlow("if ($L instanceof $T$L $L)", parent.argumentName(), extContext.getInterfaceMirrorType(iType, logger), genericClause, argumentName)
+                .beginControlFlow("if ($L instanceof $T$L $L)", parent.argumentName(), extContext.getInterfaceMirrorType(iType), genericClause, argumentName)
                 .addStatement(statement)
                 .endControlFlow()
                 .build();

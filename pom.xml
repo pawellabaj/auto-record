@@ -55,13 +55,14 @@
         <compile-testing.version>0.21.0</compile-testing.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <apiguardian-api.version>1.1.2</apiguardian-api.version>
+        <guava.version>32.1.1-jre</guava.version>
 
         <maven-surefire-plugin.argLine>
             --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <skip.javadoc.for.the.project>true</skip.javadoc.for.the.project>
         <!--suppress UnresolvedMavenProperty -->
         <license-maven-plugin.header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</license-maven-plugin.header>
     </properties>
@@ -111,6 +112,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
             <dependency>
@@ -406,34 +412,43 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration combine.children="append">
+                        <configuration>
+                            <verbose>true</verbose>
                             <detectJavaApiLink>true</detectJavaApiLink>
-                            <subpackages>pl.com.labaj.autorecord</subpackages>
-                            <excludePackageNames>
-                                pl.com.labaj.autorecord.processor.*,
-                                pl.com.labaj.autorecord.processor.context.*,
-                                pl.com.labaj.autorecord.processor.generator.*,
-                                pl.com.labaj.autorecord.processor.utils.*,
-                            </excludePackageNames>
                             <links>
-                                <link>https://javadoc.io/doc/org.apiguardian/apiguardian-api/${apiguardian-api.version}</link>
                                 <link>https://javadoc.io/doc/com.squareup/javapoet/latest</link>
                                 <link>https://javadoc.io/doc/io.soabase.record-builder/record-builder-core/${record-builder.version}</link>
-                                <link>https://javadoc.io/doc/pl.com.labaj/auto-record-api/latest</link>
-                                <link>https://javadoc.io/doc/pl.com.labaj/auto-record-utils/latest</link>
+                                <link>https://javadoc.io/doc/org.apiguardian/apiguardian-api/${apiguardian-api.version}</link>
+                                <link>https://javadoc.io/doc/com.google.guava/guava/${guava.version}</link>
                             </links>
-                            <show>public</show>
+                            <subpackages>pl.com.labaj.autorecord</subpackages>
+                            <excludePackageNames>pl.com.labaj.autorecord.processor.*:pl.com.labaj.autorecord.test.*</excludePackageNames>
                             <notimestamp>true</notimestamp>
                             <failOnWarnings>false</failOnWarnings>
                             <failOnError>false</failOnError>
-                            <sourcepath>${project.build.sourceDirectory}</sourcepath>
+                            <quiet>true</quiet>
+                            <verbose>false</verbose>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>attach-javadocs</id>
+                                <id>attach-aggregated-javadocs</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                     <goal>aggregate-jar</goal>
                                 </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <skippedModules>auto-record-tests,doc-examples,mvn-aggregation,arice-tests</skippedModules>
+                                    <groups>
+                                        <group>
+                                            <title>Auto Record</title>
+                                            <packages>pl.com.labaj.autorecord:pl.com.labaj.autorecord.memoizer:pl.com.labaj.autorecord.extension:pl.com.labaj.autorecord.processor:pl.com.labaj.autorecord.context</packages>
+                                        </group>
+                                        <group>
+                                            <title>ARICE</title>
+                                            <packages>pl.com.labaj.autorecord.extension.arice:pl.com.labaj.autorecord.collections</packages>
+                                        </group>
+                                    </groups>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -505,7 +520,6 @@
             </build>
         </profile>
     </profiles>
-
     <licenses>
         <license>
             <name>Apache-2.0</name>

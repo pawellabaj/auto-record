@@ -17,12 +17,10 @@ package pl.com.labaj.autorecord.collections;
  */
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.apiguardian.api.API;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.stream.Collector;
 
 import static org.apiguardian.api.API.Status.STABLE;
@@ -32,13 +30,8 @@ import static org.apiguardian.api.API.Status.STABLE;
  * Google Guava's {@link com.google.common.collect.ImmutableCollection}, which ensures that the collection cannot be
  * modified after creation.
  * <p>
- * The {@link ImmutableCollection} can be created using the static factory methods {@link #copyOfCollection(Collection)}
- * and {@link #copyOfCollection(Collection, boolean)}, or by using the {@link #toImmutableCollection(boolean)}
- * collector.
- * <p>
- * Instances of this class are created with either an {@link ImmutableList} or an {@link ImmutableSet} depending on
- * whether duplicates are allowed in the collection or not. The ability to have duplicates is controlled by the
- * {@code allowForDuplicates} parameter passed to the constructor or factory methods.
+ * The {@link ImmutableCollection} can be created using the static factory method {@link #copyOfCollection(Collection)}
+ * or by using the {@link #toImmutableCollection()} collector.
  *
  * @param <E> the type of elements in the collection
  */
@@ -46,7 +39,6 @@ import static org.apiguardian.api.API.Status.STABLE;
 public class ImmutableCollection<E> implements Collection<E> {
 
     private final com.google.common.collect.ImmutableCollection<E> delegate;
-    private final boolean allowsForDuplicates;
 
     /**
      * Returns an immutable copy of the given collection. If the input collection is already an instance of
@@ -63,56 +55,22 @@ public class ImmutableCollection<E> implements Collection<E> {
             return immutableCollection;
         }
 
-        return copyOfCollection(collection, !(collection instanceof Set));
-    }
-
-    /**
-     * Returns an immutable copy of the given collection. If the input collection is already an instance of
-     * {@link ImmutableCollection}, it is returned as is. Otherwise, a new {@link ImmutableCollection} is created
-     * based on the value of the {@code allowForDuplicates} parameter.
-     *
-     * @param collection         the input collection to copy
-     * @param allowForDuplicates whether duplicates are allowed in the resulting collection
-     * @param <E>                the type of elements in the collection
-     * @return an immutable collection that is a copy of the input collection
-     */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <E> ImmutableCollection<E> copyOfCollection(Collection<? extends E> collection, boolean allowForDuplicates) {
-        if (collection instanceof ImmutableCollection immutableCollection) {
-            if (!allowForDuplicates && !(immutableCollection.delegate instanceof ImmutableSet)) {
-                return new ImmutableCollection<>(ImmutableSet.copyOf(collection), false);
-            }
-
-            return immutableCollection;
-        }
-
-        return new ImmutableCollection<>(collection, allowForDuplicates);
+        return new ImmutableCollection<>(collection);
     }
 
     /**
      * A collector that accumulates elements into an {@link ImmutableCollection}.
      * The resulting collection can either allow duplicates or not, depending on the provided flag.
      *
-     * @param <E>                the type of elements to be collected
-     * @param allowForDuplicates flag indicating whether the resulting collection should allow duplicates
+     * @param <E> the type of elements to be collected
      * @return a collector that accumulates elements into an immutable collection
      */
-    public static <E> Collector<E, ?, ImmutableCollection<E>> toImmutableCollection(boolean allowForDuplicates) {
-        return Collectors.toImmutableCollection(allowForDuplicates);
+    public static <E> Collector<E, ?, ImmutableCollection<E>> toImmutableCollection() {
+        return Collectors.toImmutableCollection();
     }
 
-    ImmutableCollection(Collection<? extends E> collection, boolean allowForDuplicates) {
-        delegate = allowForDuplicates ? ImmutableList.copyOf(collection) : ImmutableSet.copyOf(collection);
-        allowsForDuplicates = allowForDuplicates;
-    }
-
-    /**
-     * Returns the information if the collection may contain duplicates
-     *
-     * @return the information if the collection may contain duplicates
-     */
-    public boolean allowsForDuplicates() {
-        return allowsForDuplicates;
+    ImmutableCollection(Collection<? extends E> collection) {
+        delegate = ImmutableList.copyOf(collection);
     }
 
     /**
@@ -170,6 +128,7 @@ public class ImmutableCollection<E> implements Collection<E> {
      * @deprecated Unsupported operation.
      */
     @Override
+    @Deprecated
     public final boolean add(E e) {
         throw new UnsupportedOperationException("add");
     }
@@ -181,6 +140,7 @@ public class ImmutableCollection<E> implements Collection<E> {
      * @deprecated Unsupported operation.
      */
     @Override
+    @Deprecated
     public final boolean remove(Object o) {
         throw new UnsupportedOperationException("remove");
     }
@@ -200,6 +160,7 @@ public class ImmutableCollection<E> implements Collection<E> {
      * @deprecated Unsupported operation.
      */
     @Override
+    @Deprecated
     public final boolean addAll(Collection<? extends E> c) {
         throw new UnsupportedOperationException("addAll");
     }
@@ -211,6 +172,7 @@ public class ImmutableCollection<E> implements Collection<E> {
      * @deprecated Unsupported operation.
      */
     @Override
+    @Deprecated
     public final boolean removeAll(Collection<?> c) {
         throw new UnsupportedOperationException("removeAll");
     }
@@ -222,6 +184,7 @@ public class ImmutableCollection<E> implements Collection<E> {
      * @deprecated Unsupported operation.
      */
     @Override
+    @Deprecated
     public final boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException("retainAll");
     }
@@ -234,6 +197,7 @@ public class ImmutableCollection<E> implements Collection<E> {
      */
 
     @Override
+    @Deprecated
     public final void clear() {
         throw new UnsupportedOperationException("clear");
     }

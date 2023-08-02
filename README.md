@@ -3,7 +3,7 @@
 Java record newContext generator
 
 [![Maven Central version](https://img.shields.io/maven-central/v/pl.com.labaj/auto-record)](https://mvnrepository.com/artifact/pl.com.labaj/auto-record)
-[![javadoc](https://javadoc.io/badge2/pl.com.labaj/auto-record-api/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj/auto-record-api)
+[![javadoc](https://javadoc.io/badge2/pl.com.labaj/auto-record-project/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj/auto-record-project)
 
 [![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pl.com.labaj%3Aauto-record-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pl.com.labaj%3Aauto-record-project)

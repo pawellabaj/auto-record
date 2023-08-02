@@ -13,7 +13,6 @@
     <artifactId>doc-examples</artifactId>
 
     <properties>
-        <guava.version>32.1.1-jre</guava.version>
         <sonar.skip>true</sonar.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
@@ -53,6 +52,10 @@
     <profiles>
         <profile>
             <id>release</id>
+
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+            </properties>
 
             <build>
                 <plugins>

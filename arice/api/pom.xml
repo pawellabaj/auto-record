@@ -13,8 +13,4 @@
     <name>ARICE API</name>
 
     <artifactId>arice-api</artifactId>
-
-    <properties>
-        <maven.javadoc.skip>false</maven.javadoc.skip>
-    </properties>
 </project>

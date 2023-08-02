@@ -15,7 +15,7 @@
     <artifactId>arice-extension</artifactId>
 
     <properties>
-        <maven.javadoc.skip>false</maven.javadoc.skip>
+        <skip.javadoc.for.the.project>false</skip.javadoc.for.the.project>
         <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
     </properties>
 

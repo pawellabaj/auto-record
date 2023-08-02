@@ -19,7 +19,7 @@
         <maven.test.skip>true</maven.test.skip>
         <sonar.skip>true</sonar.skip>
         <maven.install.skip>true</maven.install.skip>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <skip.javadoc.for.the.project>true</skip.javadoc.for.the.project>
     </properties>
 
     <dependencies>
@@ -129,6 +129,13 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>release</id>
+
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+            </properties>
         </profile>
     </profiles>
 </project>

@@ -17,7 +17,6 @@ package pl.com.labaj.autorecord.collections;
  */
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.apiguardian.api.API;
 
 import java.util.ArrayDeque;
@@ -34,17 +33,11 @@ import static org.apiguardian.api.API.Status.STABLE;
 
 @API(status = STABLE)
 public final class Collectors {
-    static final Collector<Object, ?, ImmutableCollection<Object>> TO_IMMUTABLE_COLLECTION_WITH_DUPLICATES = Collector.of(
+    static final Collector<Object, ?, ImmutableCollection<Object>> TO_IMMUTABLE_COLLECTION = Collector.of(
             ImmutableList::builder,
             ImmutableList.Builder::add,
             (builder1, builder2) -> builder1.addAll(builder2.build()),
-            builder -> new ImmutableCollection<>(builder.build(), true)
-    );
-    private static final Collector<Object, ?, ImmutableCollection<Object>> TO_IMMUTABLE_COLLECTION_NO_DUPLICATES = Collector.of(
-            ImmutableSet::builder,
-            ImmutableSet.Builder::add,
-            (builder1, builder2) -> builder1.addAll(builder2.build()),
-            builder -> new ImmutableCollection<>(builder.build(), false)
+            builder -> new ImmutableCollection<>(builder.build())
     );
     private static final Collector<Object, ?, ImmutableDeque<Object>> TO_IMMUTABLE_DEQUE = Collector.of(
             ArrayDeque::new,
@@ -62,14 +55,13 @@ public final class Collectors {
      * A collector that accumulates elements into an {@link ImmutableCollection}.
      * The resulting collection can either allow duplicates or not, depending on the provided flag.
      *
-     * @param <E>                the type of elements to be collected
-     * @param allowForDuplicates flag indicating whether the resulting collection should allow duplicates
+     * @param <E> the type of elements to be collected
      * @return a collector that accumulates elements into an immutable collection
-     * @see ImmutableCollection#toImmutableCollection(boolean)
+     * @see ImmutableCollection#toImmutableCollection()
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <E> Collector<E, ?, ImmutableCollection<E>> toImmutableCollection(boolean allowForDuplicates) {
-        return (Collector) (allowForDuplicates ? TO_IMMUTABLE_COLLECTION_WITH_DUPLICATES : TO_IMMUTABLE_COLLECTION_NO_DUPLICATES);
+    public static <E> Collector<E, ?, ImmutableCollection<E>> toImmutableCollection() {
+        return (Collector) TO_IMMUTABLE_COLLECTION;
     }
 
     /**

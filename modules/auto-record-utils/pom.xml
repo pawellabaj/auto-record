@@ -14,7 +14,7 @@
     <artifactId>auto-record-utils</artifactId>
 
     <properties>
-        <maven.javadoc.skip>false</maven.javadoc.skip>
+        <skip.javadoc.for.the.project>false</skip.javadoc.for.the.project>
     </properties>
 
     <dependencies>
