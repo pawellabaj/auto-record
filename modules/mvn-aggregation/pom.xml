@@ -19,7 +19,6 @@
         <maven.test.skip>true</maven.test.skip>
         <sonar.skip>true</sonar.skip>
         <maven.install.skip>true</maven.install.skip>
-        <skip.javadoc.for.the.project>true</skip.javadoc.for.the.project>
     </properties>
 
     <dependencies>
@@ -135,6 +134,7 @@
 
             <properties>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
+                <nexus-staging-maven-plugin.phase>deploy</nexus-staging-maven-plugin.phase>
             </properties>
         </profile>
     </profiles>

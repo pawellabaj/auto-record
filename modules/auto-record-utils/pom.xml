@@ -13,12 +13,7 @@
     <name>Auto Record Utilities</name>
     <artifactId>auto-record-utils</artifactId>
 
-    <properties>
-        <skip.javadoc.for.the.project>false</skip.javadoc.for.the.project>
-    </properties>
-
     <dependencies>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

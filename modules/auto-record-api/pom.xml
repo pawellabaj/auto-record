@@ -13,10 +13,6 @@
     <name>Auto Record API</name>
     <artifactId>auto-record-api</artifactId>
 
-    <properties>
-        <skip.javadoc.for.the.project>false</skip.javadoc.for.the.project>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.soabase.record-builder</groupId>

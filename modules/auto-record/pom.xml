@@ -14,10 +14,6 @@
     <artifactId>auto-record</artifactId>
     <url>https://github.com/pawellabaj/auto-record</url>
 
-    <properties>
-        <skip.javadoc.for.the.project>false</skip.javadoc.for.the.project>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>pl.com.labaj</groupId>

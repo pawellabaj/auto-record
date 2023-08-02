@@ -62,7 +62,6 @@
             --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
-        <skip.javadoc.for.the.project>true</skip.javadoc.for.the.project>
         <!--suppress UnresolvedMavenProperty -->
         <license-maven-plugin.header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</license-maven-plugin.header>
     </properties>
@@ -393,6 +392,7 @@
 
             <properties>
                 <skipTests>true</skipTests>
+                <nexus-staging-maven-plugin.phase>deploy</nexus-staging-maven-plugin.phase>
             </properties>
 
             <build>
@@ -509,7 +509,7 @@
                         <executions>
                             <execution>
                                 <id>default-deploy</id>
-                                <phase>deploy</phase>
+                                <phase>${nexus-staging-maven-plugin.phase}</phase>
                                 <goals>
                                     <goal>deploy</goal>
                                 </goals>
