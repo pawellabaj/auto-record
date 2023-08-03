@@ -66,7 +66,7 @@ public class ImmutableIterator<E> implements Iterator<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final void remove() {
         throw new UnsupportedOperationException("remove");
     }

@@ -59,21 +59,23 @@ class ImmutableCollectionTest {
     @MethodSource("testData")
     void shouldReurnImmutableCollection(Supplier<Collection> collectionSupplier, Function<Collection, ImmutableCollection> icFunction) {
         //given
+        var anotherList = List.of("A", "B");
         var collection = collectionSupplier.get();
 
         //when
         var immutableCollection = icFunction.apply(collection);
+        var iterator = immutableCollection.iterator();
 
         //then
         assertAll(
                 () -> assertThat(immutableCollection).hasSameElementsAs(collection),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.add("A")),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.remove("A")),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.addAll(List.of("A", "B"))),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.removeAll(List.of("A", "B"))),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.retainAll(List.of("A", "B"))),
+                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.addAll(anotherList)),
+                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.removeAll(anotherList)),
+                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.retainAll(anotherList)),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.clear()),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableCollection.iterator().remove())
+                () -> assertThrows(UnsupportedOperationException.class, () -> iterator.remove())
         );
     }
 

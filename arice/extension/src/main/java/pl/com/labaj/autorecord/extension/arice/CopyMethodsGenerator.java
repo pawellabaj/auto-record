@@ -71,11 +71,11 @@ class CopyMethodsGenerator {
 
     private static MethodGenerator builderFor(InterfaceType iType) {
         return (extContext, structure, staticImports, logger) -> {
-            var methodBuilder = getMethodBuilder(extContext, iType, logger);
+            var methodBuilder = getMethodBuilder(extContext, iType);
 
             immutableTypesBlock(structure, iType)
                     .ifPresent(methodBuilder::addCode);
-            subTypesBlocks(extContext, iType, structure, logger)
+            subTypesBlocks(extContext, iType, structure)
                     .forEach(methodBuilder::addCode);
 
             var returnStatement = isNull(iType.factoryClassName())
@@ -87,7 +87,7 @@ class CopyMethodsGenerator {
         };
     }
 
-    private static MethodSpec.Builder getMethodBuilder(ExtensionContext extContext, InterfaceType iType, Logger logger) {
+    private static MethodSpec.Builder getMethodBuilder(ExtensionContext extContext, InterfaceType iType) {
         var builder = MethodSpec.methodBuilder("immutable")
                 .addModifiers(PUBLIC, STATIC);
 
@@ -117,7 +117,7 @@ class CopyMethodsGenerator {
             return TypeName.get(mirrorType);
         }
 
-        var className = (ClassName) ClassName.get(mirrorType);
+        var className = (ClassName) TypeName.get(mirrorType);
         var typeVariableNames = iType.genericNames().stream()
                 .map(name -> full ? name : substringBefore(name, " "))
                 .map(TypeVariableName::get)
@@ -165,7 +165,7 @@ class CopyMethodsGenerator {
         return Optional.of(block);
     }
 
-    private static List<CodeBlock> subTypesBlocks(ExtensionContext extContext, InterfaceType iType, TypesStructure structure, Logger logger) {
+    private static List<CodeBlock> subTypesBlocks(ExtensionContext extContext, InterfaceType iType, TypesStructure structure) {
         return iType.directSubTypes().stream()
                 .filter(structure::needsAdditionalMethod)
                 .sorted(reverseOrder())

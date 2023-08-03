@@ -38,7 +38,7 @@ import static org.apiguardian.api.API.Status.STABLE;
  * @param <E> the type of elements in the deque
  */
 @API(status = STABLE)
-public class ImmutableDeque<E> implements Deque<E> {
+public class ImmutableDeque<E> extends AbstractImmutableCollection<E> implements Deque<E> {
 
     private final Deque<E> delegate;
 
@@ -93,7 +93,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final void addFirst(E e) {
         throw new UnsupportedOperationException("addFirst");
     }
@@ -105,7 +105,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final void addLast(E e) {
         throw new UnsupportedOperationException("addLast");
     }
@@ -117,7 +117,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final boolean offerFirst(E e) {
         throw new UnsupportedOperationException("offerFirst");
     }
@@ -129,7 +129,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final boolean offerLast(E e) {
         throw new UnsupportedOperationException("offerLast");
     }
@@ -141,7 +141,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E removeFirst() {
         throw new UnsupportedOperationException("removeFirst");
     }
@@ -153,7 +153,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E removeLast() {
         throw new UnsupportedOperationException("removeLast");
     }
@@ -165,7 +165,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E pollFirst() {
         throw new UnsupportedOperationException("pollFirst");
     }
@@ -177,7 +177,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E pollLast() {
         throw new UnsupportedOperationException("pollLast");
     }
@@ -221,7 +221,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final boolean removeFirstOccurrence(Object o) {
         throw new UnsupportedOperationException("removeFirstOccurrence");
     }
@@ -233,7 +233,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final boolean removeLastOccurrence(Object o) {
         throw new UnsupportedOperationException("removeLastOccurrence");
     }
@@ -245,19 +245,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
-    public final boolean add(E e) {
-        throw new UnsupportedOperationException("add");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final boolean offer(E e) {
         throw new UnsupportedOperationException("offer");
     }
@@ -269,7 +257,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E remove() {
         throw new UnsupportedOperationException("remove");
     }
@@ -281,7 +269,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E poll() {
         throw new UnsupportedOperationException("poll");
     }
@@ -309,55 +297,7 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
-    public final boolean addAll(Collection<? extends E> c) {
-        throw new UnsupportedOperationException("addAll");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean removeAll(Collection<?> c) {
-        throw new UnsupportedOperationException("removeAll");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean retainAll(Collection<?> c) {
-        throw new UnsupportedOperationException("retainAll");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final void clear() {
-        throw new UnsupportedOperationException("clear");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final void push(E e) {
         throw new UnsupportedOperationException("push");
     }
@@ -369,21 +309,9 @@ public class ImmutableDeque<E> implements Deque<E> {
      * @deprecated Unsupported operation.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1.0.0")
     public final E pop() {
         throw new UnsupportedOperationException("pop");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean remove(Object o) {
-        throw new UnsupportedOperationException("remove");
     }
 
     /**

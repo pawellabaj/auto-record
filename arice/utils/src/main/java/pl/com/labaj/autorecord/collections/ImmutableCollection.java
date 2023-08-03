@@ -36,7 +36,7 @@ import static org.apiguardian.api.API.Status.STABLE;
  * @param <E> the type of elements in the collection
  */
 @API(status = STABLE)
-public class ImmutableCollection<E> implements Collection<E> {
+public class ImmutableCollection<E> extends AbstractImmutableCollection<E> {
 
     private final com.google.common.collect.ImmutableCollection<E> delegate;
 
@@ -122,83 +122,10 @@ public class ImmutableCollection<E> implements Collection<E> {
     }
 
     /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean add(E e) {
-        throw new UnsupportedOperationException("add");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean remove(Object o) {
-        throw new UnsupportedOperationException("remove");
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public final boolean containsAll(Collection<?> c) {
         return delegate.containsAll(c);
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean addAll(Collection<? extends E> c) {
-        throw new UnsupportedOperationException("addAll");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean removeAll(Collection<?> c) {
-        throw new UnsupportedOperationException("removeAll");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-    @Override
-    @Deprecated
-    public final boolean retainAll(Collection<?> c) {
-        throw new UnsupportedOperationException("retainAll");
-    }
-
-    /**
-     * Guaranteed to throw an exception and leave the collection unmodified.
-     *
-     * @throws UnsupportedOperationException always
-     * @deprecated Unsupported operation.
-     */
-
-    @Override
-    @Deprecated
-    public final void clear() {
-        throw new UnsupportedOperationException("clear");
     }
 }
