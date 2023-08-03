@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>pl.com.labaj</groupId>
+            <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record</artifactId>
         </dependency>
         <dependency>

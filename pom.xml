@@ -6,7 +6,7 @@
     <description>Java record source generator</description>
     <url>https://github.com/pawellabaj/auto-record</url>
 
-    <groupId>pl.com.labaj</groupId>
+    <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-project</artifactId>
     <version>2.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>

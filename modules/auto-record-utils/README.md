@@ -18,7 +18,7 @@ Add the following dependency to your `pom.xml` file:
 ```xml
 
 <dependency>
-    <groupId>pl.com.labaj</groupId>
+    <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-utils</artifactId>
     <version>${auto-record.version}</version>
 </dependency>
@@ -30,5 +30,5 @@ Declare the following dependency in your `build.gradle` script:
 
 ```groovy
 dependencies {
-    annotationProcessor 'pl.com.labaj:auto-record-utils:${autoRecordVersion}'
+    annotationProcessor 'pl.com.labaj.autorecord:auto-record-utils:${autoRecordVersion}'
 }
