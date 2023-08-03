@@ -22,6 +22,7 @@ import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.context.RecordComponent;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
@@ -29,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public record ProcessorContext(String packageName,
+public record ProcessorContext(ProcessingEnvironment processingEnv,
+                               String packageName,
                                AutoRecord.Options recordOptions,
                                RecordBuilder.Options builderOptions,
                                boolean isRecordPublic,

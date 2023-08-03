@@ -17,7 +17,6 @@ package pl.com.labaj.autorecord;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -30,6 +29,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @AutoRecord.Template(
         recordOptions = @AutoRecord.Options(withBuilder = true),
         builderOptions = @RecordBuilder.Options(useUnmodifiableCollections = true),
-        extensions = @AutoRecord.Extension(extensionClass = LoggingExtension.class)
+        extensions = @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.LoggingExtension")
 )
 public @interface CustomAutoRecord {}

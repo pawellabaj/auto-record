@@ -16,6 +16,7 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -25,15 +26,19 @@ import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessor;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
+import pl.com.labaj.autorecord.processor.utils.Annotations;
 
 import javax.annotation.Nullable;
+import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static java.util.Objects.nonNull;
@@ -63,7 +68,7 @@ class CompactConstructorSubGenerator {
 
         var generatedByProcessor = !nonNullNames.isEmpty() || !memoization.isEmpty();
         var filteredExtensions = extensions.stream()
-                .filter(extension -> extension.shouldGenerate(generatedByProcessor, context))
+                .filter(extension -> extension.shouldGenerateCompactConstructor(generatedByProcessor, context))
                 .toList();
 
         if (!generatedByProcessor && filteredExtensions.isEmpty()) {
@@ -73,6 +78,37 @@ class CompactConstructorSubGenerator {
         var compactConstructor = generateCompactConstructor(staticImports, generatedByProcessor, filteredExtensions, nonNullNames);
 
         recordBuilder.compactConstructor(compactConstructor);
+
+        filteredExtensions.stream()
+                .flatMap(extension -> additionalMethods(extension, staticImports))
+                .forEach(recordBuilder::addMethod);
+
+        filteredExtensions.stream()
+                .map(extension -> extension.annotationsToSupportCompactConstructor(context, staticImports))
+                .map(annotations -> {
+                    if (recordBuilder.annotations.isEmpty()) {
+                        return annotations;
+                    }
+
+                    var currentAnnotations = List.copyOf(recordBuilder.annotations);
+                    recordBuilder.annotations.clear();
+                    return Annotations.merge(currentAnnotations, annotations);
+                })
+                .flatMap(Collection::stream)
+                .forEach(recordBuilder::addAnnotation);
+    }
+
+    private Stream<MethodSpec> additionalMethods(CompactConstructorExtension extension, StaticImports staticImports) {
+        var annotation = AnnotationSpec.builder(Generated.class)
+                .addMember("value", "$S", extension.getClass().getName())
+                .build();
+
+        var additionalMethods = extension.additionalMethodsToSupportCompactConstructor(context, staticImports);
+
+        return additionalMethods.stream()
+                .map(methodSpec -> methodSpec.toBuilder()
+                        .addAnnotation(annotation)
+                        .build());
     }
 
     private MethodSpec generateCompactConstructor(StaticImports staticImports,

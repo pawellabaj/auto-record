@@ -18,15 +18,14 @@ package wiki.customization.singlerecord;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 @AutoRecord
 @AutoRecord.Options(withBuilder = true, memoizedHashCode = true, memoizedToString = true)
 @RecordBuilder.Options(addConcreteSettersForOptional = true)
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
-@AutoRecord.Extension(extensionClass = IsPersonAdultVerifierExtension.class)
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.LoggingExtension", parameters = "info")
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.IsPersonAdultVerifierExtension")
 interface Person {
     String name();
+
     int age();
 }

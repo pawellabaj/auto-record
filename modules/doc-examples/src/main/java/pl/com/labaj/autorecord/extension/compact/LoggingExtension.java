@@ -22,6 +22,7 @@ import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +34,7 @@ public class LoggingExtension implements CompactConstructorExtension {
     private Level level;
 
     @Override
-    public void setParameters(String[] parameters) {
+    public void init(ProcessingEnvironment processingEnv, String[] parameters) {
         if (parameters.length < 1) {
             level = FINE;
         } else {
@@ -42,7 +43,7 @@ public class LoggingExtension implements CompactConstructorExtension {
     }
 
     @Override
-    public boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
+    public boolean shouldGenerateCompactConstructor(boolean isGeneratedByProcessor, Context context) {
         return true;
     }
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>pl.com.labaj.autorecord</groupId>
+        <artifactId>arice-project</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../project/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>arice-tests</artifactId>
+
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>auto-record</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-extension</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.testing.compile</groupId>
+            <artifactId>compile-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>verify</id>
+
+            <properties>
+                <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/../../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
+
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+                <nexus-staging-maven-plugin.phase>none</nexus-staging-maven-plugin.phase>
+            </properties>
+        </profile>
+    </profiles>
+</project>

@@ -19,7 +19,6 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Ignored;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -29,7 +28,7 @@ import java.util.function.Supplier;
 @AutoRecord
 @AutoRecord.Options(withBuilder = true, memoizedHashCode = true, memoizedToString = true)
 @RecordBuilder.Options(suffix = "_Builder")
-@AutoRecord.Extension(extensionClass = LoggingExtension.class)
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.LoggingExtension")
 interface Full<D, H extends Comparable<H>> {
     String name();
 

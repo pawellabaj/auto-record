@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>pl.com.labaj</groupId>
+        <groupId>pl.com.labaj.autorecord</groupId>
         <artifactId>auto-record-project</artifactId>
-        <version>2.0.1-SNAPSHOT</version>
+        <version>2.1.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -18,9 +18,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>pl.com.labaj</groupId>
+            <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record</artifactId>
-            <version>${project.parent.version}</version>
+            <version>2.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -56,21 +56,10 @@
         <profile>
             <id>release</id>
 
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>default-deploy</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+                <nexus-staging-maven-plugin.phase>none</nexus-staging-maven-plugin.phase>
+            </properties>
         </profile>
     </profiles>
 </project>

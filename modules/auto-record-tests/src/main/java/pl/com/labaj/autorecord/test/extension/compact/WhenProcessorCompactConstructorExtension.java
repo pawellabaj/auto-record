@@ -24,7 +24,7 @@ import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 public class WhenProcessorCompactConstructorExtension implements CompactConstructorExtension {
 
     @Override
-    public boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
+    public boolean shouldGenerateCompactConstructor(boolean isGeneratedByProcessor, Context context) {
         return isGeneratedByProcessor;
     }
 

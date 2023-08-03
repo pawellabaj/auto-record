@@ -16,9 +16,6 @@ package pl.com.labaj.autorecord;
  * limitations under the License.
  */
 
-import pl.com.labaj.autorecord.test.extension.compact.AlwaysCompactConstructorExtension;
-import pl.com.labaj.autorecord.test.extension.compact.WhenProcessorCompactConstructorExtension;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -30,8 +27,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 @AutoRecord.Template(
         recordOptions = @AutoRecord.Options(memoizedHashCode = true),
         extensions = {
-                @AutoRecord.Extension(extensionClass = WhenProcessorCompactConstructorExtension.class),
-                @AutoRecord.Extension(extensionClass = AlwaysCompactConstructorExtension.class, parameters = "From template"),
+                @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.WhenProcessorCompactConstructorExtension"),
+                @AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.test.extension.compact.AlwaysCompactConstructorExtension",
+                        parameters = "From template"),
         }
 )
 public @interface TemplateWithExtension {

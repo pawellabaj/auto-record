@@ -21,18 +21,19 @@ import pl.com.labaj.autorecord.context.Context;
 import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import java.util.Arrays;
 
 public class AlwaysCompactConstructorExtension implements CompactConstructorExtension {
     private String[] parameters;
 
     @Override
-    public void setParameters(String[] parameters) {
+    public void init(ProcessingEnvironment processingEnv, String[] parameters) {
         this.parameters = parameters;
     }
 
     @Override
-    public boolean shouldGenerate(boolean isGeneratedByProcessor, Context context) {
+    public boolean shouldGenerateCompactConstructor(boolean isGeneratedByProcessor, Context context) {
         return true;
     }
 

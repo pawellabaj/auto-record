@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>pl.com.labaj.autorecord</groupId>
+        <artifactId>arice-project</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../project/pom.xml</relativePath>
+    </parent>
+
+    <name>ARICE</name>
+    <description>Auto Record Immutable Collections Extension</description>
+    <artifactId>arice-extension</artifactId>
+
+    <properties>
+        <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>auto-record</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>pl.com.labaj.autorecord</groupId>
+            <artifactId>arice-utils</artifactId>
+        </dependency>
+    </dependencies>
+</project>

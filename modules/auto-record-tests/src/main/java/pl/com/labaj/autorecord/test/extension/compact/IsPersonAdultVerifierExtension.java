@@ -22,6 +22,8 @@ import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.CompactConstructorExtension;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 
+import javax.annotation.processing.ProcessingEnvironment;
+
 public class IsPersonAdultVerifierExtension implements CompactConstructorExtension {
 
     private static final Class<RuntimeException> RUNTIME_EXCEPTION_CLASS = RuntimeException.class;
@@ -29,7 +31,7 @@ public class IsPersonAdultVerifierExtension implements CompactConstructorExtensi
 
     @SuppressWarnings("java:S112")
     @Override
-    public void setParameters(String[] parameters) {
+    public void init(ProcessingEnvironment processingEnv, String[] parameters) {
         if (parameters.length < 1) {
             exceptionClass = RUNTIME_EXCEPTION_CLASS;
         } else {

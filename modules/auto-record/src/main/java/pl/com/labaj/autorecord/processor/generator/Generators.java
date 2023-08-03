@@ -16,12 +16,16 @@ package pl.com.labaj.autorecord.processor.generator;
  * limitations under the License.
  */
 
+import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static org.apiguardian.api.API.Status.INTERNAL;
+
+@API(status = INTERNAL)
 public final class Generators {
     private static final List<BiFunction<ProcessorContext, List<AutoRecordExtension>, RecordGenerator>> GENERATOR_CONSTRUCTORS = List.of(
             BasicGenerator::new,

@@ -3,19 +3,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Auto Record</name>
     <description>Java record source generator</description>
     <url>https://github.com/pawellabaj/auto-record</url>
 
-    <groupId>pl.com.labaj</groupId>
+    <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-project</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
     <modules>
+        <module>modules/auto-record-api</module>
+        <module>modules/auto-record-utils</module>
         <module>modules/auto-record</module>
         <module>modules/auto-record-tests</module>
+
+        <module>arice/project</module>
+
         <module>modules/doc-examples</module>
         <module>modules/mvn-aggregation</module>
     </modules>
@@ -24,7 +28,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-07-03T11:23:03Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-07-21T11:15:27Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -34,6 +38,7 @@
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-install-plugin.version>3.1.1</maven-install-plugin.version>
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+        <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
@@ -41,6 +46,7 @@
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+
         <fabric-javapoet.version>0.1.0</fabric-javapoet.version>
         <record-builder.version>37</record-builder.version>
         <jsr305.version>3.0.2</jsr305.version>
@@ -49,21 +55,30 @@
         <compile-testing.version>0.21.0</compile-testing.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <apiguardian-api.version>1.1.2</apiguardian-api.version>
+        <guava.version>32.1.1-jre</guava.version>
 
         <maven-surefire-plugin.argLine>
             --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED
             --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <!--suppress UnresolvedMavenProperty -->
+        <license-maven-plugin.header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</license-maven-plugin.header>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apiguardian</groupId>
+            <artifactId>apiguardian-api</artifactId>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>pl.com.labaj</groupId>
-                <artifactId>auto-record</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.apiguardian</groupId>
+                <artifactId>apiguardian-api</artifactId>
+                <version>${apiguardian-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.fabricmc</groupId>
@@ -98,9 +113,9 @@
                 <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apiguardian</groupId>
-                <artifactId>apiguardian-api</artifactId>
-                <version>${apiguardian-api.version}</version>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
             <dependency>
@@ -134,8 +149,7 @@
                 <configuration>
                     <licenseSets>
                         <licenseSet>
-                            <!--suppress UnresolvedMavenProperty -->
-                            <header>${maven.multiModuleProjectDirectory}/.build/lic-header.txt</header>
+                            <header>${license-maven-plugin.header}</header>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
@@ -154,6 +168,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -161,33 +176,6 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <proc>none</proc>
-                            <compilerArgs>
-                                <arg>-Xlint:unchecked</arg>
-                            </compilerArgs>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <compilerArgs>
-                                <arg>-implicit:class</arg>
-                            </compilerArgs>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -268,6 +256,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>${maven-release-plugin.version}</version>
                 </plugin>
@@ -291,11 +284,48 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>${maven-gpg-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.honton.chas</groupId>
+                    <artifactId>git-tag-maven-plugin</artifactId>
+                    <version>0.0.4</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
 
     <profiles>
+        <profile>
+            <id>skip-annotation-processing</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <file>
+                    <exists>.skip-annotation-processing</exists>
+                </file>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <configuration>
+                                    <compilerArgs>
+                                        <arg>-proc:none</arg>
+                                    </compilerArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>verify</id>
 
@@ -303,7 +333,8 @@
                 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
                 <sonar.organization>pawellabaj</sonar.organization>
                 <!--suppress UnresolvedMavenProperty -->
-                <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+                <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/target/site/jacoco-aggregate/jacoco.xml
+                </sonar.coverage.jacoco.xmlReportPaths>
                 <!--suppress UnresolvedMavenProperty -->
                 <maven-surefire-plugin.argLine>
                     ${argLine}
@@ -315,6 +346,18 @@
 
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                </requireJavaVersion>
+                                <dependencyConvergence/>
+                            </rules>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
@@ -349,6 +392,7 @@
 
             <properties>
                 <skipTests>true</skipTests>
+                <nexus-staging-maven-plugin.phase>deploy</nexus-staging-maven-plugin.phase>
             </properties>
 
             <build>
@@ -371,24 +415,40 @@
                         <configuration>
                             <verbose>true</verbose>
                             <detectJavaApiLink>true</detectJavaApiLink>
-                            <subpackages>pl.com.labaj.autorecord</subpackages>
-                            <excludePackageNames>pl.com.labaj.autorecord.processor.*</excludePackageNames>
                             <links>
                                 <link>https://javadoc.io/doc/com.squareup/javapoet/latest</link>
                                 <link>https://javadoc.io/doc/io.soabase.record-builder/record-builder-core/${record-builder.version}</link>
                                 <link>https://javadoc.io/doc/org.apiguardian/apiguardian-api/${apiguardian-api.version}</link>
+                                <link>https://javadoc.io/doc/com.google.guava/guava/${guava.version}</link>
                             </links>
+                            <subpackages>pl.com.labaj.autorecord</subpackages>
+                            <excludePackageNames>pl.com.labaj.autorecord.processor.*:pl.com.labaj.autorecord.test.*</excludePackageNames>
                             <notimestamp>true</notimestamp>
                             <failOnWarnings>false</failOnWarnings>
                             <failOnError>false</failOnError>
-                            <sourcepath>${project.build.sourceDirectory}</sourcepath>
+                            <quiet>true</quiet>
+                            <verbose>false</verbose>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>attach-javadocs</id>
+                                <id>attach-aggregated-javadocs</id>
                                 <goals>
-                                    <goal>jar</goal>
+                                     <goal>aggregate-jar</goal>
                                 </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <skippedModules>auto-record-tests,doc-examples,mvn-aggregation,arice-tests</skippedModules>
+                                    <groups>
+                                        <group>
+                                            <title>Auto Record</title>
+                                            <packages>pl.com.labaj.autorecord:pl.com.labaj.autorecord.memoizer:pl.com.labaj.autorecord.extension:pl.com.labaj.autorecord.processor:pl.com.labaj.autorecord.context</packages>
+                                        </group>
+                                        <group>
+                                            <title>ARICE</title>
+                                            <packages>pl.com.labaj.autorecord.extension.arice:pl.com.labaj.autorecord.collections</packages>
+                                        </group>
+                                    </groups>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -415,9 +475,18 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <configuration>
+                            <preparationGoals>clean verify org.honton.chas:git-tag-maven-plugin:tag</preparationGoals>
                             <prepareVerifyArgs>-Dmaven.test.skip=true</prepareVerifyArgs>
                             <scmCommentPrefix>[ci skip]</scmCommentPrefix>
                             <tagNameFormat>v@{project.version}</tagNameFormat>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.honton.chas</groupId>
+                        <artifactId>git-tag-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                            <tagName>v${project.version}</tagName>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -440,7 +509,7 @@
                         <executions>
                             <execution>
                                 <id>default-deploy</id>
-                                <phase>deploy</phase>
+                                <phase>${nexus-staging-maven-plugin.phase}</phase>
                                 <goals>
                                     <goal>deploy</goal>
                                 </goals>
@@ -451,7 +520,6 @@
             </build>
         </profile>
     </profiles>
-
     <licenses>
         <license>
             <name>Apache-2.0</name>

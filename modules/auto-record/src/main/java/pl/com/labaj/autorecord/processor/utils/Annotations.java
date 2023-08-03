@@ -18,6 +18,9 @@ package pl.com.labaj.autorecord.processor.utils;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import org.apiguardian.api.API;
+import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 
 import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
@@ -26,18 +29,24 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Target;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
+import static org.apiguardian.api.API.Status.INTERNAL;
 
+@API(status = INTERNAL)
 public final class Annotations {
     private Annotations() {}
 
@@ -122,5 +131,44 @@ public final class Annotations {
                 .map(Arrays::stream)
                 .map(elementTypes -> elementTypes.anyMatch(elementType -> elementType == target))
                 .orElse(true);
+    }
+
+    public static List<AnnotationSpec> merge(List<AnnotationSpec> annotations1, List<AnnotationSpec> annotations2) {
+        var groupedBy = Stream.concat(annotations1.stream(), annotations2.stream())
+                .collect(groupingBy(
+                        annotationSpec -> annotationSpec.type.toString()
+
+                ));
+
+        return groupedBy.entrySet().stream()
+                .flatMap(entry -> {
+                    try {
+                        var annotationsClassName = entry.getKey();
+                        Class<?> annotationlass = Class.forName(annotationsClassName);
+                        var repetable = annotationlass.getAnnotation(Repeatable.class);
+                        if (nonNull(repetable)) {
+                            return entry.getValue().stream();
+                        }
+
+                        var annotationBuilder = AnnotationSpec.builder(annotationlass);
+
+                        record Member(String name, CodeBlock value){}
+                        var members = entry.getValue().stream()
+                                .map(annotationSpec -> annotationSpec.members)
+                                .map(Map::entrySet)
+                                .flatMap(Collection::stream)
+                                .flatMap(en -> en.getValue()
+                                        .stream()
+                                        .map(value -> new Member(en.getKey(), value)))
+                                .collect(groupingBy(Member::name, toSet()));
+
+                        members.forEach((k, v) -> v.forEach(value -> annotationBuilder.addMember(k, value.value)));
+
+                        return Stream.of(annotationBuilder.build());
+                    } catch (ClassNotFoundException e) {
+                        throw new AutoRecordProcessorException("Cannot merge annptations", e);
+                    }
+                })
+                .toList();
     }
 }

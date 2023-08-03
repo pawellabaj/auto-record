@@ -16,12 +16,11 @@ package wiki.extension;
  */
 
 import pl.com.labaj.autorecord.AutoRecord;
-import pl.com.labaj.autorecord.extension.compact.LoggingExtension;
 
 import javax.annotation.Nullable;
 
 @AutoRecord
-@AutoRecord.Extension(extensionClass = LoggingExtension.class, parameters = "info")
+@AutoRecord.Extension(extensionClass = "pl.com.labaj.autorecord.extension.compact.LoggingExtension", parameters = "info")
 interface Person {
     String name();
 

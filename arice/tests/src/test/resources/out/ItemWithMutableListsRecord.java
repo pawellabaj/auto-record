@@ -1,0 +1,70 @@
+package pl.com.labaj.autorecord.testcase;
+
+/*-
+ * Copyright © 2023 Auto Record
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+    import static java.util.Objects.requireNonNull;
+
+import com.google.common.collect.ImmutableList;
+    import java.util.ArrayList;
+    import java.util.LinkedList;
+    import java.util.List;
+    import javax.annotation.processing.Generated;
+import pl.com.labaj.autorecord.GeneratedWithAutoRecord;
+import pl.com.labaj.autorecord.extension.arice.ARICE;
+import pl.com.labaj.autorecord.extension.arice.ARICEUtilities;
+import pl.com.labaj.autorecord.extension.arice.Mutable;
+import pl.com.labaj.autorecord.testcase.user.UserCollections;
+
+@Generated(
+        comments = "pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension",
+        value = "pl.com.labaj.autorecord.AutoRecord"
+)
+@GeneratedWithAutoRecord
+@ARICEUtilities(
+        className = "pl.com.labaj.autorecord.extension.arice.ARICE"
+)
+record ItemWithMutableListsRecord<E>(List<E> list,
+                                     LinkedList<E> linkedList,
+                                     ArrayList<E> arrayList,
+                                     UserCollections.UserList<E> userList,
+                                     UserCollections.UserListImpl<E> userListImpl,
+                                     ImmutableList<E> immutableList,
+                                     @Mutable List<E> mutableList,
+                                     @Mutable LinkedList<E> mutableLinkedList,
+                                     @Mutable ArrayList<E> mutableArrayList,
+                                     @Mutable UserCollections.UserList<E> mutableUserList,
+                                     @Mutable UserCollections.UserListImpl<E> mutableUserListImpl,
+                                     @Mutable ImmutableList<E> mutableImmutableList) implements ItemWithMutableLists<E> {
+    ItemWithMutableListsRecord {
+        // pl.com.labaj.autorecord.processor.AutoRecordProcessor
+        requireNonNull(list, "list must not be null");
+        requireNonNull(linkedList, "linkedList must not be null");
+        requireNonNull(arrayList, "arrayList must not be null");
+        requireNonNull(userList, "userList must not be null");
+        requireNonNull(userListImpl, "userListImpl must not be null");
+        requireNonNull(immutableList, "immutableList must not be null");
+        requireNonNull(mutableList, "mutableList must not be null");
+        requireNonNull(mutableLinkedList, "mutableLinkedList must not be null");
+        requireNonNull(mutableArrayList, "mutableArrayList must not be null");
+        requireNonNull(mutableUserList, "mutableUserList must not be null");
+        requireNonNull(mutableUserListImpl, "mutableUserListImpl must not be null");
+        requireNonNull(mutableImmutableList, "mutableImmutableList must not be null");
+
+        // pl.com.labaj.autorecord.extension.arice.ImmutableCollectionsExtension
+        list = ARICE.immutable(list);
+    }
+}

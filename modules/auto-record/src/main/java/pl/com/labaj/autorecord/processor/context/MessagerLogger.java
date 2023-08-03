@@ -50,12 +50,12 @@ public class MessagerLogger implements Logger {
     @Override
     public void debug(String message) {
         if (isDebugEnabled()) {
-            info("[DEBUG] " + message);
+            note("[DEBUG] " + message);
         }
     }
 
     @Override
-    public void info(String message) {
+    public void note(String message) {
         printMessage(NOTE, message);
     }
 
