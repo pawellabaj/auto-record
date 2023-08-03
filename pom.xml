@@ -3,12 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Auto Record</name>
     <description>Java record source generator</description>
     <url>https://github.com/pawellabaj/auto-record</url>
 
     <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-project</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
@@ -28,7 +29,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-07-21T11:15:27Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-08-03T13:00:39Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -284,11 +285,6 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>${maven-gpg-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.honton.chas</groupId>
-                    <artifactId>git-tag-maven-plugin</artifactId>
-                    <version>0.0.4</version>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -475,18 +471,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <configuration>
-                            <preparationGoals>clean verify org.honton.chas:git-tag-maven-plugin:tag</preparationGoals>
+                            <preparationGoals>clean verify</preparationGoals>
                             <prepareVerifyArgs>-Dmaven.test.skip=true</prepareVerifyArgs>
                             <scmCommentPrefix>[ci skip]</scmCommentPrefix>
                             <tagNameFormat>v@{project.version}</tagNameFormat>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.honton.chas</groupId>
-                        <artifactId>git-tag-maven-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                            <tagName>v${project.version}</tagName>
                         </configuration>
                     </plugin>
                     <plugin>
