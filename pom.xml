@@ -8,7 +8,7 @@
 
     <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-project</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
@@ -28,7 +28,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-07-21T11:15:27Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-08-03T10:35:58Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -284,11 +284,6 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>${maven-gpg-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.honton.chas</groupId>
-                    <artifactId>git-tag-maven-plugin</artifactId>
-                    <version>0.0.4</version>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -475,18 +470,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <configuration>
-                            <preparationGoals>clean verify org.honton.chas:git-tag-maven-plugin:tag</preparationGoals>
+                            <preparationGoals>clean verify</preparationGoals>
                             <prepareVerifyArgs>-Dmaven.test.skip=true</prepareVerifyArgs>
                             <scmCommentPrefix>[ci skip]</scmCommentPrefix>
                             <tagNameFormat>v@{project.version}</tagNameFormat>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.honton.chas</groupId>
-                        <artifactId>git-tag-maven-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                            <tagName>v${project.version}</tagName>
                         </configuration>
                     </plugin>
                     <plugin>
