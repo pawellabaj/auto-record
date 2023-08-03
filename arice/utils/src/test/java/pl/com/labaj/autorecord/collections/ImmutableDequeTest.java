@@ -72,9 +72,12 @@ class ImmutableDequeTest {
     void shouldReurnImmutableCollection(Supplier<Collection> collectionSupplier, Function<Collection, ImmutableDeque> idFunction) {
         //given
         var collection = collectionSupplier.get();
+        var anotherCollection = List.of("A", "B");
 
         //when
         var immutableDeque = idFunction.apply(collection);
+        var iterator = immutableDeque.iterator();
+        var descendingIterator = immutableDeque.descendingIterator();
 
         //then
         assertAll(
@@ -94,15 +97,15 @@ class ImmutableDequeTest {
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.remove("A")),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.remove()),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.poll()),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.addAll(List.of("A", "B"))),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.removeAll(List.of("A", "B"))),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.retainAll(List.of("A", "B"))),
+                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.addAll(anotherCollection)),
+                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.removeAll(anotherCollection)),
+                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.retainAll(anotherCollection)),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.clear()),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.pop()),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.push("A")),
                 () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.remove("A")),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.iterator().remove()),
-                () -> assertThrows(UnsupportedOperationException.class, () -> immutableDeque.descendingIterator().remove())
+                () -> assertThrows(UnsupportedOperationException.class, () -> iterator.remove()),
+                () -> assertThrows(UnsupportedOperationException.class, () -> descendingIterator.remove())
         );
     }
 
