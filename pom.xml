@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <description>Java record source generator</description>
@@ -8,7 +7,7 @@
 
     <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-project</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
@@ -28,7 +27,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-08-03T10:35:58Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-08-03T11:40:18Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.2</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -186,7 +185,7 @@
                     <consoleOutputReporter>
                         <disable>true</disable>
                     </consoleOutputReporter>
-                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
+                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter" />
                 </configuration>
                 <executions>
                     <execution>
@@ -349,7 +348,7 @@
                                 <requireJavaVersion>
                                     <version>[17,)</version>
                                 </requireJavaVersion>
-                                <dependencyConvergence/>
+                                <dependencyConvergence />
                             </rules>
                         </configuration>
                     </plugin>
@@ -542,7 +541,7 @@
         <url>https://github.com/pawellabaj/auto-record</url>
         <connection>scm:git:https://github.com/pawellabaj/auto-record.git</connection>
         <developerConnection>scm:git:https://github.com/pawellabaj/auto-record.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.0.0</tag>
     </scm>
 
     <distributionManagement>
