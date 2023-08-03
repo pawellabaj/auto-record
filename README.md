@@ -6,7 +6,7 @@ Java record newContext generator
 [![javadoc](https://javadoc.io/badge2/pl.com.labaj.autorecord/auto-record-project/javadoc.svg)](https://javadoc.io/doc/pl.com.labaj.autorecord/auto-record-project)
 
 [![CI Verify Status](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/pawellabaj/auto-record/actions/workflows/verify.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pl.com.labaj%3Aauto-record-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pl.com.labaj%3Aauto-record-project)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pl.com.labaj.autorecord%3Aauto-record-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pl.com.labaj.autorecord%3Aauto-record-project)
 [![Sonatype Lift Status](https://lift.sonatype.com/api/badge/github.com/pawellabaj/auto-record)](https://lift.sonatype.com/results/github.com/pawellabaj/auto-record)
 [![Reproducible Builds](https://img.shields.io/badge/Reproducible_Builds-ok-success?labelColor=1e5b96)](https://github.com/jvm-repo-rebuild/reproducible-central#pl.com.labaj.autorecord:auto-record)
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7700/badge)](https://bestpractices.coreinfrastructure.org/projects/7700)
