@@ -28,6 +28,7 @@ import pl.com.labaj.autorecord.processor.context.MemoizerType;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -49,7 +50,7 @@ class MemoizationGenerator extends RecordGenerator {
     private MethodSpec toMemoizedMethodSpec(Memoization.Item item) {
         var name = item.name();
         var annotations = createAnnotationSpecs(item.annotations(),
-                METHOD,
+                Set.of(METHOD),
                 List.of(Memoized.class, Override.class),
                 List.of());
         var memoizerType = MemoizerType.from(item.type());

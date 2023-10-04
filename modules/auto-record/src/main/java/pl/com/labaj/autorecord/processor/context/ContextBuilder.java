@@ -58,7 +58,8 @@ public class ContextBuilder {
         var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
         var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, getBuilderOptionsEnforcedValues(extensions));
 
-        var allMethods = processingEnv.getElementUtils().getAllMembers(sourceInterface).stream()
+        var elementUtils = processingEnv.getElementUtils();
+        var allMethods = elementUtils.getAllMembers(sourceInterface).stream()
                 .filter(Methods::isMethod)
                 .map(ExecutableElement.class::cast)
                 .toList();
