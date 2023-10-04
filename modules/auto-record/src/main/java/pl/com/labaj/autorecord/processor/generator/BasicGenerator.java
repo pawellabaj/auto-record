@@ -36,8 +36,10 @@ import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
+import static java.lang.annotation.ElementType.RECORD_COMPONENT;
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -126,7 +128,7 @@ class BasicGenerator extends RecordGenerator {
 
         var typeMemoizer = MemoizerType.from(memoizerType);
         var annotations = createAnnotationSpecs(memoizedElement.annotations(),
-                TYPE_PARAMETER,
+                Set.of(TYPE_PARAMETER, RECORD_COMPONENT),
                 List.of(Nullable.class),
                 List.of(Memoized.class));
 

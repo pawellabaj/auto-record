@@ -22,9 +22,11 @@ import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.lang.model.element.ExecutableElement;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
-import static java.lang.annotation.ElementType.TYPE_PARAMETER;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.RECORD_COMPONENT;
 import static javax.lang.model.type.TypeKind.ERROR;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.annotationsAllowedFor;
 
@@ -52,10 +54,9 @@ class ComponentsFinder {
                     "Try to move the type class into classpath or remove generic clause from " + method.getSimpleName() + "() method.");
         }
 
-        var type = returnType;
         var name = method.getSimpleName().toString();
-        var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), TYPE_PARAMETER);
+        var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), Set.of(PARAMETER, RECORD_COMPONENT));
 
-        return new ProcessorRecordComponent(type, name, annotations);
+        return new ProcessorRecordComponent(returnType, name, annotations);
     }
 }

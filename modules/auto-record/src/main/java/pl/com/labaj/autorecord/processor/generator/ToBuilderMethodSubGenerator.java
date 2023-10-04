@@ -24,6 +24,7 @@ import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -50,7 +51,7 @@ class ToBuilderMethodSubGenerator extends BuilderGenerator.MethodSubGenerator {
     @Override
     protected Optional<List<AnnotationSpec>> annotations() {
         return context.getSpecialMethodAnnotations(TO_BUILDER)
-                .map(annotations -> createAnnotationSpecs(annotations, METHOD, List.of(Override.class), List.of()));
+                .map(annotations -> createAnnotationSpecs(annotations, Set.of(METHOD), List.of(Override.class), List.of()));
     }
 
     @Override
