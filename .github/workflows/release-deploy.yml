@@ -68,8 +68,19 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
-          mvn -B -U -ntp release:prepare -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
-          mvn -B -U -ntp release:perform -DreleaseVersion=${{ env.RELEASE_VERSION }} -P release 
+          arice_version=$(mvn help:evaluate -pl pl.com.labaj.autorecord:arice-project -Dexpression=project.version -q -DforceStdout | grep -v '\[.*\]' | awk '{$1=$1};1')
+          arice_version=${arice_version%-SNAPSHOT}
+          echo ARICE version: $arice_version
+          mvn -B -U -ntp versions:set -DnewVersion=$RELEASE_VERSION-SNAPSHOT
+          echo versions set
+          git diff --exit-code || git commit -a -m "[ci skip] preset version $RELEASE_VERSION-SNAPSHOT" || echo versions committed
+          mvn -B -U -ntp release:prepare -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+          echo release prepared
+          commit_hash=$(git rev-list -n 1 v$RELEASE_VERSION)
+          git tag v-arice$arice_version $commit_hash
+          git push origin v-arice$arice_version
+          echo ARICE version tagged
+          mvn -B -U -ntp release:perform -P release 
 
       - name: Create and merge pull request
         shell: bash
@@ -81,7 +92,7 @@ jobs:
           echo PR number: $number
           gh pr merge $number --admin --delete-branch --rebase
 
-      - name: Move the tag to main b ranch
+      - name: Move the tag to main branch
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
