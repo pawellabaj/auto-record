@@ -64,7 +64,7 @@ class BuilderOptionsSubGenerator {
 
         if (returnType.isPrimitive()) {
             annotationBuilder.addMember(name, "$L", actualValue);
-        } else if (option.type().isEnum()) {
+        } else if (returnType.isEnum()) {
             var enumName = ((Enum<?>) actualValue).name();
             staticImports.add(returnType, enumName);
             annotationBuilder.addMember(name, "$L", enumName);
