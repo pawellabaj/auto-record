@@ -4,7 +4,7 @@
     <parent>
         <groupId>pl.com.labaj.autorecord</groupId>
         <artifactId>auto-record-project</artifactId>
-        <version>3.0.2-SNAPSHOT</version>
+        <version>3.0.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -19,12 +19,12 @@
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record</artifactId>
-            <version>3.0.2-SNAPSHOT</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>arice-extension</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
 
         <dependency>
