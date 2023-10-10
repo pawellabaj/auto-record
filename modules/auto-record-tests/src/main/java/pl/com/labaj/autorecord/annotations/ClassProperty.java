@@ -26,4 +26,6 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 
 @Target({METHOD, PARAMETER, RECORD_COMPONENT})
 @Retention(CLASS)
-public @interface ClassProperty {}
+public @interface ClassProperty {
+    int priority() default 0;
+}

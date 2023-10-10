@@ -48,7 +48,8 @@ class GenerationTest {
             "ToStringMemoized",
             "ToStringMemoizedByAnnotation",
             "HashCodeIgnoredFieldMemoized",
-            "AnnotatedProperty"
+            "AnnotatedProperty",
+            "AnnotationWithValue"
     })
     void shouldGenerateRecord(String interfaceName) {
         //given

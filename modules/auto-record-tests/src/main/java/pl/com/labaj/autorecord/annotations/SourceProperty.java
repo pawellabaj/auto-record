@@ -26,4 +26,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 @Target({METHOD, PARAMETER, RECORD_COMPONENT})
 @Retention(SOURCE)
-public @interface SourceProperty {}
+public @interface SourceProperty {
+    String metadata() default "default";
+}

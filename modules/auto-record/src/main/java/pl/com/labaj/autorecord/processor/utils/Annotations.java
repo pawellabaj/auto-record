@@ -24,6 +24,7 @@ import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 
 import javax.annotation.Nullable;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
@@ -36,14 +37,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apiguardian.api.API.Status.INTERNAL;
 
@@ -74,23 +76,21 @@ public final class Annotations {
                                                              Set<ElementType> targets,
                                                              List<Class<? extends Annotation>> annotationsToAdd,
                                                              List<Class<? extends Annotation>> annotationsToExclude) {
-        var classNamesStream = annotationMirrors.stream()
-                .map(AnnotationMirror::getAnnotationType)
-                .map(DeclaredType::asElement)
-                .map(TypeElement.class::cast)
-                .filter(annotation -> canAnnotateElementType(annotation, targets))
-                .map(ClassName::get);
-        var classNamesToAdd = annotationsToAdd.stream()
-                .map(ClassName::get);
+        var parentAnnotationDetails = annotationMirrors.stream()
+                .map(annotationMirror -> AnnotationDetails.toAnnotationDetails(annotationMirror, targets))
+                .filter(Objects::nonNull);
+        var annotationDetailsToAdd = annotationsToAdd.stream()
+                .map(ClassName::get)
+                .map(className -> new AnnotationDetails(className, Map.of()));
+
         var classNamesToExclude = annotationsToExclude.stream()
                 .map(ClassName::get)
                 .collect(toSet());
 
-        return Stream.concat(classNamesStream, classNamesToAdd)
-                .filter(not(classNamesToExclude::contains))
+        return Stream.concat(parentAnnotationDetails, annotationDetailsToAdd)
+                .filter(annotationDetails -> !classNamesToExclude.contains(annotationDetails.className()))
                 .distinct()
-                .map(AnnotationSpec::builder)
-                .map(AnnotationSpec.Builder::build)
+                .map(AnnotationDetails::toAnnotationSpec)
                 .toList();
     }
 
@@ -153,7 +153,7 @@ public final class Annotations {
 
                         var annotationBuilder = AnnotationSpec.builder(annotationlass);
 
-                        record Member(String name, CodeBlock value){}
+                        record Member(String name, CodeBlock value) {}
                         var members = entry.getValue().stream()
                                 .map(annotationSpec -> annotationSpec.members)
                                 .map(Map::entrySet)
@@ -171,5 +171,34 @@ public final class Annotations {
                     }
                 })
                 .toList();
+    }
+
+    private record AnnotationDetails(ClassName className, Map<String, AnnotationValue> values) {
+        @Nullable
+        private static AnnotationDetails toAnnotationDetails(AnnotationMirror annotationMirror, Set<ElementType> targets) {
+            var annotationType = annotationMirror.getAnnotationType();
+            var typeElement = (TypeElement) annotationType.asElement();
+
+            if (!canAnnotateElementType(typeElement, targets)) {
+                return null;
+            }
+
+            var className = ClassName.get(typeElement);
+
+            var values = annotationMirror.getElementValues().entrySet().stream()
+                    .collect(toMap(
+                            entry -> entry.getKey().getSimpleName().toString(),
+                            entry -> (AnnotationValue) entry.getValue()
+                    ));
+
+            return new AnnotationDetails(className, values);
+        }
+
+        private AnnotationSpec toAnnotationSpec() {
+            var annotationBuilder = AnnotationSpec.builder(className);
+            values.forEach((name, value) -> annotationBuilder.addMember(name, "$L", value.toString()));
+
+            return annotationBuilder.build();
+        }
     }
 }
