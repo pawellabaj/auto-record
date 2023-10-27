@@ -167,7 +167,6 @@ class CopyMethodsGenerator {
 
     private static List<CodeBlock> subTypesBlocks(ExtensionContext extContext, InterfaceType iType, TypesStructure structure) {
         return iType.directSubTypes().stream()
-                .filter(structure::needsAdditionalMethod)
                 .sorted(reverseOrder())
                 .map(subPType -> subTypeBlock(extContext, subPType, iType, structure))
                 .toList();

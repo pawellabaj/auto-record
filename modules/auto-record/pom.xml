@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>pl.com.labaj.autorecord</groupId>
@@ -19,11 +20,6 @@
             <version>3.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>pl.com.labaj.autorecord</groupId>
-            <artifactId>auto-record-utils</artifactId>
-            <version>3.0.3-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>net.fabricmc</groupId>
             <artifactId>javapoet</artifactId>
         </dependency>
@@ -40,4 +36,33 @@
             <artifactId>jsr305</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-utils</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>../auto-record-utils/src/main/java/pl/com/labaj/autorecord/memoizer</directory>
+                                    <excludes>
+                                        <exclude>package-info.java</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.outputDirectory}/utils/pl/com/labaj/autorecord/memoizer</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

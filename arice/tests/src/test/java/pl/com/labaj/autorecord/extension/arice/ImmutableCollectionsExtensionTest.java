@@ -16,18 +16,15 @@ package pl.com.labaj.autorecord.extension.arice;
  * limitations under the License.
  */
 
-import com.google.common.collect.ImmutableSet;
 import com.google.testing.compile.Compiler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessor;
 
-import javax.annotation.Nullable;
-import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,14 +33,10 @@ import java.util.stream.Stream;
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 import static com.google.testing.compile.JavaFileObjects.forResource;
-import static java.util.Objects.isNull;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.StringUtils.removeStart;
-import static org.apache.commons.lang3.StringUtils.substringBefore;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class ImmutableCollectionsExtensionTest {
     private static final String[] NAMES = {
@@ -91,6 +84,16 @@ class ImmutableCollectionsExtensionTest {
                 .withProcessors(new AutoRecordProcessor(), new ARICEUtilitiesProcessor())
                 .compile(inputs);
 
+        compilation.generatedSourceFile("pl.com.labaj.autorecord.extension.arice.ARICE")
+                .ifPresent(fileObject -> {
+                    System.out.println(fileObject);
+                    try {
+                        System.out.println(fileObject.getCharContent(true));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
         //then
         assertAll(
                 () -> assertThat(compilation).generatedSourceFile(GENERATED_PATH + name + "Record")
@@ -131,37 +134,5 @@ class ImmutableCollectionsExtensionTest {
                 .hasSourceEquivalentTo(expectedArice));
 
         assertAll(assertions);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    private static List<File> prepareClasspath() {
-        var autoRecordJar = findClasspathFile(AutoRecord.class);
-        var guavaJar = findClasspathFile(ImmutableSet.class);
-        var nullableJar = findClasspathFile(Nullable.class);
-        var targetClassesFolder = findClasspathFile(ImmutableCollectionsExtension.class);
-
-        return List.of(
-                autoRecordJar,
-                guavaJar,
-                nullableJar,
-                targetClassesFolder
-        );
-    }
-
-    private static File findClasspathFile(Class<?> aClass) {
-        var url = aClass.getResource(aClass.getSimpleName() + ".class");
-        var fileInFolderWithoutExtension = aClass.getName().replace('.', '/');
-
-        if (isNull(url)) {
-            fail("Cannot get URL for " + aClass.getName());
-            return null;
-        }
-        var path = url.getPath();
-        path = removeStart(path, "jar:");
-        path = removeStart(path, "file:");
-        path = substringBefore(path, fileInFolderWithoutExtension);
-        path = substringBefore(path, "!");
-
-        return new File(path);
     }
 }

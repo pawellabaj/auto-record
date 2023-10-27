@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>pl.com.labaj.autorecord</groupId>
         <artifactId>auto-record-project</artifactId>
         <version>3.0.3-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>arice-project</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
-    </properties>
-
     <modules>
-        <module>../api</module>
-        <module>../utils</module>
-        <module>../extension</module>
-        <module>../tests</module>
+        <module>api</module>
+        <module>utils</module>
+        <module>extension</module>
+        <module>tests</module>
     </modules>
 
     <dependencyManagement>
@@ -33,17 +30,12 @@
             <dependency>
                 <groupId>pl.com.labaj.autorecord</groupId>
                 <artifactId>arice-api</artifactId>
-                <version>1.0.3-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>pl.com.labaj.autorecord</groupId>
-                <artifactId>arice-utils</artifactId>
-                <version>1.0.3-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>pl.com.labaj.autorecord</groupId>
                 <artifactId>arice-extension</artifactId>
-                <version>1.0.3-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

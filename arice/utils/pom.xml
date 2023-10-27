@@ -4,17 +4,12 @@
     <parent>
         <groupId>pl.com.labaj.autorecord</groupId>
         <artifactId>arice-project</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
-        <relativePath>../project/pom.xml</relativePath>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <name>ARICE Utilities</name>
     <description>Auto Record Immutable Collections Extension</description>
     <artifactId>arice-utils</artifactId>
-
-    <properties>
-        <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
-    </properties>
 
     <dependencies>
         <dependency>

@@ -1,15 +1,13 @@
 # ARICE Utilities
 
-Provides classes used copy collections to their appropriate immutable versions during generating record.
+Provides immutable versions of collections used by classes genrated by ARICE.
 
 Please, see [WIKI](https://github.com/pawellabaj/auto-record/wiki/ARICE) for information.
 
 ## Usage
 
-If you use annotation processing in your project, the library will be provided as a dependency of [ARICE](https://github.com/pawellabaj/auto-record/tree/main/arice/extension).
-
-The classes in this package can also be used independently to add memoization capabilities to your own classes.
-In such case, import `arice-utils` directly.
+The classes in this package can also be used independently by your own classes.
+In such case, import `arice-utils` directly to your project.
 
 ### Maven
 

@@ -21,6 +21,7 @@ import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.context.Logger;
 import pl.com.labaj.autorecord.processor.context.ContextBuilder;
+import pl.com.labaj.autorecord.processor.context.MemoizerType;
 import pl.com.labaj.autorecord.processor.context.MessagerLogger;
 
 import javax.annotation.Nullable;
@@ -35,6 +36,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -83,20 +85,24 @@ public class AutoRecordProcessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        annotations.forEach(annotation -> processAnnotation(roundEnv, annotation));
+        var memoizerProcessor = new MemoizerProcessor(processingEnv);
+
+        annotations.forEach(annotation -> processAnnotation(roundEnv, annotation, memoizerProcessor));
+
+        memoizerProcessor.process();
 
         return false;
     }
 
-    private void processAnnotation(RoundEnvironment roundEnv, TypeElement annotation) {
+    private void processAnnotation(RoundEnvironment roundEnv, TypeElement annotation, Consumer<MemoizerType> memoizerCollector) {
         roundEnv.getElementsAnnotatedWith(annotation)
                 .stream()
                 .filter(element -> element.getKind() == INTERFACE)
                 .map(TypeElement.class::cast)
-                .forEach(typeElement -> processAnnotatedElement(annotation, typeElement));
+                .forEach(typeElement -> processAnnotatedElement(annotation, typeElement, memoizerCollector));
     }
 
-    private void processAnnotatedElement(TypeElement annotation, TypeElement sourceInterface) {
+    private void processAnnotatedElement(TypeElement annotation, TypeElement sourceInterface, Consumer<MemoizerType> memoizerCollector) {
         var annotationQualifiedName = annotation.getQualifiedName();
 
         if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
@@ -104,7 +110,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
             var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
             var extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
 
-            processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
+            processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations, memoizerCollector);
         } else {
             getAnnotation(annotation, AutoRecord.Template.class)
                     .ifPresent(template -> {
@@ -115,7 +121,7 @@ public class AutoRecordProcessor extends AbstractProcessor {
                                 tmp -> List.of(tmp.extensions()),
                                 List::<AutoRecord.Extension>of);
 
-                        processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations);
+                        processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations, memoizerCollector);
                     });
         }
     }
@@ -134,14 +140,15 @@ public class AutoRecordProcessor extends AbstractProcessor {
     private void processElement(TypeElement sourceInterface,
                                 @Nullable AutoRecord.Options recordOptions,
                                 @Nullable RecordBuilder.Options builderOptions,
-                                List<AutoRecord.Extension> extensionAnnotations) {
+                                List<AutoRecord.Extension> extensionAnnotations,
+                                Consumer<MemoizerType> memoizerCollector) {
         var logger = new MessagerLogger(processingEnv.getMessager(), sourceInterface);
 
         try {
             logStartEnd("[START] ", sourceInterface, logger);
 
             var extensions = extensionsInitializer.initExtensions(extensionAnnotations, logger);
-            var context = contextBuilder.buildContext(sourceInterface, recordOptions, builderOptions, extensions, logger);
+            var context = contextBuilder.buildContext(sourceInterface, recordOptions, builderOptions, extensions, logger, memoizerCollector);
             var javaFile = recordGenerator.buildJavaFile(context, extensions);
 
             javaFile.writeTo(processingEnv.getFiler());

@@ -4,17 +4,12 @@
     <parent>
         <groupId>pl.com.labaj.autorecord</groupId>
         <artifactId>arice-project</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
-        <relativePath>../project/pom.xml</relativePath>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <name>ARICE</name>
     <description>Auto Record Immutable Collections Extension</description>
     <artifactId>arice-extension</artifactId>
-
-    <properties>
-        <license-maven-plugin.header>${project.basedir}/../../.build/lic-header.txt</license-maven-plugin.header>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -25,9 +20,35 @@
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>arice-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>pl.com.labaj.autorecord</groupId>
-            <artifactId>arice-utils</artifactId>
-        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-utils</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>../utils/src/main/java/pl/com/labaj/autorecord/collections</directory>
+                                    <excludes>
+                                        <exclude>package-info.java</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.outputDirectory}/utils/pl/com/labaj/autorecord/collections</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

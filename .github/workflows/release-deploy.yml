@@ -61,6 +61,7 @@ jobs:
           gpg --import-ownertrust ~/.gnupg/trust-values.txt
 
       - name: Perform Maven release
+        id: perform
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
@@ -71,15 +72,12 @@ jobs:
           arice_version=$(mvn help:evaluate -pl pl.com.labaj.autorecord:arice-project -Dexpression=project.version -q -DforceStdout | grep -v '\[.*\]' | awk '{$1=$1};1')
           arice_version=${arice_version%-SNAPSHOT}
           echo ARICE version: $arice_version
+          echo "arice_version=$arice_version" >> $GITHUB_OUTPUT
           mvn -B -U -ntp versions:set -DnewVersion=$RELEASE_VERSION-SNAPSHOT
           echo versions set
           git diff --exit-code || git commit -a -m "[ci skip] preset version $RELEASE_VERSION-SNAPSHOT" || echo versions committed
           mvn -B -U -ntp release:prepare -P release -Darguments=-Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
           echo release prepared
-          commit_hash=$(git rev-list -n 1 v$RELEASE_VERSION)
-          git tag v-arice$arice_version $commit_hash
-          git push origin v-arice$arice_version
-          echo ARICE version tagged
           mvn -B -U -ntp release:perform -P release 
 
       - name: Create and merge pull request
@@ -102,7 +100,9 @@ jobs:
           hash=$(git log origin/main --grep="prepare release v${{ env.RELEASE_VERSION }}" | grep -oE '[a-f0-9]{40}')
           echo commit hash: $hash
           git tag v${{ env.RELEASE_VERSION }} $hash
+          git tag v-arice${{ steps.perform.outputs.arice_version }} $hash
           git push origin v${{ env.RELEASE_VERSION }} 
+          git push origin v-arice${{ steps.perform.outputs.arice_version }}
 
       - name: Create GH release
         shell: bash
