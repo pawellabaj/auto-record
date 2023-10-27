@@ -29,8 +29,11 @@ import javax.lang.model.element.TypeElement;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.apiguardian.api.API.Status.MAINTAINED;
+import static pl.com.labaj.autorecord.extension.arice.Names.ARICE_COLLECTIONS_PACKAGE;
+import static pl.com.labaj.autorecord.processor.utils.Resources.copyResource;
 
 /**
  * {@inheritDoc}
@@ -39,6 +42,13 @@ import static org.apiguardian.api.API.Status.MAINTAINED;
 @SupportedAnnotationTypes("pl.com.labaj.autorecord.extension.arice.ARICEUtilities")
 public class ARICEUtilitiesProcessor extends AbstractProcessor {
     private static final ExtensionContext extContext = new ExtensionContext();
+    private static final String UTILS = "utils/";
+    private static final Set<String> COLLECTION_UTIL_NAMES = Set.of(
+            "AbstractImmutableCollection",
+            "ImmutableCollection",
+            "ImmutableDeque",
+            "Collectors",
+            "ImmutableIterator");
 
     private Messager messager;
     private MethodsClassGenerator methodsClassGenerator;
@@ -71,19 +81,42 @@ public class ARICEUtilitiesProcessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        annotations.forEach(annotation -> processAnnotation(roundEnv, annotation));
+        var logger = new MessagerLogger(messager, null);
+
+        try {
+            var nameTypesList = annotations.stream()
+                    .flatMap(annotation -> processAnnotation(roundEnv, annotation))
+                    .distinct()
+                    .toList();
+
+            if (!nameTypesList.isEmpty()) {
+                copyUtils();
+                nameTypesList.forEach(nameTypes -> methodsClassGenerator.generate(nameTypes.className, nameTypes.immutableTypes, logger));
+            }
+        } catch (Exception e) {
+            logger.error("Exception thrown during generation ARICE Utilities", e);
+        }
 
         return false;
     }
 
-    private void processAnnotation(RoundEnvironment roundEnv, TypeElement annotation) {
+    private Stream<NameTypes> processAnnotation(RoundEnvironment roundEnv, TypeElement annotation) {
         var logger = new MessagerLogger(messager, annotation);
 
-        roundEnv.getElementsAnnotatedWith(annotation).stream()
-                .map(element -> element.getAnnotation(ARICEUtilities.class))
-                .map(NameTypes::toNameTypes)
-                .distinct()
-                .forEach(nameTypes -> methodsClassGenerator.generate(nameTypes.className, nameTypes.immutableTypes, logger));
+        try {
+            return roundEnv.getElementsAnnotatedWith(annotation).stream()
+                    .map(element -> element.getAnnotation(ARICEUtilities.class))
+                    .map(NameTypes::toNameTypes);
+        } catch (Exception e) {
+            logger.error("Exception thrown during generation ARICE Utilities", e);
+            return Stream.empty();
+        }
+    }
+
+    private void copyUtils() {
+        var classLoader = getClass().getClassLoader();
+        COLLECTION_UTIL_NAMES.stream()
+                .forEach(fileName -> copyResource(processingEnv, classLoader, UTILS, ARICE_COLLECTIONS_PACKAGE, fileName));
     }
 
     record NameTypes(String className, String[] immutableTypes) {

@@ -54,8 +54,8 @@ class MemoizationGenerator extends RecordGenerator {
                 List.of(Memoized.class, Override.class),
                 List.of());
         var memoizerType = MemoizerType.from(item.type());
-
         var statement = methodStatement(item, name, memoizerType);
+        context.memoizerCollector().accept(memoizerType);
 
         return MethodSpec.methodBuilder(name)
                 .addModifiers(PUBLIC)

@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.processor.context;
 
 import pl.com.labaj.autorecord.context.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
@@ -35,9 +36,10 @@ public class MessagerLogger implements Logger {
     private static final boolean DEBUG_ENABLED = Boolean.parseBoolean(System.getenv(AUTO_RECORD_PROCESSOR_DEBUG));
     private final Messager messager;
 
+    @Nullable
     private final Element elementContext;
 
-    public MessagerLogger(Messager messager, Element elementContext) {
+    public MessagerLogger(Messager messager, @Nullable Element elementContext) {
         this.messager = messager;
         this.elementContext = elementContext;
     }

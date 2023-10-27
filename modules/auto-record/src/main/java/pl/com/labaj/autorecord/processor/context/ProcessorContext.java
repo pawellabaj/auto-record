@@ -29,6 +29,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public record ProcessorContext(ProcessingEnvironment processingEnv,
                                String packageName,
@@ -43,7 +44,8 @@ public record ProcessorContext(ProcessingEnvironment processingEnv,
                                Map<MethodDefinition, List<AnnotationMirror>> specialMethodAnnotations,
                                Memoization memoization,
                                String recordName,
-                               Logger logger) implements Context {
+                               Logger logger,
+                               Consumer<MemoizerType> memoizerCollector) implements Context {
 
     public static final MethodDefinition TO_BUILDER = new MethodDefinition("toBuilder", List.of());
 

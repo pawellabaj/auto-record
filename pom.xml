@@ -18,7 +18,7 @@
         <module>modules/auto-record</module>
         <module>modules/auto-record-tests</module>
 
-        <module>arice/project</module>
+        <module>arice</module>
 
         <module>modules/doc-examples</module>
         <module>modules/mvn-aggregation</module>
@@ -28,7 +28,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-10-10T18:46:54Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-10-27T11:02:30Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.3</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>

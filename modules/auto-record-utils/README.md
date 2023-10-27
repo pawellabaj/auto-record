@@ -6,8 +6,6 @@ Please, see [WIKI](https://github.com/pawellabaj/auto-record/wiki) for informati
 
 ## Usage
 
-If you use annotation processing in your project, the library will be provided as a dependency of [Auto Record](https://github.com/pawellabaj/auto-record/tree/main/modules/auto-record).
-
 The classes in this package can also be used independently to add memoization capabilities to your own classes. 
 In such case, use `auto-record-utils` directly.
 

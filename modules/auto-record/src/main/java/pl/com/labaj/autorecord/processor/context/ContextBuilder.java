@@ -28,6 +28,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationIfNeeded;
@@ -54,7 +55,8 @@ public class ContextBuilder {
                                          @Nullable AutoRecord.Options recordOptions,
                                          @Nullable RecordBuilder.Options builderOptions,
                                          List<AutoRecordExtension> extensions,
-                                         MessagerLogger logger) {
+                                         MessagerLogger logger,
+                                         Consumer<MemoizerType> memoizerCollector) {
         var nonNullRecordOptions = createAnnotationIfNeeded(recordOptions, AutoRecord.Options.class);
         var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, getBuilderOptionsEnforcedValues(extensions));
 
@@ -84,7 +86,8 @@ public class ContextBuilder {
                 specialMethodAnnotations,
                 new Memoization(memoizationItems),
                 createRecordName(sourceInterface),
-                logger);
+                logger,
+                memoizerCollector);
     }
 
     private Map<String, Object> getBuilderOptionsEnforcedValues(List<AutoRecordExtension> extensions) {

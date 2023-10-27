@@ -17,7 +17,6 @@ package pl.com.labaj.autorecord.processor.memoization;
  */
 
 import org.junit.jupiter.api.Test;
-import pl.com.labaj.autorecord.memoizer.Memoizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -42,17 +41,6 @@ class WithBuilderMemoizedMethodTest {
 
         //then
         assertDoesNotThrow(builder::build);
-    }
-
-    @Test
-    void shouldGenerateRecordFromBuilder() {
-        //given
-        var recordFromBuilder = WithBuilderMemoizedMethodRecordBuilder.builder()
-                .aMethodMemoizer(new Memoizer<>())
-                .build();
-
-        //then
-        assertDoesNotThrow(recordFromBuilder::aMethod);
     }
 
     @Test
