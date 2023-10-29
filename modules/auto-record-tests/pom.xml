@@ -56,7 +56,7 @@
 
             <properties>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
-                <nexus-staging-maven-plugin.phase>none</nexus-staging-maven-plugin.phase>
+                <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
             </properties>
         </profile>
     </profiles>

@@ -263,6 +263,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>${maven-release-plugin.version}</version>
+                    <configuration>
+                        <releaseProfiles>release</releaseProfiles>
+                        <preparationGoals>clean verify</preparationGoals>
+                        <prepareVerifyArgs>-DskipTests</prepareVerifyArgs>
+                        <scmCommentPrefix>[ci skip]</scmCommentPrefix>
+                        <tagNameFormat>v@{project.version}</tagNameFormat>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -387,7 +394,6 @@
 
             <properties>
                 <skipTests>true</skipTests>
-                <nexus-staging-maven-plugin.phase>deploy</nexus-staging-maven-plugin.phase>
             </properties>
 
             <build>
@@ -467,23 +473,6 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <configuration>
-                            <preparationGoals>clean verify</preparationGoals>
-                            <prepareVerifyArgs>-Dmaven.test.skip=true</prepareVerifyArgs>
-                            <scmCommentPrefix>[ci skip]</scmCommentPrefix>
-                            <tagNameFormat>v@{project.version}</tagNameFormat>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
                         <extensions>true</extensions>
@@ -493,15 +482,6 @@
                             <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
-                        <executions>
-                            <execution>
-                                <id>default-deploy</id>
-                                <phase>${nexus-staging-maven-plugin.phase}</phase>
-                                <goals>
-                                    <goal>deploy</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
