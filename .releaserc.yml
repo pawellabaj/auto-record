@@ -1,3 +1,11 @@
 branches: [main]
 tagFormat: v${version}
 debug: false
+plugins:
+  - "semantic-release-export-data"
+  - - "@semantic-release/commit-analyzer"
+    - preset: angular
+      releaseRules:
+        - type: build
+          scope: dep
+          release: patch
