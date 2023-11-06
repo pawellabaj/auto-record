@@ -3,6 +3,7 @@
     "main"
   ],
   "tagFormat": "v${version}",
+  "dryRun": true,
   "debug": true,
   "plugins": [
     "semantic-release-export-data",

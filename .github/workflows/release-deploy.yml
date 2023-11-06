@@ -15,7 +15,8 @@ jobs:
   next-version:
     name: Get Release version
     if: ${{ github.ref == 'refs/heads/main' }}
-    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+#    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+    uses: cycjimmy/semantic-release-action@v4
 
   release-perform:
     name: Deploy release
@@ -27,6 +28,12 @@ jobs:
       RELEASE_VERSION: ${{ needs.next-version.outputs.new-release-version }}
 
     steps:
+      - name: Info
+        shell: bash
+        run: |
+          echo Releasing ${{ env.RELEASE_VERSION }}
+          echo Notes: ${{ needs.next-version.outputs.new_release_notes }}
+
       - name: Checkout
         uses: actions/checkout@v4
 
