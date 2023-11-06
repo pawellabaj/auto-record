@@ -6,31 +6,21 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      new-release-version:
+        description: "Enter release version"
+        required: true
 
 concurrency:
   group: release-deploy-{{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  next-version:
-    name: Get Release version
-    runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
-
-    steps:
-      - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   release-perform:
     name: Deploy release
     runs-on: ubuntu-latest
-    if: ${{ needs.branch-exists.outputs.exists != 'true' && needs.next-version.outputs.new-release-version != '' }}
-    needs:
-      - next-version
     env:
-      RELEASE_VERSION: ${{ needs.next-version.outputs.new-release-version }}
+      RELEASE_VERSION: ${{ github.event.inputs.new-release-version }}
 
     steps:
       - name: Info
