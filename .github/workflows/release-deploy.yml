@@ -16,6 +16,27 @@ jobs:
     name: Get Release version
     if: ${{ github.ref == 'refs/heads/main' }}
     uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+    with:
+      branches: |
+        ["main"]
+      tagFormat: v${version}
+      debug: true
+      plugins: |
+        [
+          [
+            "@semantic-release/commit-analyzer",
+            {
+              "preset": "angular"
+              "releaseRules": [
+                {
+                  "type": "build",
+                  "scope": "deps",
+                  "release": "patch"
+                }
+              ]
+            }
+          ]
+        ]
 
   release-perform:
     name: Deploy release
