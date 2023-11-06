@@ -15,7 +15,6 @@ jobs:
   next-version:
     name: Get Release version
     if: ${{ github.ref == 'refs/heads/main' }}
-#    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
     uses: cycjimmy/semantic-release-action@v4
 
   release-perform:
