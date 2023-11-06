@@ -6,11 +6,10 @@
     "tagFormat": "v${version}",
     "debug": true,
     "plugins": [
-      "semantic-release-export-data",
       [
         "@semantic-release/commit-analyzer",
         {
-          "preset": "angular",
+          "preset": "non-exisitngPreset",
           "releaseRules": [
             {
               "type": "build",
