@@ -1,0 +1,25 @@
+{
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "tagFormat": "v${version}",
+    "debug": true,
+    "plugins": [
+      "semantic-release-export-data",
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "angular",
+          "releaseRules": [
+            {
+              "type": "build",
+              "scope": "deps",
+              "release": "patch"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
