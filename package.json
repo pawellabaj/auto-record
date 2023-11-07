@@ -1,0 +1,23 @@
+{
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "tagFormat": "v${version}",
+    "debug": true,
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "non-exisitngPreset",
+          "releaseRules": [
+            {
+              "type": "build",
+              "release": "patch"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
