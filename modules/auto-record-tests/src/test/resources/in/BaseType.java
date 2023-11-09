@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.context;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,8 +16,5 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
-import java.util.List;
-
-@SuppressWarnings("rawtypes")
-public record MethodDefinition(String methodName, List<String> parameterClasses) {
+interface BaseType {
 }

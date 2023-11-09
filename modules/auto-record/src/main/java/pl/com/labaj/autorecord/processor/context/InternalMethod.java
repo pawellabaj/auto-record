@@ -22,7 +22,6 @@ import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
@@ -80,12 +79,11 @@ public enum InternalMethod {
         return ALL_METHODS.stream();
     }
 
-    public static boolean isInternal(ExecutableElement method) {
-        var methodName = method.getSimpleName().toString();
-        return METHOD_NAMES.contains(methodName) && method.getParameters().isEmpty();
+    public static boolean isInternal(Method method) {
+        return METHOD_NAMES.contains(method.name()) && method.hasNoParameters();
     }
 
-    public static boolean isNotInternal(ExecutableElement method) {
+    public static boolean isNotInternal(Method method) {
         return !isInternal(method);
     }
 

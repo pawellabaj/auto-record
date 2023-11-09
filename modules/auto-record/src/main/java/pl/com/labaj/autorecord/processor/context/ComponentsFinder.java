@@ -18,9 +18,7 @@ package pl.com.labaj.autorecord.processor.context;
 
 import pl.com.labaj.autorecord.context.RecordComponent;
 import pl.com.labaj.autorecord.processor.AutoRecordProcessorException;
-import pl.com.labaj.autorecord.processor.utils.Methods;
 
-import javax.lang.model.element.ExecutableElement;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -34,28 +32,28 @@ class ComponentsFinder {
 
     public static final String ERROR_INDICATOR = "<any>";
 
-    List<RecordComponent> getComponents(List<ExecutableElement> allMethods, Predicate<ExecutableElement> isNotSpecial) {
+    List<RecordComponent> getComponents(List<Method> allMethods, Predicate<Method> isNotSpecial) {
         return allMethods.stream()
-                .filter(Methods::isAbstract)
+                .filter(Method::isAbstract)
                 .filter(isNotSpecial)
-                .filter(Methods::hasNoParameters)
-                .filter(Methods::isNotVoid)
+                .filter(Method::hasNoParameters)
+                .filter(Method::isNotVoid)
                 .filter(InternalMethod::isNotInternal)
                 .map(this::toRecordComponent)
                 .toList();
     }
 
-    private RecordComponent toRecordComponent(ExecutableElement method) {
-        var returnType = method.getReturnType();
+    private RecordComponent toRecordComponent(Method method) {
+        var name = method.name();
+        var returnType = method.returnType();
 
         if (returnType.getKind() == ERROR && returnType.toString().equals(ERROR_INDICATOR)) {
-            throw new AutoRecordProcessorException("Cannot infer type of " + method.getSimpleName() + "() method. " +
+            throw new AutoRecordProcessorException("Cannot infer type of " + name + "() method. " +
                     "Probably it is generic and not in classpath or sourcepath yet. " +
-                    "Try to move the type class into classpath or remove generic clause from " + method.getSimpleName() + "() method.");
+                    "Try to move the type class into classpath or remove generic clause from " + name + "() method.");
         }
 
-        var name = method.getSimpleName().toString();
-        var annotations = annotationsAllowedFor(method.getAnnotationMirrors(), Set.of(PARAMETER, RECORD_COMPONENT));
+        var annotations = annotationsAllowedFor(method.annotations(), Set.of(PARAMETER, RECORD_COMPONENT));
 
         return new ProcessorRecordComponent(returnType, name, annotations);
     }

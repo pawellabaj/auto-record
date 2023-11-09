@@ -57,7 +57,7 @@ public class Memoization {
         return !isEmpty();
     }
 
-    public record Item(TypeMirror type, String name, List<AnnotationMirror> annotations, boolean internal) {
+    public record Item(TypeMirror type, String name, List<AnnotationMirror> annotations, List<Method.Parameter> parameters, boolean internal) {
         public String getMemoizerName() {
             return name + "Memoizer";
         }
@@ -66,7 +66,8 @@ public class Memoization {
             var mergedAnnotations = Stream.concat(annotations.stream(), otherItem.annotations.stream())
                     .distinct()
                     .toList();
-            return new Item(type, name, mergedAnnotations, internal || otherItem.internal);
+
+            return new Item(type, name, mergedAnnotations, parameters, internal || otherItem.internal);
         }
     }
 }

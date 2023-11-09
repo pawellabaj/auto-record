@@ -19,7 +19,6 @@ package pl.com.labaj.autorecord.processor.context;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
-import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationIfNeeded;
 
@@ -61,16 +61,18 @@ public class ContextBuilder {
         var nonNullBuilderOptions = createAnnotationIfNeeded(builderOptions, RecordBuilder.Options.class, getBuilderOptionsEnforcedValues(extensions));
 
         var elementUtils = processingEnv.getElementUtils();
+        var typeUtils = processingEnv.getTypeUtils();
         var allMethods = elementUtils.getAllMembers(sourceInterface).stream()
-                .filter(Methods::isMethod)
+                .filter(element -> element.getKind() == METHOD)
                 .map(ExecutableElement.class::cast)
+                .map(method -> Method.from(method, typeUtils, sourceInterface))
                 .toList();
 
         boolean isPublic = sourceInterface.getModifiers().contains(PUBLIC);
         var typeParameters = getTypeParameters(sourceInterface);
 
         var specialMethodAnnotations = specialMethodsFinder.findSpecialMethods(allMethods);
-        var memoizationItems = memoizationFinder.findMemoizationItems(allMethods, nonNullRecordOptions, specialMethodsFinder::isSpecial);
+        var memoizationItems = memoizationFinder.findMemoizationItems(allMethods, nonNullRecordOptions, specialMethodsFinder::isSpecial, logger);
         var components = componentsFinder.getComponents(allMethods, specialMethodsFinder::isNotSpecial);
 
         return new ProcessorContext(processingEnv,

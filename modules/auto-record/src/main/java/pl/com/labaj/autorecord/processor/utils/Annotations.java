@@ -167,7 +167,7 @@ public final class Annotations {
 
                         return Stream.of(annotationBuilder.build());
                     } catch (ClassNotFoundException e) {
-                        throw new AutoRecordProcessorException("Cannot merge annptations", e);
+                        throw new AutoRecordProcessorException("Cannot merge annotations", e);
                     }
                 })
                 .toList();

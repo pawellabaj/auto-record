@@ -18,6 +18,7 @@ package pl.com.labaj.autorecord.processor.generator;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import pl.com.labaj.autorecord.Memoized;
@@ -25,12 +26,14 @@ import pl.com.labaj.autorecord.context.StaticImports;
 import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 import pl.com.labaj.autorecord.processor.context.Memoization;
 import pl.com.labaj.autorecord.processor.context.MemoizerType;
+import pl.com.labaj.autorecord.processor.context.Method;
 import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 
 import java.util.List;
 import java.util.Set;
 
 import static java.lang.annotation.ElementType.METHOD;
+import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
 
@@ -47,6 +50,7 @@ class MemoizationGenerator extends RecordGenerator {
                 .forEach(recordBuilder::addMethod));
     }
 
+    @SuppressWarnings("unchecked")
     private MethodSpec toMemoizedMethodSpec(Memoization.Item item) {
         var name = item.name();
         var annotations = createAnnotationSpecs(item.annotations(),
@@ -57,10 +61,23 @@ class MemoizationGenerator extends RecordGenerator {
         var statement = methodStatement(item, name, memoizerType);
         context.memoizerCollector().accept(memoizerType);
 
-        return MethodSpec.methodBuilder(name)
+        var methodSpecBuilder = MethodSpec.methodBuilder(name)
                 .addModifiers(PUBLIC)
                 .addAnnotations(annotations)
-                .returns(TypeName.get(item.type()))
+                .returns(TypeName.get(item.type()));
+
+        item.parameters().stream()
+                .map(parameter -> {
+                    var type = TypeName.get(parameter.type());
+                    var parameterAnnotations = createAnnotationSpecs(parameter.annotations());
+
+                    return ParameterSpec.builder(type, parameter.name())
+                            .addAnnotations(parameterAnnotations)
+                            .build();
+                })
+                .forEach(methodSpecBuilder::addParameter);
+
+        return methodSpecBuilder
                 .addStatement(statement)
                 .build();
     }
@@ -73,6 +90,14 @@ class MemoizationGenerator extends RecordGenerator {
             return CodeBlock.of("return $L.$L(this::_$L)", memoizerName, computeMethod, name);
         }
 
-        return CodeBlock.of("return $L.$L($L.super::$L)", memoizerName, computeMethod, context.interfaceName(), name);
+        if (item.parameters().isEmpty()) {
+            return CodeBlock.of("return $L.$L($L.super::$L)", memoizerName, computeMethod, context.interfaceName(), name);
+        }
+
+        var parameterNames = item.parameters().stream()
+                .map(Method.Parameter::name)
+                .collect(joining(", ", "(", ")"));
+
+        return CodeBlock.of("return $L.$L(() -> $L.super.$L$L)", memoizerName, computeMethod, context.interfaceName(), name, parameterNames);
     }
 }
