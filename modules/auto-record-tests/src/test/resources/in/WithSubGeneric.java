@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.context;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,8 +16,21 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
+import pl.com.labaj.autorecord.AutoRecord;
+import pl.com.labaj.autorecord.Memoized;
+
+import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
-public record MethodDefinition(String methodName, List<String> parameterClasses) {
+@AutoRecord
+interface WithSubGeneric<X, Y extends Collection<X>> extends WithGeneric<ConcreteType, X> {
+    Y y();
+
+    @Memoized
+    default Y memY() {
+        return y();
+    }
+
+    @Memoized
+    String toString();
 }

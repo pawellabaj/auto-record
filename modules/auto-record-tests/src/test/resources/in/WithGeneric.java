@@ -1,4 +1,4 @@
-package pl.com.labaj.autorecord.processor.context;
+package pl.com.labaj.autorecord.testcase;
 
 /*-
  * Copyright © 2023 Auto Record
@@ -16,8 +16,22 @@ package pl.com.labaj.autorecord.processor.context;
  * limitations under the License.
  */
 
+import pl.com.labaj.autorecord.Memoized;
+
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
-public record MethodDefinition(String methodName, List<String> parameterClasses) {
+interface WithGeneric<A extends BaseType, B> {
+    A a();
+    List<A> listOfA();
+    B b();
+
+    @Memoized
+    default A memA() {
+        return a();
+    }
+
+    @Memoized
+    default String fromAB(A anA, B anB) {
+        return String.valueOf(anA) + String.valueOf(anB);
+    }
 }

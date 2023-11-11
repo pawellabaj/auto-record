@@ -18,12 +18,11 @@ package pl.com.labaj.autorecord.processor.context;
 
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.Memoized;
-import pl.com.labaj.autorecord.processor.utils.Methods;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ExecutableElement;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -32,17 +31,37 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toMap;
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.allInternalMethods;
 import static pl.com.labaj.autorecord.processor.context.InternalMethod.isInternal;
-import static pl.com.labaj.autorecord.processor.utils.Methods.isAnnotatedWith;
 
 class MemoizationFinder {
-    List<Memoization.Item> findMemoizationItems(List<ExecutableElement> allMethods, AutoRecord.Options recordOptions, Predicate<ExecutableElement> isSpecial) {
+
+    private static final String MEMOIZED_CLASS_NAME = Memoized.class.getName();
+
+    List<Memoization.Item> findMemoizationItems(List<Method> allMethods,
+                                                AutoRecord.Options recordOptions,
+                                                Predicate<Method> isSpecial,
+                                                MessagerLogger logger) {
         var itemsFromOptions = allInternalMethods()
                 .filter(internalMethod -> internalMethod.isMemoizedInOptions(recordOptions))
-                .map(internalMethod -> new Memoization.Item(internalMethod.type(), internalMethod.methodName(), List.of(), true));
+                .map(internalMethod -> new Memoization.Item(internalMethod.type(), internalMethod.methodName(), List.of(), List.of(), true));
 
-        var itemsFromAnnotation = allMethods.stream()
-                .filter(method -> isAnnotatedWith(method, Memoized.class))
-                .filter(Methods::isNotVoid)
+        var memoizedMethods = allMethods.stream()
+                .filter(this::isMemoized)
+                .toList();
+
+        memoizedMethods.stream()
+                .filter(method -> !method.isNotVoid())
+                .forEach(method -> logger.error("\"" + method.name() + "\" method is void. Can't memoize such method."));
+
+        memoizedMethods = memoizedMethods.stream()
+                .filter(Method::isNotVoid)
+                .toList();
+
+        memoizedMethods.stream()
+                .filter(method -> !method.hasNoParameters())
+                .forEach(method -> logger.mandatoryWarning("\"" + method.name() + "\" method accepts parameters. " +
+                        "It's not a good idea to memoize it, unless it returns result independent from parameters."));
+
+        var itemsFromAnnotation = memoizedMethods.stream()
                 .map(method -> toMemoizedItem(method, isSpecial));
 
         return Stream.concat(itemsFromOptions, itemsFromAnnotation)
@@ -57,14 +76,18 @@ class MemoizationFinder {
                 ));
     }
 
-    private Memoization.Item toMemoizedItem(ExecutableElement method, Predicate<ExecutableElement> isSpecial) {
-        var annotations = method.getAnnotationMirrors().stream()
-                .map(AnnotationMirror.class::cast)
-                .toList();
+    private boolean isMemoized(Method method) {
+        return method.annotations().stream()
+                .map(AnnotationMirror::getAnnotationType)
+                .map(Objects::toString)
+                .anyMatch(MEMOIZED_CLASS_NAME::equals);
+    }
 
-        return new Memoization.Item(method.getReturnType(),
-                method.getSimpleName().toString(),
-                annotations,
+    private Memoization.Item toMemoizedItem(Method method, Predicate<Method> isSpecial) {
+        return new Memoization.Item(method.returnType(),
+                method.name(),
+                method.annotations(),
+                method.parameters(),
                 isInternal(method) || isSpecial.test(method));
     }
 }
