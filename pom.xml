@@ -8,7 +8,7 @@
 
     <groupId>pl.com.labaj.autorecord</groupId>
     <artifactId>auto-record-project</artifactId>
-    <version>3.1.1-SNAPSHOT</version>
+    <version>3.1.1</version>
     <packaging>pom</packaging>
     <inceptionYear>2023</inceptionYear>
 
@@ -28,7 +28,7 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <project.build.outputTimestamp>2023-10-27T18:12:53Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-11-11T18:08:27Z</project.build.outputTimestamp>
 
         <license-maven-plugin.version>4.3</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -186,7 +186,7 @@
                     <consoleOutputReporter>
                         <disable>true</disable>
                     </consoleOutputReporter>
-                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter"/>
+                    <statelessTestsetInfoReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter" />
                 </configuration>
                 <executions>
                     <execution>
@@ -355,7 +355,7 @@
                                 <requireJavaVersion>
                                     <version>[17,)</version>
                                 </requireJavaVersion>
-                                <dependencyConvergence/>
+                                <dependencyConvergence />
                             </rules>
                         </configuration>
                     </plugin>
@@ -521,7 +521,7 @@
         <url>https://github.com/pawellabaj/auto-record</url>
         <connection>scm:git:https://github.com/pawellabaj/auto-record.git</connection>
         <developerConnection>scm:git:https://github.com/pawellabaj/auto-record.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.1.1</tag>
     </scm>
 
     <distributionManagement>
