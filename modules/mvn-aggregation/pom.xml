@@ -4,7 +4,7 @@
     <parent>
         <groupId>pl.com.labaj.autorecord</groupId>
         <artifactId>auto-record-project</artifactId>
-        <version>3.1.2-SNAPSHOT</version>
+        <version>3.1.2</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -23,50 +23,50 @@
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record-api</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record-utils</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>auto-record-tests</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>arice-api</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>arice-utils</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>arice-extension</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>pl.com.labaj.autorecord</groupId>
             <artifactId>arice-tests</artifactId>
-            <version>1.1.2-SNAPSHOT</version>
+            <version>1.1.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
