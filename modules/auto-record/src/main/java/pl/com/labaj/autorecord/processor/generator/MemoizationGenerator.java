@@ -36,6 +36,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.createParameterAnnotationSpecs;
 
 class MemoizationGenerator extends RecordGenerator {
 
@@ -69,7 +70,7 @@ class MemoizationGenerator extends RecordGenerator {
         item.parameters().stream()
                 .map(parameter -> {
                     var type = TypeName.get(parameter.type());
-                    var parameterAnnotations = createAnnotationSpecs(parameter.annotations());
+                    var parameterAnnotations = createParameterAnnotationSpecs(parameter.annotations());
 
                     return ParameterSpec.builder(type, parameter.name())
                             .addAnnotations(parameterAnnotations)

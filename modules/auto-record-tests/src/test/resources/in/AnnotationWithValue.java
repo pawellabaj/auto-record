@@ -26,8 +26,10 @@ import javax.annotation.Nullable;
 import static java.util.Objects.isNull;
 
 @AutoRecord
+@SuppressWarnings("onClass")
 interface AnnotationWithValue {
     @Nullable
+    @SuppressWarnings("onField")
     Integer id();
 
     @SourceProperty

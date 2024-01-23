@@ -22,6 +22,7 @@ import pl.com.labaj.autorecord.extension.AutoRecordExtension;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
@@ -41,6 +42,9 @@ public class ContextBuilder {
             "useImmutableCollections", false,
             "useUnmodifiableCollections", false
     );
+    private static final String PL_COM_LABAJ_AUTORECORD = "pl.com.labaj.autorecord";
+    private static final String PL_COM_LABAJ_AUTORECORD_EXTENSION = "pl.com.labaj.autorecord.extension";
+    private static final String IO_SOABASE_RECORDBUILDER_CORE = "io.soabase.recordbuilder.core";
 
     private final ProcessingEnvironment processingEnv;
     private final MemoizationFinder memoizationFinder = new MemoizationFinder();
@@ -69,6 +73,7 @@ public class ContextBuilder {
                 .toList();
 
         boolean isPublic = sourceInterface.getModifiers().contains(PUBLIC);
+        var interfaceAnnotations = getInterfaceAnnotations(sourceInterface);
         var typeParameters = getTypeParameters(sourceInterface);
 
         var specialMethodAnnotations = specialMethodsFinder.findSpecialMethods(allMethods);
@@ -80,6 +85,7 @@ public class ContextBuilder {
                 nonNullRecordOptions,
                 nonNullBuilderOptions,
                 isPublic,
+                interfaceAnnotations,
                 sourceInterface.asType(),
                 getInterfaceName(sourceInterface),
                 components,
@@ -98,6 +104,24 @@ public class ContextBuilder {
                 .findAny();
         return possibleImmutableCollectionsExtension.isPresent() ?
                 WITH_IMMUTABLE_COLLECTIONS_BUILDER_OPTIONS_ENFORCED_VALUES : DEFAULT_BUILDER_OPTIONS_ENFORCED_VALUES;
+    }
+
+    private List<AnnotationMirror> getInterfaceAnnotations(TypeElement sourceInterface) {
+        var elementUtils = processingEnv.getElementUtils();
+
+        return elementUtils.getAllAnnotationMirrors(sourceInterface).stream()
+                .filter(annotationMirror -> hasPackageDifferentThan(annotationMirror, PL_COM_LABAJ_AUTORECORD))
+                .filter(annotationMirror -> hasPackageDifferentThan(annotationMirror, PL_COM_LABAJ_AUTORECORD_EXTENSION))
+                .filter(annotationMirror -> hasPackageDifferentThan(annotationMirror, IO_SOABASE_RECORDBUILDER_CORE))
+                .map(AnnotationMirror.class::cast)
+                .toList();
+    }
+
+    private boolean hasPackageDifferentThan(AnnotationMirror annotationMirror, String packageName) {
+        var elementUtils = processingEnv.getElementUtils();
+        var annotationPackage = elementUtils.getPackageOf(annotationMirror.getAnnotationType().asElement());
+
+        return !annotationPackage.getQualifiedName().contentEquals(packageName);
     }
 
     private List<TypeParameterElement> getTypeParameters(TypeElement sourceInterface) {

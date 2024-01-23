@@ -31,14 +31,15 @@ import pl.com.labaj.autorecord.annotations.SourceProperty;
 import pl.com.labaj.autorecord.memoizer.Memoizer;
 
 @Generated("pl.com.labaj.autorecord.AutoRecord")
+@SuppressWarnings({"onClass"})
 @GeneratedWithAutoRecord
-record AnnotationWithValueRecord(@Nullable Integer id,
+    record AnnotationWithValueRecord(@Nullable @SuppressWarnings({"onField"}) Integer id,
                                  @SourceProperty @ClassProperty(priority = 9) @Nullable Memoizer<String> idToStringMemoizer) implements AnnotationWithValue {
     AnnotationWithValueRecord {
         idToStringMemoizer = requireNonNullElseGet(idToStringMemoizer, Memoizer::new);
     }
 
-    AnnotationWithValueRecord(@Nullable Integer id) {
+      AnnotationWithValueRecord(@Nullable @SuppressWarnings({"onField"}) Integer id) {
         this(id, new Memoizer<>());
     }
 
