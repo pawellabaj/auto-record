@@ -35,6 +35,7 @@ import pl.com.labaj.autorecord.processor.context.ProcessorContext;
 import javax.annotation.Nullable;
 import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
+import java.lang.annotation.ElementType;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -44,13 +45,13 @@ import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.util.stream.Collectors.joining;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.createAnnotationSpecs;
+import static pl.com.labaj.autorecord.processor.utils.Annotations.createParameterAnnotationSpecs;
 import static pl.com.labaj.autorecord.processor.utils.Extensions.typedExtensions;
 
 class BasicGenerator extends RecordGenerator {
     private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
             .addMember("value", "$S", AutoRecord.class.getName())
             .build();
-    private static final AnnotationSpec GENERATED_WITH_AUTO_RECORD_ANNOTATION = AnnotationSpec.builder(GeneratedWithAutoRecord.class).build();
 
     private final CompactConstructorSubGenerator compactConstructorSubGenerator;
 
@@ -63,7 +64,6 @@ class BasicGenerator extends RecordGenerator {
     public void generate(TypeSpec.Builder recordBuilder, StaticImports staticImports) {
         recordBuilder
                 .addAnnotation(GENERATED_ANNOTATION)
-                .addAnnotation(GENERATED_WITH_AUTO_RECORD_ANNOTATION)
                 .addModifiers(getMainModifiers(context))
                 .addSuperinterface(context.interfaceType());
 
@@ -71,11 +71,22 @@ class BasicGenerator extends RecordGenerator {
                 .map(this::toParameterSpec)
                 .toList();
 
+        generateAnnotations(recordBuilder);
         generateTypeVariables(recordBuilder);
         generateComponents(recordBuilder, recordComponentParameters);
         createAdditionalConstructor(recordBuilder, recordComponentParameters);
 
         compactConstructorSubGenerator.generate(recordBuilder, staticImports);
+    }
+
+    private void generateAnnotations(TypeSpec.Builder recordBuilder) {
+        var annotationSpecs = createAnnotationSpecs(context.interfaceAnnotations(),
+                Set.of(ElementType.TYPE),
+                List.of(GeneratedWithAutoRecord.class),
+                List.of());
+
+        annotationSpecs
+                .forEach(recordBuilder::addAnnotation);
     }
 
     private void generateComponents(TypeSpec.Builder recordBuilder, List<ParameterSpec> recordComponentParameters) {
@@ -116,7 +127,7 @@ class BasicGenerator extends RecordGenerator {
 
     private ParameterSpec toParameterSpec(RecordComponent recordComponent) {
         var type = TypeName.get(recordComponent.type());
-        var annotations = createAnnotationSpecs(recordComponent.annotations());
+        var annotations = createParameterAnnotationSpecs(recordComponent.annotations());
 
         return ParameterSpec.builder(type, recordComponent.name())
                 .addAnnotations(annotations)

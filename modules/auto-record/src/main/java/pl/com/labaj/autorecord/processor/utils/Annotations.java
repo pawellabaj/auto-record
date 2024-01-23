@@ -27,7 +27,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
@@ -61,14 +60,11 @@ public final class Annotations {
         return List.of(element.getAnnotationsByType(annotationClass));
     }
 
-    public static List<AnnotationSpec> createAnnotationSpecs(List<AnnotationMirror> annotations) {
+    public static List<AnnotationSpec> createParameterAnnotationSpecs(List<AnnotationMirror> annotations) {
         return annotations.stream()
-                .map(AnnotationMirror::getAnnotationType)
-                .map(DeclaredType::asElement)
-                .map(TypeElement.class::cast)
-                .map(ClassName::get)
-                .map(AnnotationSpec::builder)
-                .map(AnnotationSpec.Builder::build)
+                .map(annotationMirror -> AnnotationDetails.toAnnotationDetails(annotationMirror, Set.of(ElementType.PARAMETER)))
+                .filter(Objects::nonNull)
+                .map(AnnotationDetails::toAnnotationSpec)
                 .toList();
     }
 

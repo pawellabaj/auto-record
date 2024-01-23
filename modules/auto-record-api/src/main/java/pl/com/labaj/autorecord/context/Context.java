@@ -20,6 +20,7 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
@@ -69,6 +70,14 @@ public interface Context {
      * @return {@code true} if the generated record class should be public, {@code false} otherwise.
      */
     boolean isRecordPublic();
+
+    /**
+     * Gets annotations of the annotated interface.
+     *
+     * @return annotations of the annotated interface.
+     * @see AnnotationMirror
+     */
+    List<AnnotationMirror> interfaceAnnotations();
 
     /**
      * Gets the type of the annotated interface.
