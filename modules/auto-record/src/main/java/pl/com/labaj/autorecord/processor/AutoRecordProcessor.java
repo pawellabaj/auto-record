@@ -17,7 +17,6 @@ package pl.com.labaj.autorecord.processor;
  */
 
 import io.soabase.recordbuilder.core.RecordBuilder;
-import org.apache.commons.lang3.function.TriConsumer;
 import org.apiguardian.api.API;
 import pl.com.labaj.autorecord.AutoRecord;
 import pl.com.labaj.autorecord.context.Logger;
