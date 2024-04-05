@@ -48,7 +48,7 @@ import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotations;
 
 /**
- * Annotation processor for generating record based on an interface. Processes all annotations to fina {@code pl.com.labaj.autorecord.AutoRecord} annotations and templates
+ * Annotation processor for generating record based on an interface. Processes all annotations to find {@code pl.com.labaj.autorecord.AutoRecord} annotations and templates
  */
 @API(status = STABLE)
 @SupportedAnnotationTypes("*")
