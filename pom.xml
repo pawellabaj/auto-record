@@ -30,7 +30,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.outputTimestamp>2024-01-23T15:55:55Z</project.build.outputTimestamp>
 
-        <license-maven-plugin.version>4.3</license-maven-plugin.version>
+        <license-maven-plugin.version>4.5</license-maven-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
