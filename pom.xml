@@ -47,7 +47,7 @@
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
 
-        <fabric-javapoet.version>0.1.0</fabric-javapoet.version>
+        <fabric-javapoet.version>0.1.1</fabric-javapoet.version>
         <record-builder.version>41</record-builder.version>
         <jsr305.version>3.0.2</jsr305.version>
         <junit-jupiter.version>5.10.2</junit-jupiter.version>
