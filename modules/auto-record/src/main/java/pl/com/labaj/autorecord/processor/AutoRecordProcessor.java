@@ -48,10 +48,10 @@ import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotation;
 import static pl.com.labaj.autorecord.processor.utils.Annotations.getAnnotations;
 
 /**
- * Annotation processor for generating record based on an interface. Processes annotations from {@code pl.com.labaj.autorecord} package
+ * Annotation processor for generating record based on an interface. Processes all annotations to find {@code pl.com.labaj.autorecord.AutoRecord} annotations and templates
  */
 @API(status = STABLE)
-@SupportedAnnotationTypes("pl.com.labaj.autorecord.*")
+@SupportedAnnotationTypes("*")
 public class AutoRecordProcessor extends AbstractProcessor {
 
     private static final String AUTO_RECORD_CLASS_NAME = AutoRecord.class.getName();
@@ -95,36 +95,50 @@ public class AutoRecordProcessor extends AbstractProcessor {
     }
 
     private void processAnnotation(RoundEnvironment roundEnv, TypeElement annotation, Consumer<MemoizerType> memoizerCollector) {
+        var annotationQualifiedName = annotation.getQualifiedName();
+        final Consumer<TypeElement> annotatedElementProcessor;
+        if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
+            annotatedElementProcessor = sourceInterface -> processAutoRecordAnnotatedElement(annotation, sourceInterface, memoizerCollector);
+        } else {
+            var template = getAnnotation(annotation, AutoRecord.Template.class).orElse(null);
+            if (template == null) {
+                return;
+            } else {
+                annotatedElementProcessor = sourceInterface -> processAutoRecordTemplateAnnotatedElement(
+                        annotation,
+                        sourceInterface,
+                        memoizerCollector, template);
+            }
+        }
         roundEnv.getElementsAnnotatedWith(annotation)
                 .stream()
                 .filter(element -> element.getKind() == INTERFACE)
                 .map(TypeElement.class::cast)
-                .forEach(typeElement -> processAnnotatedElement(annotation, typeElement, memoizerCollector));
+                .forEach(annotatedElementProcessor);
     }
 
-    private void processAnnotatedElement(TypeElement annotation, TypeElement sourceInterface, Consumer<MemoizerType> memoizerCollector) {
-        var annotationQualifiedName = annotation.getQualifiedName();
+    private void processAutoRecordAnnotatedElement(TypeElement annotation, TypeElement sourceInterface, Consumer<MemoizerType> memoizerCollector) {
+        var recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
+        var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
+        var extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
 
-        if (annotationQualifiedName.contentEquals(AUTO_RECORD_CLASS_NAME)) {
-            var recordOptions = getAnnotation(sourceInterface, AutoRecord.Options.class).orElse(null);
-            var builderOptions = getAnnotation(sourceInterface, RecordBuilder.Options.class).orElse(null);
-            var extensionAnnotations = getAnnotations(sourceInterface, AutoRecord.Extension.class);
-
-            processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations, memoizerCollector);
-        } else {
-            getAnnotation(annotation, AutoRecord.Template.class)
-                    .ifPresent(template -> {
-                        var recordOptions = readAnnotationProperty(annotation, template, AutoRecord.Template::recordOptions, () -> null);
-                        var builderOptions = readAnnotationProperty(annotation, template, AutoRecord.Template::builderOptions, () -> null);
-                        var extensionAnnotations = readAnnotationProperty(annotation,
-                                template,
-                                tmp -> List.of(tmp.extensions()),
-                                List::<AutoRecord.Extension>of);
-
-                        processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations, memoizerCollector);
-                    });
-        }
+        processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations, memoizerCollector);
     }
+
+    private void processAutoRecordTemplateAnnotatedElement(
+            TypeElement annotation,
+            TypeElement sourceInterface,
+            Consumer<MemoizerType> memoizerCollector, AutoRecord.Template template) {
+        var recordOptions = readAnnotationProperty(annotation, template, AutoRecord.Template::recordOptions, () -> null);
+        var builderOptions = readAnnotationProperty(annotation, template, AutoRecord.Template::builderOptions, () -> null);
+        var extensionAnnotations = readAnnotationProperty(annotation,
+                template,
+                tmp -> List.of(tmp.extensions()),
+                List::<AutoRecord.Extension>of);
+
+        processElement(sourceInterface, recordOptions, builderOptions, extensionAnnotations, memoizerCollector);
+    }
+
 
     @Nullable
     private <T extends Annotation, V> V readAnnotationProperty(Element element, T annotation, Function<T, V> propertyGetter, Supplier<V> defaultValueSupplier) {
